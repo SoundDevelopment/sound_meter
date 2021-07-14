@@ -54,7 +54,7 @@ public:
    NewMeterComponent() : m_fader (this) { setPaintingIsUnclipped (true); }
 
    NewMeterComponent (const juce::String& name, const std::vector<float>& ticks, MeterPadding padding, float meterDecy, bool headerVisible, bool valueVisible,
-                      bool isLabelStrip = false, Fader::Listener* faderListener = nullptr, int channelIdx = 0, ChannelType channelType = ChannelType::unknown);
+                      bool isLabelStrip = false, Fader::Listener* faderListener = nullptr, ChannelType channelType = ChannelType::unknown);
 
    ~NewMeterComponent() override = default;
 
@@ -182,7 +182,7 @@ public:
       m_header.setVisible (showChannelName);
       addDirty (m_header.getBounds());
    }
-   [[nodiscard]] bool nameFits (const juce::String& name, int widthAvailable) const { return m_header.nameFits (name, widthAvailable); }
+   [[nodiscard]] bool nameFits (const juce::String& name, int widthAvailable) const { return m_header.infoFits (name, widthAvailable); }
 
    /**
     * Get the width (in pixels) of the channel info in the 'header' part.

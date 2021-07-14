@@ -43,9 +43,8 @@ namespace sd::SoundMeter
 enum class HeaderInfo
 {
    channelName,      ///< The name of the channel (this can be anything the use assigns).
-   fullChannelType,  ///< The full type of the channel ( left, right, centre, etc...).
+   fullChannelType,  ///< The full type of the channel ( left, right, center, etc...).
    abbrChannelType,  ///< The abbreviated type of the channel ( L, R, C, etc...).
-   channelIndex,     ///< The index of the channel in the full channel format ( L = 0, R = 1, etc...).
    none,             ///< There is no channel type, name or index set.
    referred,         ///< This meter follows the info option off another meter.
    notSet            ///< No header info option has been selected.
@@ -60,10 +59,10 @@ enum class HeaderInfo
 class Header
 {
 public:
-   // clang-format off
+   // clag-format off
 
    Header() = default;
-   Header (const juce::String& name, const juce::AudioChannelSet::ChannelType& type, int index) : m_name (name), m_type (type), m_channelIndex (index) { }
+   Header (const juce::String& name, const juce::AudioChannelSet::ChannelType& type) : m_name (name), m_type (type) { }
 
    void draw (juce::Graphics& g, bool meterActive, bool faderEnabled, const juce::Colour& mutedColour, const juce::Colour& mutedMouseOverColour,
               const juce::Colour& textColour, const juce::Colour& inactiveColour);
@@ -71,29 +70,34 @@ public:
    /**
     * @brief Set the channel type.
     * 
-    * For instance: left, right, centre, etc..
+    * For instance: left, right, center, etc..
     * 
     * @param type The channel type assigned to the meter.
     * 
     * @see getType
    */
-   void setType (const juce::AudioChannelSet::ChannelType& type); 
+   void setType (const juce::AudioChannelSet::ChannelType& type);
 
    [[nodiscard]] const juce::AudioChannelSet::ChannelType& getType() const noexcept;
 
    void                       setName (const juce::String name);
    [[nodiscard]] juce::String getName() const noexcept;
-   void                       calculateInfoWidth();
-   bool                       nameFits (const juce::String& name, int widthAvailable) const;
+
+
+   /**
+    * @brief Calculate the width (in pixels) the info would take up.
+   */
+   void calculateInfoWidth();
+
+   bool infoFits (const juce::String& name, int widthAvailable) const;
 
    /**
     * Get the width (in pixels) of the channel info in the 'header' part.
     *
     * @return The width (in pixels) taken by the channel info in the 'header' part.
     */
-   [[nodiscard]] float getInfoWidth() const noexcept;
+   float getInfoWidth() const noexcept;
 
-   
    [[nodiscard]] juce::String getInfo (HeaderInfo headerInfoType = HeaderInfo::notSet) const noexcept;
 
    void                               setBounds (const juce::Rectangle<int>& bounds) noexcept;
@@ -110,8 +114,6 @@ public:
     */
    void setFont (const juce::Font& font) noexcept;
 
-   void setIndex (int channelIndex) noexcept { m_channelIndex = channelIndex; }
-
    [[nodiscard]] bool isVisible() const noexcept { return m_visible; }
    void               setVisible (bool visible) noexcept { m_visible = visible; }
 
@@ -124,17 +126,21 @@ public:
    void               resetMouseOver() noexcept { m_mouseOver = false; }
 
 private:
-   HeaderInfo                         m_headerInfo           = HeaderInfo::notSet;
-   juce::AudioChannelSet::ChannelType m_type                 = juce::AudioChannelSet::ChannelType::unknown;
-   juce::String                       m_typeDescription      = "";
-   juce::String                       m_typeAbbrDecscription = "";
-   juce::String                       m_name                 = "";
-   float                              m_infoWidth            = 0.0f;
-   juce::Rectangle<int>               m_bounds {};
-   juce::Font                         m_font;
-   int                                m_channelIndex = 0;
-   bool                               m_visible      = true;
-   bool                               m_mouseOver    = false;
+   HeaderInfo                         m_headerInfo = HeaderInfo::notSet;
+   juce::AudioChannelSet::ChannelType m_type       = juce::AudioChannelSet::ChannelType::unknown;
+
+   // Info
+   juce::String m_name                 = "";
+   juce::String m_typeDescription      = "";
+   juce::String m_typeAbbrDecscription = "";
+
+
+   float                m_nameWidth = 0.0f;
+   float                m_typeWidth = 0.0f;
+   juce::Rectangle<int> m_bounds {};
+   juce::Font           m_font;
+   bool                 m_visible   = true;
+   bool                 m_mouseOver = false;
 
    // clang-format on
    JUCE_LEAK_DETECTOR (Header);

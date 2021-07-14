@@ -35,43 +35,45 @@ namespace sd::SoundMeter
 {
 
 
-void Header::draw( juce::Graphics& g, bool meterActive, bool faderEnabled, const juce::Colour& mutedColour, const juce::Colour& mutedMouseOver,
-                   const juce::Colour& textColour, const juce::Colour& inactiveColour )
+void Header::draw (juce::Graphics& g, bool meterActive, bool faderEnabled, const juce::Colour& mutedColour, const juce::Colour& mutedMouseOver,
+                   const juce::Colour& textColour, const juce::Colour& inactiveColour)
 {
-   if( !m_visible ) return;
-   if( m_bounds.isEmpty() ) return;
+   if (! m_visible) return;
+   if (m_bounds.isEmpty()) return;
 
    // Draw channel names...
    juce::String headerText = getInfo();
 
-   if( m_mouseOver && faderEnabled )  // Draw 'button' for enabling/disabling channel.
+   if (m_mouseOver && faderEnabled)  // Draw 'button' for enabling/disabling channel.
    {
-      g.setColour( meterActive ? mutedColour : mutedMouseOver );
-      g.fillRect( m_bounds );
-      g.setColour( mutedColour.contrasting( 0.8f ) );  // NOLINT
+      g.setColour (meterActive ? mutedColour : mutedMouseOver);
+      g.fillRect (m_bounds);
+      g.setColour (mutedColour.contrasting (0.8f));  // NOLINT
    }
    else
    {
-      if( meterActive )
+      if (meterActive)
       {
-         g.setColour( textColour );
+         g.setColour (textColour);
       }
       else
       {
-         g.setColour( inactiveColour );
-         g.fillRect( m_bounds );
-         g.setColour( inactiveColour.contrasting( 0.8f ) );  // NOLINT
+         g.setColour (inactiveColour);
+         g.fillRect (m_bounds);
+         g.setColour (inactiveColour.contrasting (0.8f));  // NOLINT
       }
    }
-   g.drawFittedText( headerText, m_bounds, juce::Justification::centred, 1 );
+   g.drawFittedText (headerText, m_bounds, juce::Justification::centred, 1);
 }
 
 //==============================================================================
-void Header::setType( const juce::AudioChannelSet::ChannelType& type )
+void Header::setType (const juce::AudioChannelSet::ChannelType& type)
 {
    m_type                 = type;
-   m_typeDescription      = juce::AudioChannelSet::getChannelTypeName( type );
-   m_typeAbbrDecscription = juce::AudioChannelSet::getAbbreviatedChannelTypeName( type );
+   m_typeDescription      = juce::AudioChannelSet::getChannelTypeName (type);
+   m_typeAbbrDecscription = juce::AudioChannelSet::getAbbreviatedChannelTypeName (type);
+
+   calculateInfoWidth();
 }
 
 
@@ -80,23 +82,28 @@ void Header::setType( const juce::AudioChannelSet::ChannelType& type )
    return m_type;
 }
 
-
-void Header::setName( const juce::String name )
+//==============================================================================
+void Header::setName (const juce::String name)
 {
+   if (name.isEmpty()) return;
+
    m_name = name;
+
    calculateInfoWidth();
 }
 
-
+//==============================================================================
 void Header::calculateInfoWidth()
 {
-   m_infoWidth = m_font.getStringWidthFloat( m_name );
+   m_nameWidth = m_font.getStringWidthFloat (m_name);
+   m_typeWidth = m_font.getStringWidthFloat (m_typeDescription);
 }
 
 //==============================================================================
 [[nodiscard]] float Header::getInfoWidth() const noexcept
 {
-   return m_infoWidth;
+   if (m_name.isNotEmpty()) return m_nameWidth;
+   return m_typeWidth;
 }
 
 //==============================================================================
@@ -108,24 +115,25 @@ void Header::calculateInfoWidth()
 
 [[nodiscard]] juce::String Header::getInfo (HeaderInfo headerInfoType /*= HeaderInfo::notSet*/) const noexcept
 {
-   juce::String result = m_typeAbbrDecscription;  // Worst case scenario. 
-
    switch (headerInfoType)
    {
       case sd::SoundMeter::HeaderInfo::channelName: return m_name;
       case sd::SoundMeter::HeaderInfo::fullChannelType: return m_typeDescription;
       case sd::SoundMeter::HeaderInfo::abbrChannelType: return m_typeAbbrDecscription;
-      case sd::SoundMeter::HeaderInfo::channelIndex: return juce::String( m_channelIndex );
       default: break;
    }
 
-   if( m_infoWidth <= m_bounds.getWidth() && m_name.isNotEmpty() ) result = m_name;
-   if( result.isEmpty() ) result = "-";
-   return result;
+   // First check if the channel name fits and is not empty (preferred)...
+   if (m_name.isNotEmpty() && m_nameWidth < m_bounds.getWidth())
+      return m_name;
+   else if (m_typeDescription.isNotEmpty() && m_typeWidth < m_bounds.getWidth())  // Check if there is room for the full channel description...
+      return m_typeDescription;
+
+   return m_typeAbbrDecscription;  // ... otherwise use the abbreviated one.
 }
 
 
-void Header::setBounds( const juce::Rectangle<int>& bounds ) noexcept
+void Header::setBounds (const juce::Rectangle<int>& bounds) noexcept
 {
    m_bounds = bounds;
 }
@@ -143,16 +151,16 @@ void Header::setBounds( const juce::Rectangle<int>& bounds ) noexcept
 }
 
 
-void Header::setFont( const juce::Font& font ) noexcept
+void Header::setFont (const juce::Font& font) noexcept
 {
    m_font = font;
    calculateInfoWidth();
 }
 
-
-bool Header::nameFits( const juce::String& name, const int widthAvailable ) const
+//==============================================================================
+bool Header::infoFits (const juce::String& info, const int widthAvailable) const
 {
-   return m_font.getStringWidthFloat( name ) <= static_cast<float>( widthAvailable );
+   return m_font.getStringWidthFloat (info) <= static_cast<float> (widthAvailable);
 }
 
 }  // namespace sd::SoundMeter

@@ -39,8 +39,7 @@ namespace sd::SoundMeter
 
 
 NewMeterComponent::NewMeterComponent (const juce::String& name, const std::vector<float>& ticks, MeterPadding padding, float meterDecy, bool headerVisible,
-                                      bool valueVisible, bool isLabelStrip /*= false*/, SoundMeter::Fader::Listener* faderListener /*= nullptr*/,
-                                      int channelIdx /*= 0*/, ChannelType channelType /*= ChannelType::unknown*/)
+                                      bool valueVisible, bool isLabelStrip /*= false*/, SoundMeter::Fader::Listener* faderListener /*= nullptr*/, ChannelType channelType /*= ChannelType::unknown*/)
   : NewMeterComponent()
 {
    setName (name);
@@ -52,8 +51,6 @@ NewMeterComponent::NewMeterComponent (const juce::String& name, const std::vecto
    setHeaderVisible (headerVisible);
    setIsLabelStrip (isLabelStrip);
    m_level.setPeakValueVisible (valueVisible);
-
-   m_header.setIndex (channelIdx);
 
    if (faderListener) addFaderListener (*faderListener);
 }

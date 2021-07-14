@@ -64,7 +64,7 @@ public:
     * @param channelFormat The channel format to use to initialise the panel.
     * @see MixerPanel, ~MixerPanel
    */
-   explicit MetersPanel( const juce::AudioChannelSet& channelFormat );
+   explicit MetersPanel (const juce::AudioChannelSet& channelFormat);
 
    /** @brief Destructor.*/
    ~MetersPanel() override;
@@ -74,7 +74,7 @@ public:
     * 
     * @param forceRefresh When set to true, always redraw the meters panel (not only if it's dirty/changed).
     */
-   void refresh( bool forceRefresh );
+   void refresh (bool forceRefresh);
 
    /**
     * @brief Reset the meters.
@@ -103,12 +103,21 @@ public:
     * @param channel The channel to set the input level of.
     * @param value   The input level to set to the specified channel.
    */
-   void setInputLevel( int channel, float value );
+   void setInputLevel (int channel, float value);
 
    /**
     * @brief Notify the listeners the faders have been moved.
    */
    void notifyListeners();
+
+
+   /**
+    * @brief Set the number of channels (meters) in the panel.
+    * 
+    * @param numChannels  The number of channels (meters).
+    * @param channelNames The (optional) channel names to use in the header of the meters.
+    */
+   void setNumChannels (int numChannels, const std::vector<juce::String>& channelNames = {});
 
    /**
     * @brief Set the channel format (number of channels) to use for the mixer/meters.
@@ -116,14 +125,14 @@ public:
     * @param channels     The channel format to use.
     * @param channelNames The (optional) channel names to use in the header of the meters.
     */
-   void setChannelFormat( const juce::AudioChannelSet& channels, const std::vector<juce::String>& channelNames = {} );
+   void setChannelFormat (const juce::AudioChannelSet& channels, const std::vector<juce::String>& channelNames = {});
 
    /**
     * @brief Set the channel names to display above the meters.
     * 
     * @param channelNames The list of names to use for the meters.
    */
-   void setChannelNames( const std::vector<juce::String>& channelNames );
+   void setChannelNames (const std::vector<juce::String>& channelNames);
 
    /**
     * @brief Set the levels dividing the different regions of the meter.
@@ -134,7 +143,7 @@ public:
     * @param warningRegion_db The level (in dB) dividing the normal and warning regions of the meter.
     * @param peakRegion_db    The level (in dB) dividing the warning and peak regions of the meter.
     */
-   void setRegions( float warningRegion_db, float peakRegion_db );
+   void setRegions (float warningRegion_db, float peakRegion_db);
 
    /**
     * @brief Set the refresh (redraw) rate of the meters.
@@ -145,7 +154,7 @@ public:
     * 
     * @see setMeterDecay
    */
-   void setPanelRefreshRate( int refreshRate ) noexcept { m_guiRefreshRate = refreshRate; }
+   void setPanelRefreshRate (int refreshRate) noexcept { m_guiRefreshRate = refreshRate; }
 
    /**
     * @brief Set meter decay rate.
@@ -157,27 +166,27 @@ public:
     * 
     * @see setPanelRefreshRate
    */
-   void setMeterDecay( float decay_ms );
+   void setMeterDecay (float decay_ms);
 
    /**
     * @brief Set the font to be used in the panel and it's meters.
     * @param newFont The font to use.
    */
-   void setFont( const juce::Font& newFont ) noexcept;
+   void setFont (const juce::Font& newFont) noexcept;
 
    /**
     * @brief Enable or disable the panel.
     * 
     * @param enabled When set to true, the meters panel will be displayed.
     */
-   void setEnabled( bool enabled = true );
+   void setEnabled (bool enabled = true);
 
    /**
     * @brief Enable the faders on the meters.
     *
     * @param fadersEnabled When set to true, the faders are enabled.
     */
-   void setFadersEnabled( bool fadersEnabled ) noexcept;
+   void setFadersEnabled (bool fadersEnabled) noexcept;
 
    /**
     * @brief Get values from all faders.
@@ -185,7 +194,7 @@ public:
     * @param notificationOption Set whether to notify the listeners of the gathered fader values.
     * @see notifyListeners()
     */
-   void getFaderValues( sd::SoundMeter::NotificationOptions notificationOption = sd::SoundMeter::NotificationOptions::notify );
+   void getFaderValues (sd::SoundMeter::NotificationOptions notificationOption = sd::SoundMeter::NotificationOptions::notify);
 
    /**
     * @brief Get the master fader.
@@ -198,7 +207,7 @@ public:
     * @brief Show (or hide) all the faders.
     * @param showMixer When set to true, will show the faders. Otherwise it will hide them.
    */
-   void showFaders( bool showMixer );
+   void showFaders (bool showMixer);
 
    /**
     * @brief Toggle mute channels.
@@ -238,8 +247,8 @@ public:
 	*/
    struct FadersChangeListener
    {
-      virtual ~FadersChangeListener()                             = default;
-      virtual void fadersChanged( std::vector<float> faderGains ) = 0;
+      virtual ~FadersChangeListener()                            = default;
+      virtual void fadersChanged (std::vector<float> faderGains) = 0;
    };
 
    /**
@@ -249,7 +258,7 @@ public:
     * 
     * @see removeFadersListener
    */
-   void addFadersListener( FadersChangeListener& listener ) { m_fadersListeners.add( &listener ); }
+   void addFadersListener (FadersChangeListener& listener) { m_fadersListeners.add (&listener); }
 
    /**
     * @brief Remove listener to any fader movement in the panel.
@@ -258,17 +267,17 @@ public:
     * 
     * @see addFadersListener
    */
-   void removeFadersListener( FadersChangeListener& listener ) { m_fadersListeners.remove( &listener ); }
+   void removeFadersListener (FadersChangeListener& listener) { m_fadersListeners.remove (&listener); }
 
    //==============================================================================
    // Internal juce methods...
 
    void visibilityChanged() override { setColours(); }
    void lookAndFeelChanged() override { setColours(); }
-   void paint( juce::Graphics& g ) override;
+   void paint (juce::Graphics& g) override;
    void resized() override;
-   void mouseEnter( const juce::MouseEvent& event ) override;
-   void mouseExit( const juce::MouseEvent& event ) override;
+   void mouseEnter (const juce::MouseEvent& event) override;
+   void mouseExit (const juce::MouseEvent& event) override;
 
 private:
    // clang-format off
@@ -312,9 +321,9 @@ private:
 
 
    // clang-format on
-   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR( MetersPanel )
+   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MetersPanel)
 };
 
-}
+}  // namespace sd::SoundMeter
 
 #endif /* SD_SOUND_METERS_PANEL_H */
