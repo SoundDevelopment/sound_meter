@@ -1,0 +1,116 @@
+/*
+    ==============================================================================
+    
+    This file is part of the sound_meter JUCE module
+    Copyright (c) 2019 - 2021 Sound Development - Marcel Huibers
+    All rights reserved.
+
+    ------------------------------------------------------------------------------
+
+    sound_meter is provided under the terms of The MIT License (MIT):
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sub-license, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+    ==============================================================================
+*/
+
+
+#ifndef SD_SOUND_METER_HELPERS_H
+#define SD_SOUND_METER_HELPERS_H
+
+
+namespace sd::SoundMeter
+{
+
+
+/**
+ * @brief Various meter helper constants.
+*/
+namespace Constants
+{
+static constexpr auto kMinWidth               = 2;
+static constexpr auto kMaxWidth               = 500;
+static constexpr auto kLabelWidth             = 30;
+static constexpr auto kMaxLevel_db            = 0.0f;     ///< Max meter level in db.
+static constexpr auto kMinDecay_ms            = 100.0f;   ///< Min. meter decay speed in milliseconds.
+static constexpr auto kMaxDecay_ms            = 2000.0f;  ///< Max. meter decay speed in milliseconds.
+static constexpr auto kDefaultDecay_ms        = 1000.0f;  ///< Default meter decay speed in milliseconds.
+static constexpr auto kPeakHoldHeight         = 2;        ///< Height of the peak hold strip in pixels.
+static constexpr auto kTickMarkHeight         = 2;        ///< Height of a tick mark in pixels.
+static constexpr auto kFaderFadeTime_ms       = 2500;     ///< Slider fade out time in milliseconds. Must be positive and > 0.
+static constexpr auto kFaderSensitivity       = 10.0f;    ///< Must be a positive value > 0.
+static constexpr auto kFaderAlphaMax          = 0.3f;
+static constexpr auto kChannelNameHeight      = 30;  ///< Height of the channel names in pixels.
+static constexpr auto kChannelNameFontHeight  = 12.0f;
+static constexpr auto kWarningLevel_db        = -9.0f;
+static constexpr auto kPeakLevel_db           = -3.0f;
+static constexpr auto kMinModeHeightThreshold = 150;  ///< Meter minimum mode height threshold in pixels (min. mod is just the meter. not value, ticks or fader).
+static constexpr auto kMinModeWidthThreshold  = 15;   ///< Meter minimum mode width threshold in pixels (min. mod is just the meter. not value, ticks or fader).
+static constexpr auto kMetersPanelId          = "meters_panel";  ///< ID (name) of all components in the meters panel.
+}  // namespace Constants
+
+/**
+ * @brief Amount of padding to use on the meters.
+ * Padding is the space between the meter and the component's edge.
+*/
+struct MeterPadding
+{
+   /**
+    * @brief Constructor.
+    * @param newLeft   New left padding amount (in pixels).
+    * @param newRight  New right padding amount (in pixels).
+    * @param newTop    New top padding amount (in pixels).
+    * @param newBottom New bottom padding amount (in pixels).
+   */
+   MeterPadding( int newLeft, int newRight, int newTop, int newBottom ) : left( newLeft ), right( newRight ), top( newTop ), bottom( newBottom ) {};
+   int left   = 0;  ///< Space between meter and left border (in pixels).
+   int right  = 0;  ///< Space between meter and right border (in pixels).
+   int top    = 0;  ///< Space between meter and top border (in pixels).
+   int bottom = 0;  ///< Space between meter and bottom border (in pixels).
+};
+
+/**
+ * @brief Type indicating whether to notify the listeners or not.
+*/
+enum class NotificationOptions
+{
+   notify,
+   dontNotify
+};
+
+/**
+ * @brief Various meter helper functions.
+*/
+namespace Helpers
+{
+/**
+    * Apply padding to a rectangle.
+    *
+    * @param rectToPad Rectangle to apply the padding to.
+    * @param paddingToApply The padding to apply (left, right, top, bottom).
+    * @return The padded rectangle.
+    */
+[[nodiscard]] juce::Rectangle<int> applyPadding( const juce::Rectangle<int>& rectToPad, MeterPadding paddingToApply );
+
+}  // namespace Helpers
+
+}  // namespace sd::SoundMeter
+
+
+#endif /* SD_SOUND_METER_HELPERS_H */
