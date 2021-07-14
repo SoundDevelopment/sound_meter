@@ -34,13 +34,12 @@ namespace sd::SoundMeter::Helpers
 {
 
 //==============================================================================
-[[nodiscard]] juce::Rectangle<int> applyPadding( const juce::Rectangle<int>& rectToPad, MeterPadding paddingToApply )
+[[nodiscard]] juce::Rectangle<int> applyPadding (const juce::Rectangle<int>& rectToPad, MeterPadding paddingToApply)
 {
    juce::Rectangle<int> result { rectToPad };
-   if( juce::isPositiveAndBelow( paddingToApply.left, result.getWidth() ) ) result.setLeft( rectToPad.getX() + paddingToApply.left );
-   if( juce::isPositiveAndBelow( paddingToApply.right, result.getWidth() ) ) result.setWidth( rectToPad.getWidth() - paddingToApply.right );
-   if( juce::isPositiveAndBelow( paddingToApply.top, result.getHeight() ) ) result.setTop( rectToPad.getY() + paddingToApply.top );
-   if( juce::isPositiveAndBelow( paddingToApply.bottom, result.getHeight() ) ) result.setHeight( rectToPad.getHeight() - paddingToApply.bottom );
+   if (juce::isPositiveAndBelow (paddingToApply.left, result.getWidth())) result.setLeft (rectToPad.getX() + paddingToApply.left);
+   if (juce::isPositiveAndBelow (paddingToApply.right, result.getWidth())) result.setWidth (rectToPad.getWidth() - paddingToApply.right);
+   if (juce::isPositiveAndBelow (paddingToApply.bottom, result.getHeight())) result.setHeight (rectToPad.getHeight() - paddingToApply.bottom);
 
    return result;
 }

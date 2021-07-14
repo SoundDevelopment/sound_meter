@@ -78,7 +78,7 @@ struct MeterPadding
     * @param newTop    New top padding amount (in pixels).
     * @param newBottom New bottom padding amount (in pixels).
    */
-   MeterPadding( int newLeft, int newRight, int newTop, int newBottom ) : left( newLeft ), right( newRight ), top( newTop ), bottom( newBottom ) {};
+   MeterPadding (int newLeft, int newRight, int newTop, int newBottom) : left (newLeft), right (newRight), top (newTop), bottom (newBottom) {};
    int left   = 0;  ///< Space between meter and left border (in pixels).
    int right  = 0;  ///< Space between meter and right border (in pixels).
    int top    = 0;  ///< Space between meter and top border (in pixels).
@@ -100,13 +100,13 @@ enum class NotificationOptions
 namespace Helpers
 {
 /**
-    * Apply padding to a rectangle.
-    *
-    * @param rectToPad Rectangle to apply the padding to.
-    * @param paddingToApply The padding to apply (left, right, top, bottom).
-    * @return The padded rectangle.
-    */
-[[nodiscard]] juce::Rectangle<int> applyPadding( const juce::Rectangle<int>& rectToPad, MeterPadding paddingToApply );
+ * Apply padding to a rectangle.
+ *
+ * @param rectToPad Rectangle to apply the padding to.
+ * @param paddingToApply The padding to apply (left, right, top, bottom).
+ * @return The padded rectangle.
+*/
+[[nodiscard]] juce::Rectangle<int> applyPadding (const juce::Rectangle<int>& rectToPad, MeterPadding paddingToApply);
 
 }  // namespace Helpers
 

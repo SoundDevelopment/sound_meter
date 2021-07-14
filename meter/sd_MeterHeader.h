@@ -38,6 +38,20 @@ namespace sd::SoundMeter
 {
 
 /**
+ * @brief The type of header info to display.
+*/
+enum class HeaderInfo
+{
+   channelName,      ///< The name of the channel (this can be anything the use assigns).
+   fullChannelType,  ///< The full type of the channel ( left, right, centre, etc...).
+   abbrChannelType,  ///< The abbreviated type of the channel ( L, R, C, etc...).
+   channelIndex,     ///< The index of the channel in the full channel format ( L = 0, R = 1, etc...).
+   none,             ///< There is no channel type, name or index set.
+   referred,         ///< This meter follows the info option off another meter.
+   notSet            ///< No header info option has been selected.
+};
+
+/**
  * @brief Class responsible for the meter's 'header' part.
  * The 'header' part, is the part above the meter displaying
  * the name. Also a button which can de-activate (mute) or 
@@ -49,31 +63,44 @@ public:
    // clang-format off
 
    Header() = default;
-   Header( const juce::String& name, const juce::AudioChannelSet::ChannelType& type, int index ) : m_name( name ), m_type( type ), m_channelIndex( index ) { }
+   Header (const juce::String& name, const juce::AudioChannelSet::ChannelType& type, int index) : m_name (name), m_type (type), m_channelIndex (index) { }
+
+   void draw (juce::Graphics& g, bool meterActive, bool faderEnabled, const juce::Colour& mutedColour, const juce::Colour& mutedMouseOverColour,
+              const juce::Colour& textColour, const juce::Colour& inactiveColour);
+
+   /**
+    * @brief Set the channel type.
+    * 
+    * For instance: left, right, centre, etc..
+    * 
+    * @param type The channel type assigned to the meter.
+    * 
+    * @see getType
+   */
+   void setType (const juce::AudioChannelSet::ChannelType& type); 
+
+   [[nodiscard]] const juce::AudioChannelSet::ChannelType& getType() const noexcept;
+
+   void                       setName (const juce::String name);
+   [[nodiscard]] juce::String getName() const noexcept;
+   void                       calculateInfoWidth();
+   bool                       nameFits (const juce::String& name, int widthAvailable) const;
+
+   /**
+    * Get the width (in pixels) of the channel info in the 'header' part.
+    *
+    * @return The width (in pixels) taken by the channel info in the 'header' part.
+    */
+   [[nodiscard]] float getInfoWidth() const noexcept;
+
    
-   void                                                     draw                    ( juce::Graphics&       g, 
-                                                                                      bool                  meterActive,  
-                                                                                      bool                  faderEnabled,
-                                                                                      const juce::Colour&   mutedColour, 
-                                                                                      const juce::Colour&   mutedMouseOverColour, 
-                                                                                      const juce::Colour&   textColour, 
-                                                                                      const juce::Colour&   inactiveColour );
+   [[nodiscard]] juce::String getInfo (HeaderInfo headerInfoType = HeaderInfo::notSet) const noexcept;
 
-   void                                                     setType                 ( const juce::AudioChannelSet::ChannelType& type ); // Chanel type ( left, right, etc.. ).
-   [[nodiscard]] const juce::AudioChannelSet::ChannelType&  getType                 () const noexcept;
+   void                               setBounds (const juce::Rectangle<int>& bounds) noexcept;
+   [[nodiscard]] juce::Rectangle<int> getBounds() const noexcept;
 
-   void                                                     setName                 ( const juce::String name );
-   [[nodiscard]] juce::String                               getName                 () const noexcept;
-   void                                                     calculateNameWidth      ();
-   bool                                                     nameFits                ( const juce::String& name, int widthAvailable ) const;
-   [[nodiscard]] float                                      getNameWidth            () const noexcept;
-   [[nodiscard]] juce::String                               getHeader               () const noexcept;
+   [[nodiscard]] const juce::Font& getFont() const noexcept;
 
-   void                                                     setBounds               ( const juce::Rectangle<int>& bounds ) noexcept;
-   [[nodiscard]] juce::Rectangle<int>                       getBounds               () const noexcept;
-
-   [[nodiscard]] const juce::Font&                          getFont                 () const noexcept;
-      
    /**
     * Set meter font. 
     *
@@ -81,31 +108,36 @@ public:
     *
     * @param font the font to use.
     */
-   void                                                     setFont                 ( const juce::Font& font ) noexcept;
+   void setFont (const juce::Font& font) noexcept;
 
-   void                                                     setIndex                ( int channelIndex ) noexcept { m_channelIndex = channelIndex; }
+   void setIndex (int channelIndex) noexcept { m_channelIndex = channelIndex; }
 
-   [[nodiscard]] bool                                       isVisible               () const noexcept { return m_visible; }
-   void                                                     setVisible              ( bool visible ) noexcept { m_visible = visible; }
-   
-   [[nodiscard]] bool                                       isMouseOver             ( const int y ) noexcept { m_mouseOver = ( y < m_bounds.getHeight() ); return m_mouseOver; }
-   [[nodiscard]] bool                                       isMouseOver             () const noexcept { return m_mouseOver; }
-   void                                                     resetMouseOver          () noexcept { m_mouseOver = false; }
+   [[nodiscard]] bool isVisible() const noexcept { return m_visible; }
+   void               setVisible (bool visible) noexcept { m_visible = visible; }
+
+   [[nodiscard]] bool isMouseOver (const int y) noexcept
+   {
+      m_mouseOver = (y < m_bounds.getHeight());
+      return m_mouseOver;
+   }
+   [[nodiscard]] bool isMouseOver() const noexcept { return m_mouseOver; }
+   void               resetMouseOver() noexcept { m_mouseOver = false; }
 
 private:
-   juce::AudioChannelSet::ChannelType                       m_type                  = juce::AudioChannelSet::ChannelType::unknown;
-   juce::String                                             m_typeDescription       = "";
-   juce::String                                             m_typeAbbrDecscription  = "";
-   juce::String                                             m_name                  = "";
-   float                                                    m_nameWidth             = 0.0f;
-   juce::Rectangle<int>                                     m_bounds                {};
-   juce::Font                                               m_font;
-   int                                                      m_channelIndex          = 0;
-   bool                                                     m_visible               = true;
-   bool                                                     m_mouseOver             = false;
+   HeaderInfo                         m_headerInfo           = HeaderInfo::notSet;
+   juce::AudioChannelSet::ChannelType m_type                 = juce::AudioChannelSet::ChannelType::unknown;
+   juce::String                       m_typeDescription      = "";
+   juce::String                       m_typeAbbrDecscription = "";
+   juce::String                       m_name                 = "";
+   float                              m_infoWidth            = 0.0f;
+   juce::Rectangle<int>               m_bounds {};
+   juce::Font                         m_font;
+   int                                m_channelIndex = 0;
+   bool                               m_visible      = true;
+   bool                               m_mouseOver    = false;
 
    // clang-format on
-   JUCE_LEAK_DETECTOR( Header );
+   JUCE_LEAK_DETECTOR (Header);
 };
 
 }  // namespace sd::SoundMeter

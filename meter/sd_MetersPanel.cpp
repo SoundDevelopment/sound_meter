@@ -323,7 +323,7 @@ void MetersPanel::setChannelNames( const std::vector<juce::String>& channelNames
       }
 
       // Calculate the default meter width so it fits the largest of channel names...
-      minimumMeterWidth = std::max( minimumMeterWidth, m_meters[meterIdx]->getChannelNameWidth() );
+      minimumMeterWidth = std::max( minimumMeterWidth, m_meters[meterIdx]->getChannelInfoWidth() );
    }
 
    // Calculate default mixer width...

@@ -42,7 +42,7 @@ void Header::draw( juce::Graphics& g, bool meterActive, bool faderEnabled, const
    if( m_bounds.isEmpty() ) return;
 
    // Draw channel names...
-   juce::String headerText = getHeader();
+   juce::String headerText = getInfo();
 
    if( m_mouseOver && faderEnabled )  // Draw 'button' for enabling/disabling channel.
    {
@@ -66,12 +66,12 @@ void Header::draw( juce::Graphics& g, bool meterActive, bool faderEnabled, const
    g.drawFittedText( headerText, m_bounds, juce::Justification::centred, 1 );
 }
 
+//==============================================================================
 void Header::setType( const juce::AudioChannelSet::ChannelType& type )
 {
    m_type                 = type;
    m_typeDescription      = juce::AudioChannelSet::getChannelTypeName( type );
    m_typeAbbrDecscription = juce::AudioChannelSet::getAbbreviatedChannelTypeName( type );
-   if( m_name.isEmpty() ) setName( m_typeDescription );
 }
 
 
@@ -84,32 +84,42 @@ void Header::setType( const juce::AudioChannelSet::ChannelType& type )
 void Header::setName( const juce::String name )
 {
    m_name = name;
-   calculateNameWidth();
+   calculateInfoWidth();
 }
 
 
-void Header::calculateNameWidth()
+void Header::calculateInfoWidth()
 {
-   m_nameWidth = m_font.getStringWidthFloat( m_name );
+   m_infoWidth = m_font.getStringWidthFloat( m_name );
 }
 
-
-[[nodiscard]] float Header::getNameWidth() const noexcept
+//==============================================================================
+[[nodiscard]] float Header::getInfoWidth() const noexcept
 {
-   return m_nameWidth;
+   return m_infoWidth;
 }
 
-
+//==============================================================================
 [[nodiscard]] juce::String Header::getName() const noexcept
 {
    return m_name;
 }
 
 
-[[nodiscard]] juce::String Header::getHeader() const noexcept
+[[nodiscard]] juce::String Header::getInfo (HeaderInfo headerInfoType /*= HeaderInfo::notSet*/) const noexcept
 {
-   juce::String result = m_typeAbbrDecscription;  // Worst case: just use abbreviated name.
-   if( m_nameWidth <= m_bounds.getWidth() && m_name.isNotEmpty() ) result = m_name;
+   juce::String result = m_typeAbbrDecscription;  // Worst case scenario. 
+
+   switch (headerInfoType)
+   {
+      case sd::SoundMeter::HeaderInfo::channelName: return m_name;
+      case sd::SoundMeter::HeaderInfo::fullChannelType: return m_typeDescription;
+      case sd::SoundMeter::HeaderInfo::abbrChannelType: return m_typeAbbrDecscription;
+      case sd::SoundMeter::HeaderInfo::channelIndex: return juce::String( m_channelIndex );
+      default: break;
+   }
+
+   if( m_infoWidth <= m_bounds.getWidth() && m_name.isNotEmpty() ) result = m_name;
    if( result.isEmpty() ) result = "-";
    return result;
 }
@@ -136,7 +146,7 @@ void Header::setBounds( const juce::Rectangle<int>& bounds ) noexcept
 void Header::setFont( const juce::Font& font ) noexcept
 {
    m_font = font;
-   calculateNameWidth();
+   calculateInfoWidth();
 }
 
 
