@@ -38,19 +38,6 @@ namespace sd::SoundMeter
 {
 
 /**
- * @brief The type of header info to display.
-*/
-enum class HeaderInfo
-{
-   channelName,      ///< The name of the channel (this can be anything the use assigns).
-   fullChannelType,  ///< The full type of the channel ( left, right, center, etc...).
-   abbrChannelType,  ///< The abbreviated type of the channel ( L, R, C, etc...).
-   none,             ///< There is no channel type, name or index set.
-   referred,         ///< This meter follows the info option off another meter.
-   notSet            ///< No header info option has been selected.
-};
-
-/**
  * @brief Class responsible for the meter's 'header' part.
  * The 'header' part, is the part above the meter displaying
  * the name. Also a button which can de-activate (mute) or 
@@ -83,7 +70,6 @@ public:
    void                       setName (const juce::String name);
    [[nodiscard]] juce::String getName() const noexcept;
 
-
    /**
     * @brief Calculate the width (in pixels) the info would take up.
    */
@@ -92,13 +78,20 @@ public:
    bool infoFits (const juce::String& name, int widthAvailable) const;
 
    /**
-    * Get the width (in pixels) of the channel info in the 'header' part.
+    * Get the width (in pixels) of the channel name.
     *
-    * @return The width (in pixels) taken by the channel info in the 'header' part.
+    * @return The width (in pixels) taken by the channel name.
     */
-   float getInfoWidth() const noexcept;
+   [[nodiscard]] float getNameWidth() const noexcept;
 
-   [[nodiscard]] juce::String getInfo (HeaderInfo headerInfoType = HeaderInfo::notSet) const noexcept;
+   /**
+    * Get the width (in pixels) of the channel description.
+    *
+    * @return The width (in pixels) taken by the channel description.
+    */
+   [[nodiscard]] float getTypeWidth() const noexcept;
+
+   [[nodiscard]] juce::String getInfo () const noexcept;
 
    void                               setBounds (const juce::Rectangle<int>& bounds) noexcept;
    [[nodiscard]] juce::Rectangle<int> getBounds() const noexcept;
@@ -126,7 +119,6 @@ public:
    void               resetMouseOver() noexcept { m_mouseOver = false; }
 
 private:
-   HeaderInfo                         m_headerInfo = HeaderInfo::notSet;
    juce::AudioChannelSet::ChannelType m_type       = juce::AudioChannelSet::ChannelType::unknown;
 
    // Info
@@ -137,6 +129,7 @@ private:
 
    float                m_nameWidth = 0.0f;
    float                m_typeWidth = 0.0f;
+   float                m_referedWidth = 0.0f;
    juce::Rectangle<int> m_bounds {};
    juce::Font           m_font;
    bool                 m_visible   = true;

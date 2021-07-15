@@ -277,7 +277,7 @@ void MetersPanel::setNumChannels (int numChannels, const std::vector<juce::Strin
 {
    if (numChannels <= 0) return;
 
-   setChannelFormat (juce::AudioChannelSet::canonicalChannelSet (numChannels));
+   setChannelFormat (juce::AudioChannelSet::canonicalChannelSet (numChannels), channelNames );
 }
 
 //==============================================================================

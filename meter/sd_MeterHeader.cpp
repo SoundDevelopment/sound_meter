@@ -100,9 +100,14 @@ void Header::calculateInfoWidth()
 }
 
 //==============================================================================
-[[nodiscard]] float Header::getInfoWidth() const noexcept
+[[nodiscard]] float Header::getNameWidth() const noexcept
 {
-   if (m_name.isNotEmpty()) return m_nameWidth;
+   return m_nameWidth;
+}
+
+//==============================================================================
+[[nodiscard]] float Header::getTypeWidth() const noexcept
+{
    return m_typeWidth;
 }
 
@@ -112,21 +117,16 @@ void Header::calculateInfoWidth()
    return m_name;
 }
 
-
-[[nodiscard]] juce::String Header::getInfo (HeaderInfo headerInfoType /*= HeaderInfo::notSet*/) const noexcept
+//==============================================================================
+[[nodiscard]] juce::String Header::getInfo() const noexcept
 {
-   switch (headerInfoType)
-   {
-      case sd::SoundMeter::HeaderInfo::channelName: return m_name;
-      case sd::SoundMeter::HeaderInfo::fullChannelType: return m_typeDescription;
-      case sd::SoundMeter::HeaderInfo::abbrChannelType: return m_typeAbbrDecscription;
-      default: break;
-   }
+   // Check which type width to use. This meter's one or a refered meter...
+   const auto typeWidthToCompare = ( m_referedWidth > 0 ? m_referedWidth : m_typeWidth );
 
    // First check if the channel name fits and is not empty (preferred)...
    if (m_name.isNotEmpty() && m_nameWidth < m_bounds.getWidth())
       return m_name;
-   else if (m_typeDescription.isNotEmpty() && m_typeWidth < m_bounds.getWidth())  // Check if there is room for the full channel description...
+   else if (m_typeDescription.isNotEmpty() && typeWidthToCompare < m_bounds.getWidth())  // Check if there is room for the full channel description...
       return m_typeDescription;
 
    return m_typeAbbrDecscription;  // ... otherwise use the abbreviated one.

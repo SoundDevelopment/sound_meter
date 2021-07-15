@@ -189,7 +189,7 @@ public:
     *
     * @return The width (in pixels) taken by the channel info in the 'header' part.
     */
-   [[nodiscard]] float getChannelInfoWidth() const noexcept { return m_header.getInfoWidth(); }
+   [[nodiscard]] float getChannelInfoWidth() const noexcept { return m_header.getNameWidth(); }
 
    /**
     * Active or de-activate (mute) meter.
