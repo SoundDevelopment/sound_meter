@@ -55,12 +55,15 @@ MetersPanel::MetersPanel()
    addAndMakeVisible (m_masterFader);
 
    setPaintingIsUnclipped (true);
+
+   startTimerHz (m_panelRefreshRate);
 }
 
 //==============================================================================
 MetersPanel::MetersPanel (const juce::AudioChannelSet& channelFormat) : MetersPanel()
 {
    m_channelFormat = channelFormat;
+
    createMeters (channelFormat, {});
 
    setName (Constants::kMetersPanelId);
@@ -69,10 +72,12 @@ MetersPanel::MetersPanel (const juce::AudioChannelSet& channelFormat) : MetersPa
 //==============================================================================
 MetersPanel::~MetersPanel()
 {
+
 #if SDTK_ENABLE_FADER
    m_masterFader.removeFaderListener (*this);
    m_masterFader.removeMouseListener (this);
 #endif
+
    deleteMeters();
 }
 
@@ -80,24 +85,48 @@ MetersPanel::~MetersPanel()
 void MetersPanel::reset()
 {
    deleteMeters();
+
 #if SDTK_ENABLE_FADER
    m_faderGains.clear();
    m_faderGainsBuffer.clear();
+   m_masterFader.setFaderActive (false);
 #endif
+
+   m_masterFader.showTickMarks (false);
    m_masterStripWidth = 0;
    m_channelFormat    = juce::AudioChannelSet::stereo();
-   m_masterFader.showTickMarks (false);
-   m_masterFader.setFaderActive (false);
 
    refresh (true);
 }
 
 //==============================================================================
-void MetersPanel::refresh (const bool forceRefresh)
+void MetersPanel::refresh (const bool forceRefresh /*= false*/)
 {
    m_masterFader.refresh (forceRefresh);
    for (auto* meter: m_meters)
       meter->refresh (forceRefresh);
+}
+
+//==============================================================================
+void MetersPanel::setPanelRefreshRate (int refreshRate_hz) noexcept
+{
+   m_panelRefreshRate = refreshRate_hz;
+
+   if (m_internalTimer)
+   {
+      stopTimer();
+      startTimerHz (refreshRate_hz);
+   }
+}
+
+//==============================================================================
+void MetersPanel::setInternalTiming (bool useInternalTiming) noexcept
+{
+   m_internalTimer = useInternalTiming;
+
+   stopTimer();
+
+   if (useInternalTiming) startTimerHz (m_panelRefreshRate);
 }
 
 //==============================================================================
@@ -148,7 +177,10 @@ void MetersPanel::resized()
    {
       meter->setMinimalMode (minModeEnabled);
       meter->setBounds (panelBounds.removeFromLeft (m_meterWidth));  // ... set it's width to m_meterWidth
-      if (minModeEnabled) meter->setFaderActive (false);             // ... do not show the gain fader if it's too narrow.
+
+#if SDTK_ENABLE_FADER
+      if (minModeEnabled) meter->setFaderActive (false);  // ... do not show the gain fader if it's too narrow.
+#endif
    }
 
    // Position MASTER strip...
@@ -188,7 +220,7 @@ void MetersPanel::mouseEnter (const juce::MouseEvent& /*event*/)
 }
 
 //==============================================================================
-void MetersPanel::faderChanged (NewMeterComponent* sourceMeter, float value)
+void MetersPanel::faderChanged (MeterComponent* sourceMeter, float value)
 {
    if (sourceMeter == &m_masterFader)  // Master strip fader moves all channel faders relatively to each other.
    {
@@ -309,20 +341,21 @@ void MetersPanel::createMeters (const juce::AudioChannelSet& channelFormat, cons
    for (int channelIdx = 0; channelIdx < channelFormat.size(); ++channelIdx)
    {
       auto meter = std::make_unique<MeterComponent> (Constants::kMetersPanelId, m_tickMarks, MeterPadding (0, kFaderRightPadding, 0, 0), m_meterDecayTime_ms,
-                                                        true, true, false,
+                                                     true, true, false,
 #if SDTK_ENABLE_FADER
-                                                        this,
+                                                     this,
 #else
-                                                        nullptr,
+                                                     nullptr,
 #endif
-                                                        channelFormat.getTypeOfChannel (channelIdx));
+                                                     channelFormat.getTypeOfChannel (channelIdx));
 
       meter->setRegions (m_warningRegion_db, m_peakRegion_db);
-      meter->setGuiRefreshRate (static_cast<float> (m_guiRefreshRate));
+      meter->setGuiRefreshRate (static_cast<float> (m_panelRefreshRate));
       meter->setFont (m_font);
       meter->addMouseListener (this, true);
       meter->setVisible (m_enabled);
       meter->setEnabled (m_enabled);
+      meter->useGradients (m_useGradients);
 #if SDTK_ENABLE_FADER
       meter->setFaderEnabled (m_fadersEnabled);
 #endif
@@ -375,7 +408,7 @@ void MetersPanel::setChannelFormat (const juce::AudioChannelSet& channelFormat, 
       deleteMeters();                              // ... if not, then delete all previous meters ...
       createMeters (channelFormat, channelNames);  // ... and create new ones, matching the required channel format.
    }
-   
+
    // Set the channel names...
    setChannelNames (channelNames);
 
@@ -386,8 +419,8 @@ void MetersPanel::setChannelFormat (const juce::AudioChannelSet& channelFormat, 
 
    // Make sure the number of mixer gains matches the number of channels ...
    if (channelFormat.size() != static_cast<int> (m_faderGains.size()))
-      m_faderGains.resize (channelFormat.size());                  // ... and if not resize the mixer gains to accommodate.
-   
+      m_faderGains.resize (channelFormat.size());  // ... and if not resize the mixer gains to accommodate.
+
    resetFaders();
 
 #endif /* SDTK_ENABLE_FADER */
@@ -448,7 +481,7 @@ void MetersPanel::resetMeters()
 }
 
 //==============================================================================
-void MetersPanel::peakHoldReset()
+void MetersPanel::resetPeakHold()
 {
    for (auto* meter: m_meters)
       meter->resetPeakHold();
@@ -486,6 +519,14 @@ void MetersPanel::setEnabled (bool enabled /*= true*/)
    m_masterFader.setVisible (enabled);
 
    refresh (true);
+}
+
+//==============================================================================
+void MetersPanel::useGradients (bool useGradients) noexcept
+{
+   m_useGradients = useGradients;
+   for (auto* meter: m_meters)
+      meter->useGradients (useGradients);
 }
 
 //==============================================================================

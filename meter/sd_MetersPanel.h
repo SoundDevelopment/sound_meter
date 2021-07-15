@@ -45,8 +45,9 @@ namespace sd::SoundMeter
  */
 class MetersPanel
   : public juce::Component
+  , private juce::Timer
 #if SDTK_ENABLE_FADER
-  , public sd::SoundMeter::Fader::Listener
+  , public Fader::Listener
 #endif
 {
 public:
@@ -59,7 +60,7 @@ public:
    MetersPanel();
 
    /**
-    * @brief Constructor wich accepts a channel format.
+    * @brief Constructor which accepts a channel format.
     * 
     * This constructor will automatically setup the panel with the 
     * right amount of meters, named according to the channel format.
@@ -76,23 +77,34 @@ public:
     * 
     * @param forceRefresh When set to true, always redraw the meters panel (not only if it's dirty/changed).
     */
-   void refresh (bool forceRefresh);
+   void refresh (bool forceRefresh = false);
 
    /**
     * @brief Reset the meters.
     * 
-    * Initialise the meters, faders and clears all the levels (but not the peak hold).
+    * Initialise the meters, faders and clears all the levels (but not preserves the peak hold).
+    * 
+    * @see resetPeakHold, resetMeters
    */
    void reset();
 
    /**
     * @brief Reset all meters.
-    * Resets all meters (but not the peak hold.
+    * 
+    * Resets all meters to 0 (but not the peak hold).
+    * @see reset, resetPeakHold
    */
    void resetMeters();
 
    /**
-    * @brief Set the input levels.
+    * @brief Reset all peak hold indicators and 'values'.
+    * 
+    * @see reset, resetMeters
+   */
+   void resetPeakHold();
+
+   /**
+    * @brief Set the input level.
     * 
     * This supplies a meter of a specific channel with the peak level from the audio engine.
     * Beware: this will usually be called from the audio thread.
@@ -107,6 +119,8 @@ public:
     * 
     * @param numChannels  The number of channels (meters).
     * @param channelNames The (optional) channel names to use in the header of the meters.
+    * 
+    * @see getNumMeters, setChannelFormat
     */
    void setNumChannels (int numChannels, const std::vector<juce::String>& channelNames = {});
 
@@ -115,20 +129,27 @@ public:
     * 
     * @param channels     The channel format to use.
     * @param channelNames The (optional) channel names to use in the header of the meters.
+    * 
+    * @see setNumMeters, getNumMeters
     */
    void setChannelFormat (const juce::AudioChannelSet& channels, const std::vector<juce::String>& channelNames = {});
 
    /**
     * @brief Get the number of meters in the panel.
+    * 
     * @return The number of meters in the panel.
+    * 
+    * @see setNumChannels, setChannelFormat
    */
    int getNumMeters() const noexcept { return m_meters.size(); }
 
    /**
     * @brief Get the default meters panel width.
+    * 
     * Get's the default panel width in pixels. 
     * This is the width where all channels are wide enough to display
     * all channel names.
+    * 
     * @return The default panel width (in pixels).
    */
    int getDefaultPanelWidth() const noexcept { return m_defaultPanelWidth; }
@@ -152,15 +173,31 @@ public:
    void setRegions (float warningRegion_db, float peakRegion_db);
 
    /**
+    * @brief Set the timing option to use (internal/external).
+    * 
+    * When using internal timing, the panel will update it's meters by itself using
+    * the refresh rate specified in setPanelRefreshRate.
+    * On external, the user has to do this manually with the 'refresh' method.
+    * 
+    * @param useInternalTiming When set to true, the meter panel will update itself.
+    * 
+    * @see refresh, setPanelRefreshRate
+   */
+   void setInternalTiming (bool useInternalTiming) noexcept;
+
+   /**
     * @brief Set the refresh (redraw) rate of the meters.
     * 
     * Also used for meter ballistics.
+    * When using the internal timer this set's it's refresh rate.
+    * When manually redrawing (with refresh) you could (should) still provide the refresh rate
+    * to optimize a smooth decay.
     * 
     * @param refreshRate The refresh rate (in Hz).
     * 
-    * @see setMeterDecay
+    * @see setMeterDecay, refresh, setInternalTiming
    */
-   void setPanelRefreshRate (int refreshRate) noexcept { m_guiRefreshRate = refreshRate; }
+   void setPanelRefreshRate (int refreshRate) noexcept;
 
    /**
     * @brief Set meter decay rate.
@@ -181,16 +218,17 @@ public:
    void setFont (const juce::Font& newFont) noexcept;
 
    /**
-    * @brief Reset all peak hold indicators and 'values'.
-   */
-   void peakHoldReset();
-
-   /**
     * @brief Enable or disable the panel.
     * 
     * @param enabled When set to true, the meters panel will be displayed.
     */
    void setEnabled (bool enabled = true);
+  
+   /**
+    * @brief Use gradients in stead of hard region boundaries.
+    * @param useGradients When set to true, uses smooth gradients. False gives hard region boundaries.=
+   */
+   void useGradients (bool useGradients) noexcept;
 
 #if SDTK_ENABLE_FADER
    /**
@@ -206,14 +244,14 @@ public:
     * @param notificationOption Set whether to notify the listeners of the gathered fader values.
     * @see notifyListeners()
     */
-   void getFaderValues (sd::SoundMeter::NotificationOptions notificationOption = sd::SoundMeter::NotificationOptions::notify);
+   void getFaderValues (NotificationOptions notificationOption = NotificationOptions::notify);
 
    /**
     * @brief Get the master fader.
     * Get a reference to the master fader component.
     * @return A reference to the master fader component.
    */
-   const sd::SoundMeter::NewMeterComponent& getMasterFader() const noexcept { return m_masterFader; }
+   const MeterComponent& getMasterFader() const noexcept { return m_masterFader; }
 
    /**
     * @brief Show (or hide) all the faders.
@@ -279,50 +317,54 @@ public:
 private:
    // clang-format off
 
-   using                            MetersType           = juce::OwnedArray<MeterComponent>;       ///< Container type for multiple meters.
+   using                            MetersType           = juce::OwnedArray<MeterComponent>;          // Container type for multiple meters.
 
    juce::AudioChannelSet            m_channelFormat      = juce::AudioChannelSet::stereo();
 
-   MetersType                       m_meters;                                                         ///< All meter objects.
+   MetersType                       m_meters;                                                         // All meter objects.
 
-   std::vector<float>               m_tickMarks          = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };    ///< Tick-mark position in db.
-   int                              m_meterWidth         = 20;                                        ///< Width of the meter (in pixels).
-   int                              m_masterStripWidth   = m_meterWidth;                              ///< Width of the tick-mark labels (in pixels).
+   std::vector<float>               m_tickMarks          = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };    // Tick-mark position in db.
+   int                              m_meterWidth         = 20;                                        // Width of the meter (in pixels).
+   int                              m_masterStripWidth   = m_meterWidth;                              // Width of the tick-mark labels (in pixels).
    int                              m_defaultPanelWidth  = 0;                                       
    float                            m_meterDecayTime_ms  = Constants::kDefaultDecay_ms;               // NOLINT
 
-   MeterComponent                m_masterFader;
+   MeterComponent                   m_masterFader;
 
    bool                             m_enabled            = true;
+   bool                             m_internalTimer      = true;
+   bool                             m_useGradients       = true;
    juce::Font                       m_font               {};
-   int                              m_guiRefreshRate     = 24;
+   int                              m_panelRefreshRate     = 24;
    float                            m_warningRegion_db   = Constants::kWarningLevel_db;
    float                            m_peakRegion_db      = Constants::kPeakLevel_db;
 
    juce::Colour                     m_backgroundColour   = juce::Colours::black;
       
 #if SDTK_ENABLE_FADER
-   using                            FadersListenerList   = juce::ListenerList<FadersChangeListener>;  ///< List of listeners to fader changes.
-
-   // Private members...
-   FadersListenerList               m_fadersListeners;                                                ///< List of listeners to fader changes.
+   using                            FadersListenerList   = juce::ListenerList<FadersChangeListener>;  // List of listeners to fader changes.
+                                                                                                       
+   // Private members...                                                                               
+   FadersListenerList               m_fadersListeners;                                                // List of listeners to fader changes.
 
    std::vector<float>               m_faderGainsBuffer;
    std::vector<float>               m_faderGains;
    
    bool                             m_fadersEnabled      = false;
    
-   void                             faderChanged         ( NewMeterComponent* sourceMeter, float value ) override;
-   void                             notifyListeners      (); ///< Notify the listeners the faders have been moved.
+   void                             timerCallback        () override { refresh(); }
+   void                             notifyListeners      ();                                          // Notify the listeners the faders have been moved.
    void                             mouseEnter           (const juce::MouseEvent& event) override;
    void                             mouseExit            (const juce::MouseEvent& event) override;
+   void                             faderChanged         ( MeterComponent* sourceMeter, float value ) override;
+   
 #endif
 
    // Private methods...
    void                             setColours           ();
    void                             createMeters         ( const juce::AudioChannelSet& channelFormat, const std::vector<juce::String>& channelNames );
    void                             deleteMeters         ();
-   [[nodiscard]] MeterComponent* getMeter             ( const int meterIndex ) noexcept;
+   [[nodiscard]] MeterComponent*    getMeter             ( const int meterIndex ) noexcept;
 
 
    // clang-format on

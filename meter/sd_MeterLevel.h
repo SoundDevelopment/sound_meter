@@ -58,28 +58,28 @@ public:
     * @param         warningColour Colour of the warning region of the meter.
     * @param         normalColour  Colour of the normal region of the meter.
    */
-   void drawMeter( juce::Graphics& g, const juce::Colour& peakColour, const juce::Colour& warningColour, const juce::Colour& normalColour );
+   void drawMeter (juce::Graphics& g, const juce::Colour& peakColour, const juce::Colour& warningColour, const juce::Colour& normalColour);
 
    /**
     * @brief Draw the 'meter' part in it's inactive (muted) state.
     * @param[in,out] g   The juce graphics context to use.
     * @param textColour  Colour of the text on the inactive meter.
    */
-   void drawInactiveMeter( juce::Graphics& g, const juce::Colour& textColour ) const;
+   void drawInactiveMeter (juce::Graphics& g, const juce::Colour& textColour) const;
 
    /**
     * @brief Draw the peak 'value'.
     * @param[in,out] g        The juce graphics context to use.
     * @param textValueColour  Colour of the text displaying the peak value.
    */
-   void drawPeakValue( juce::Graphics& g, const juce::Colour& textValueColour ) const;
+   void drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColour) const;
 
    /**
     * @brief Draw the peak hold indicator.
     * @param[in,out] g        The juce graphics context to use.
     * @param colour           The colour of the peak hold indicator.
    */
-   void drawPeakHold( juce::Graphics& g, const juce::Colour& colour ) const;
+   void drawPeakHold (juce::Graphics& g, const juce::Colour& colour) const;
 
    /**
     * @brief Draw the tick-marks.
@@ -87,7 +87,7 @@ public:
     * @param[in,out] g        The juce graphics context to use.
     * @param tickColour       Colour of the tick marks.
    */
-   void drawTickMarks( juce::Graphics& g, const juce::Colour& tickColour ) const;
+   void drawTickMarks (juce::Graphics& g, const juce::Colour& tickColour) const;
 
    /**
     * @brief Draw the value labels at the tick marks.
@@ -95,7 +95,7 @@ public:
     * @param[in,out] g        The juce graphics context to use.
     * @param textColour       Colour of the label text.
    */
-   void drawLabels( juce::Graphics& g, const juce::Colour& textColour ) const;
+   void drawLabels (juce::Graphics& g, const juce::Colour& textColour) const;
 
    /**
     * @brief Set the level of the meter.
@@ -105,7 +105,7 @@ public:
     * 
     * @see getInputLevel
    */
-   inline void setInputLevel( float newLevel ) noexcept { m_inputLevel.store( std::max( m_inputLevel.load(), newLevel ) ); }
+   inline void setInputLevel (float newLevel) noexcept;
 
 
    /**
@@ -115,7 +115,7 @@ public:
     * 
     * @see setInputLevel
    */
-   [[nodiscard]] float getInputLevel() noexcept { return std::clamp( m_inputLevel.exchange( 0.0f ), -m_maxLevel, m_maxLevel ); }
+   [[nodiscard]] float getInputLevel() noexcept;
 
    /**
     * @brief Set the actual meter's level.
@@ -126,7 +126,7 @@ public:
     * 
     * @see getMeterLevel, setDecay
    */
-   void setMeterLevel( float newLevel ) noexcept;
+   void setMeterLevel (float newLevel) noexcept;
 
    /**
     * @brief Get the actual meter's level.
@@ -155,7 +155,7 @@ public:
     *
     * @see getRefreshRate()
     */
-   void setRefreshRate( float refreshRate_hz );
+   void setRefreshRate (float refreshRate_hz);
 
    /**
     * @brief Set meter decay.
@@ -164,7 +164,7 @@ public:
     * 
     * @see getDecay
     */
-   void setDecay( float decay_ms ) noexcept;
+   void setDecay (float decay_ms) noexcept;
 
    /**
     * @brief Get meter decay.
@@ -182,7 +182,7 @@ public:
     * 
     * @see isPeakHoldVisible, resetPeakHoldLevel
    */
-   void setPeakHoldVisible( bool isVisible ) noexcept { m_peakHoldVisible = isVisible; }
+   void setPeakHoldVisible (bool isVisible) noexcept { m_peakHoldVisible = isVisible; }
 
    /**
     * @brief Check if the peak hold indicator is visible.
@@ -203,7 +203,7 @@ public:
     * 
     * @see isPeakValueVisible, resetPeakHoldLevel
     */
-   void setPeakValueVisible( bool isVisible ) noexcept { m_peakValueVisible = isVisible; }
+   void setPeakValueVisible (bool isVisible) noexcept { m_peakValueVisible = isVisible; }
 
    /**
     * @brief Check if the peak 'value' part is visible.
@@ -265,10 +265,10 @@ public:
     * @param warningRegion_db sets the level (in db) dividing the normal and warning regions of the meter.
     * @param peakRegion_db sets the level (in db) dividing the warning and peak regions of the meter.
     */
-   void setRegions( const float warningRegion_db, const float peakRegion_db );
+   void setRegions (const float warningRegion_db, const float peakRegion_db);
    void reset() noexcept;
 
-   void setValueBounds( juce::Rectangle<int> bounds ) noexcept { m_valueBounds = bounds; }
+   void setValueBounds (juce::Rectangle<int> bounds) noexcept { m_valueBounds = bounds; }
 
    /**
     * Get the bounds of the 'value' part.
@@ -276,7 +276,7 @@ public:
     * @return the bounds of the value part.
     */
    [[nodiscard]] juce::Rectangle<int> getValueBounds() const noexcept { return m_valueBounds; }
-   void                               setMeterBounds( juce::Rectangle<int> bounds ) noexcept { m_meterBounds = bounds; }
+   void                               setMeterBounds (juce::Rectangle<int> bounds) noexcept { m_meterBounds = bounds; }
 
    /**
     * Get the bounds of the 'meter' part.
@@ -286,9 +286,9 @@ public:
    [[nodiscard]] juce::Rectangle<int> getMeterBounds() const noexcept { return m_meterBounds; }
 
 
-   bool isMouseOverValue( const int y ) noexcept
+   bool isMouseOverValue (const int y) noexcept
    {
-      m_mouseOverValue = ( y >= m_valueBounds.getY() && !m_valueBounds.isEmpty() );
+      m_mouseOverValue = (y >= m_valueBounds.getY() && ! m_valueBounds.isEmpty());
       return m_mouseOverValue;
    }
    [[nodiscard]] bool isMouseOverValue() const noexcept { return m_mouseOverValue; }
@@ -306,10 +306,10 @@ public:
        * @brief Constructor.
        * @param dbValue Value of the tick-mark (in dB).
       */
-      explicit Tick( float dbValue )
+      explicit Tick (float dbValue)
       {
          decibels = dbValue;
-         gain     = juce::Decibels::decibelsToGain( dbValue );
+         gain     = juce::Decibels::decibelsToGain (dbValue);
       }
       float gain     = 0;  ///< Value of the tick mark (in amp).
       float decibels = 0;  ///< Value of the tick mark (in dB).
@@ -323,14 +323,20 @@ public:
     *
     * @param ticks list of tick mark values (in amp).
     */
-   void setTickMarks( const std::vector<float>& ticks ) noexcept;
+   void setTickMarks (const std::vector<float>& ticks) noexcept;
 
    /**
     * Show tick-marks (divider lines) on the meter.
     *
     * @param visible when set, shows the tick-marks. 
     */
-   void setTickMarksVisible( bool visible ) noexcept { m_tickMarksVisible = visible; }
+   void setTickMarksVisible (bool visible) noexcept { m_tickMarksVisible = visible; }
+
+   /**
+    * @brief Use gradients in stead of hard region boundaries.
+    * @param useGradients When set to true, uses smooth gradients. False gives hard region boundaries.=
+   */
+   void useGradients (bool useGradients) noexcept {  m_useGradients = useGradients; }
 
 private:
    juce::Rectangle<int> m_valueBounds;  // Bounds of the value area.
@@ -342,30 +348,33 @@ private:
    float              m_peakHoldLevel = 0.0f;
    float              m_meterLevel    = 0.0f;  // Current meter level.
    int                m_levelDrawn_px = 0;
-   const float        m_maxLevel      = juce::Decibels::decibelsToGain( Constants::kMaxLevel_db );  // Maximum meter level.
+   const float        m_maxLevel      = juce::Decibels::decibelsToGain (Constants::kMaxLevel_db);  // Maximum meter level.
 
-   float m_warningRegion = juce::Decibels::decibelsToGain( -10.0f );  // Meter warning region. NOLINT
-   float m_peakRegion    = juce::Decibels::decibelsToGain( -3.0f );   // Meter peak region. NOLINT
+   std::atomic<bool> m_inputLevelRead { false };
+
+   float m_warningRegion = juce::Decibels::decibelsToGain (-10.0f);  // Meter warning region. NOLINT
+   float m_peakRegion    = juce::Decibels::decibelsToGain (-3.0f);   // Meter peak region. NOLINT
 
    bool m_tickMarksVisible = true;
    bool m_peakHoldVisible  = true;
    bool m_peakValueVisible = false;
    bool m_mouseOverValue   = false;
+   bool m_useGradients     = true;
 
    float m_decay_ms            = Constants::kDefaultDecay_ms;
    float m_decayCoeff          = 0.0f;
    float m_refreshRate_hz      = 25.0f;  // Meter refresh rate in Hz. NOLINT
    int   m_previousRefreshTime = 0;
 
-   const float kMin99Db = juce::Decibels::decibelsToGain( -99.0f );
+   const float kMin99Db = juce::Decibels::decibelsToGain (-99.0f);
 
    //==============================================================================
-   [[nodiscard]] float getDecayedLevel( const float callbackLevel );
+   [[nodiscard]] float getDecayedLevel (const float callbackLevel);
    void                calculateDecayCoeff() noexcept;
-   void                drawMeterSegment( juce::Graphics& g, float level, float start, float stop, const juce::Colour& colour ) const;
+   void drawMeterSegment (juce::Graphics& g, float level, float start, float stop, const juce::Colour& colour, const juce::Colour& nextColour) const;
 
    // clang-format on
-   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR( Level )
+   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Level)
 };
 
 }  // namespace sd::SoundMeter

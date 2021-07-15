@@ -37,8 +37,8 @@ namespace sd::SoundMeter
 #pragma region Misc Methods
 
 
-MeterComponent::MeterComponent (const juce::String& name, const std::vector<float>& ticks, MeterPadding padding, float meterDecy, bool headerVisible,
-                                      bool valueVisible, bool isLabelStrip /*= false*/, SoundMeter::Fader::Listener* faderListener /*= nullptr*/, ChannelType channelType /*= ChannelType::unknown*/)
+MeterComponent::MeterComponent (const juce::String& name, const std::vector<float>& ticks, MeterPadding padding, float meterDecy, bool headerVisible, bool valueVisible,
+                                bool isLabelStrip /*= false*/, [[maybe_unused]] SoundMeter::Fader::Listener* faderListener /*= nullptr*/, ChannelType channelType /*= ChannelType::unknown*/)
   : MeterComponent()
 {
    setName (name);
@@ -218,7 +218,14 @@ void MeterComponent::drawMeter (juce::Graphics& g)
    using namespace SoundMeter::Constants;
 
    // Draw channel HEADER...
-   m_header.draw (g, isActive(), m_fader.isEnabled(), m_mutedColour, m_mutedMouseOverColour, m_textColour, m_inactiveColour);
+
+   bool faderEnabled = false;
+
+#if SDTK_ENABLE_FADER
+   faderEnabled = m_fader.isEnabled();
+#endif
+
+   m_header.draw (g, isActive(), faderEnabled, m_mutedColour, m_mutedMouseOverColour, m_textColour, m_inactiveColour);
 
    // Draw peak level VALUE...
    m_level.drawPeakValue (g, m_textValueColour);
@@ -270,8 +277,10 @@ void MeterComponent::refresh (const bool forceRefresh)
          }
       }
 
+#if SDTK_ENABLE_FADER
       // Repaint if the faders are being faded out...
       if (! isDirty (m_level.getMeterBounds()) && m_fader.isFading()) addDirty (m_level.getMeterBounds());
+#endif
    }
 
    // Redraw if dirty or forced to...
@@ -287,7 +296,7 @@ void MeterComponent::refresh (const bool forceRefresh)
 #pragma region Properties
 
 //==============================================================================
-void MeterComponent::setActive (bool isActive, NotificationOptions notify /*= NotificationOptions::dontNotify*/)
+void MeterComponent::setActive (bool isActive, [[maybe_unused]] NotificationOptions notify /*= NotificationOptions::dontNotify*/)
 {
    if (m_active == isActive) return;
    reset();
@@ -377,7 +386,7 @@ void MeterComponent::setFaderEnabled (bool faderEnabled /*= true*/)
 void MeterComponent::mouseDown (const juce::MouseEvent& event)
 {
    // Left mouse button down and fader is active...
-   if (event.mods == juce::ModifierKeys::leftButtonModifier )
+   if (event.mods == juce::ModifierKeys::leftButtonModifier)
    {
 
 #if SDTK_ENABLE_FADER
@@ -403,10 +412,15 @@ void MeterComponent::mouseMove (const juce::MouseEvent& event)
 {
    setTooltip ("");
 
+   bool faderEnabled = false;
+#if SDTK_ENABLE_FADER
+   faderEnabled = m_fader.isEnabled();
+#endif
+
    // Check if the mouse is over the header part...
    bool isMouseOverHeader      = m_header.isMouseOver();                                 // Get the previous mouse over flag, to check if it has changed.
    bool mouseOverHeaderChanged = (isMouseOverHeader != m_header.isMouseOver (event.y));  // Check if it has changed.
-   if (m_header.isMouseOver() && mouseOverHeaderChanged && m_fader.isEnabled())
+   if (m_header.isMouseOver() && mouseOverHeaderChanged && faderEnabled)
    {
       setMouseCursor (juce::MouseCursor::PointingHandCursor);  // NOLINT
       setTooltip ("Mute or un-mute channel");                  // If it is over and changed set the tooltip.

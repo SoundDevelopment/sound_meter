@@ -173,7 +173,7 @@ public:
     /**
     * @brief Set the channel type.
     * 
-    * For instance: left, right, centre, etc..
+    * For instance: left, right, center, etc..
     * 
     * @param type The channel type assigned to the meter.
     * 
@@ -282,6 +282,13 @@ public:
     * @see showTickMarks
     */
    void setTickMarks (const std::vector<float>& ticks) { m_level.setTickMarks (ticks); }
+
+
+   /**
+    * @brief Use gradients in stead of hard region boundaries.
+    * @param useGradients When set to true, uses smooth gradients. False gives hard region boundaries.=
+   */
+   void useGradients (bool useGradients) noexcept { m_level.useGradients( useGradients ); }
 
    /**
     * Get the bounds of the 'meter' part.
