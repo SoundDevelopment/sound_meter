@@ -189,7 +189,27 @@ public:
     *
     * @return The width (in pixels) taken by the channel info in the 'header' part.
     */
-   [[nodiscard]] float getChannelInfoWidth() const noexcept { return m_header.getNameWidth(); }
+   [[nodiscard]] float getChannelNameWidth() const noexcept { return m_header.getNameWidth(); }
+
+      /**
+    * Get the width (in pixels) of the full type description in the 'header' part.
+    *
+    * @return The width (in pixels) taken by the full type description in the 'header' part.
+    */
+   [[nodiscard]] float getChannelTypeWidth() const noexcept { return m_header.getTypeWidth(); }
+
+   /**
+    * @brief Set the referred width (from other meters) used to decide what info to display.
+    * 
+    * When this is set to zero, each meter uses his own bounds to decide what to display.
+    * When set to a non zero value (for instance from another meter) this meter will use that
+    * value to decide what to display.
+    * When there is not enough room (width) to display the full description or name, display
+    * the abbreviated type description.
+    * 
+    * @param referredWidth The width (in pixels) to use when deciding what to display in the header.
+   */
+   void setReferredTypeWidth (float referredTypeWidth) { m_header.setReferredWidth( referredTypeWidth ); }
 
    /**
     * Active or de-activate (mute) meter.

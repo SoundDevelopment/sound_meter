@@ -110,7 +110,6 @@ public:
    */
    void notifyListeners();
 
-
    /**
     * @brief Set the number of channels (meters) in the panel.
     * 

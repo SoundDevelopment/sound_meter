@@ -121,7 +121,7 @@ void Header::calculateInfoWidth()
 [[nodiscard]] juce::String Header::getInfo() const noexcept
 {
    // Check which type width to use. This meter's one or a refered meter...
-   const auto typeWidthToCompare = ( m_referedWidth > 0 ? m_referedWidth : m_typeWidth );
+   const auto typeWidthToCompare = ( m_referredWidth > 0 ? m_referredWidth : m_typeWidth );
 
    // First check if the channel name fits and is not empty (preferred)...
    if (m_name.isNotEmpty() && m_nameWidth < m_bounds.getWidth())

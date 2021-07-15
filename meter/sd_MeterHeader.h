@@ -70,11 +70,6 @@ public:
    void                       setName (const juce::String name);
    [[nodiscard]] juce::String getName() const noexcept;
 
-   /**
-    * @brief Calculate the width (in pixels) the info would take up.
-   */
-   void calculateInfoWidth();
-
    bool infoFits (const juce::String& name, int widthAvailable) const;
 
    /**
@@ -91,7 +86,7 @@ public:
     */
    [[nodiscard]] float getTypeWidth() const noexcept;
 
-   [[nodiscard]] juce::String getInfo () const noexcept;
+   [[nodiscard]] juce::String getInfo() const noexcept;
 
    void                               setBounds (const juce::Rectangle<int>& bounds) noexcept;
    [[nodiscard]] juce::Rectangle<int> getBounds() const noexcept;
@@ -118,8 +113,21 @@ public:
    [[nodiscard]] bool isMouseOver() const noexcept { return m_mouseOver; }
    void               resetMouseOver() noexcept { m_mouseOver = false; }
 
+   /**
+    * @brief Set the referred width (from other meters) used to decide what info to display.
+    * 
+    * When this is set to zero, each meter uses his own bounds to decide what to display.
+    * When set to a non zero value (for instance from another meter) this meter will use that
+    * value to decide what to display.
+    * When there is not enough room (width) to display the full description or name, display
+    * the abbreviated type description.
+    * 
+    * @param referredWidth The width (in pixels) to use when deciding what to display in the header.
+   */
+   void setReferredWidth (float referredWidth) noexcept { m_referredWidth = referredWidth; }
+
 private:
-   juce::AudioChannelSet::ChannelType m_type       = juce::AudioChannelSet::ChannelType::unknown;
+   juce::AudioChannelSet::ChannelType m_type = juce::AudioChannelSet::ChannelType::unknown;
 
    // Info
    juce::String m_name                 = "";
@@ -127,13 +135,18 @@ private:
    juce::String m_typeAbbrDecscription = "";
 
 
-   float                m_nameWidth = 0.0f;
-   float                m_typeWidth = 0.0f;
-   float                m_referedWidth = 0.0f;
+   float                m_nameWidth     = 0.0f;
+   float                m_typeWidth     = 0.0f;
+   float                m_referredWidth = 0.0f;
    juce::Rectangle<int> m_bounds {};
    juce::Font           m_font;
    bool                 m_visible   = true;
    bool                 m_mouseOver = false;
+
+   /**
+    * @brief Calculate the width (in pixels) the info would take up.
+   */
+   void calculateInfoWidth();
 
    // clang-format on
    JUCE_LEAK_DETECTOR (Header);

@@ -277,7 +277,7 @@ void MetersPanel::setNumChannels (int numChannels, const std::vector<juce::Strin
 {
    if (numChannels <= 0) return;
 
-   setChannelFormat (juce::AudioChannelSet::canonicalChannelSet (numChannels), channelNames );
+   setChannelFormat (juce::AudioChannelSet::canonicalChannelSet (numChannels), channelNames);
 }
 
 //==============================================================================
@@ -305,11 +305,13 @@ void MetersPanel::setChannelFormat (const juce::AudioChannelSet& channelFormat, 
    m_faderGainsBuffer = m_faderGains;
 
    // Set the channel names...
-   if (! channelNames.empty()) setChannelNames (channelNames);
+   setChannelNames (channelNames);
 
    // Resize the mixer to accommodate any optionally added meters...
    resized();
 }
+
+void calculateDefaultPanelWidth() { }
 
 //==============================================================================
 void MetersPanel::setChannelNames (const std::vector<juce::String>& channelNames)
@@ -317,30 +319,43 @@ void MetersPanel::setChannelNames (const std::vector<juce::String>& channelNames
    using namespace Constants;
 
    const int numChannelNames = static_cast<int> (channelNames.size());
-   const int numMeters       = m_meters.size();
 
-   jassert (numChannelNames == numMeters);  // NOLINT
+   const int numMeters = m_meters.size();
 
-   auto minimumMeterWidth = static_cast<float> (kMinWidth);
+   auto defaultMeterWidth = static_cast<float> (kMinWidth);
 
    // Loop through all meters...
    for (int meterIdx = 0; meterIdx < numMeters; ++meterIdx)
    {
       if (meterIdx < numChannelNames)
       {
-         if (channelNames[meterIdx].isNotEmpty()) m_meters[meterIdx]->setChannelName (channelNames[meterIdx]);  // ... and set the channel name.
-      }
+         if (channelNames[meterIdx].isNotEmpty())
+         {
+            m_meters[meterIdx]->setChannelName (channelNames[meterIdx]);  // ... and set the channel name.
 
-      // Calculate the default meter width so it fits the largest of channel names...
-      minimumMeterWidth = std::max (minimumMeterWidth, m_meters[meterIdx]->getChannelInfoWidth());
+            // Calculate the default meter width so it fits the largest of channel names...
+            defaultMeterWidth = std::max (defaultMeterWidth, m_meters[meterIdx]->getChannelNameWidth());
+         }
+      }
+      else
+      {
+         // Calculate the default meter width so it fits the largest of full type descriptions...
+         defaultMeterWidth = std::max (defaultMeterWidth, m_meters[meterIdx]->getChannelTypeWidth());
+      }
+   }
+
+   if (channelNames.empty() )
+   {
+      for ( auto& meter : m_meters)
+         meter->setReferredTypeWidth( defaultMeterWidth );
    }
 
    // Calculate default mixer width...
    // This is the width at which all channel names can be displayed.
-   m_mixerDefaultWidth = static_cast<int> (minimumMeterWidth * static_cast<float> (numMeters));  // Min. width needed for channel names.
+   m_mixerDefaultWidth = static_cast<int> (defaultMeterWidth * static_cast<float> (numMeters));  // Min. width needed for channel names.
    m_mixerDefaultWidth += numMeters * kFaderRightPadding;                                        // Add the padding that is on the right side of the channels.
    m_mixerDefaultWidth += kLabelWidth + kMasterFaderLeftPadding;                                 // Add master fader width (incl. padding).
-   m_mixerDefaultWidth += kLabelWidth;
+   // m_mixerDefaultWidth += kLabelWidth;
 }
 
 //==============================================================================
