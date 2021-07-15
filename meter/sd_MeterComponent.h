@@ -41,7 +41,7 @@ namespace sd::SoundMeter
 /**
  * @brief The meter component.
 */
-class NewMeterComponent
+class MeterComponent
   : public juce::Component
   , public juce::SettableTooltipClient
 {
@@ -51,12 +51,16 @@ public:
 
    using ChannelType = juce::AudioChannelSet::ChannelType;
 
-   NewMeterComponent() : m_fader (this) { setPaintingIsUnclipped (true); }
+   MeterComponent() 
+#if SDTK_ENABLE_FADER
+   : m_fader (this)
+#endif
+   { setPaintingIsUnclipped (true); }
 
-   NewMeterComponent (const juce::String& name, const std::vector<float>& ticks, MeterPadding padding, float meterDecy, bool headerVisible, bool valueVisible,
+   MeterComponent (const juce::String& name, const std::vector<float>& ticks, MeterPadding padding, float meterDecy, bool headerVisible, bool valueVisible,
                       bool isLabelStrip = false, Fader::Listener* faderListener = nullptr, ChannelType channelType = ChannelType::unknown);
 
-   ~NewMeterComponent() override = default;
+   ~MeterComponent() override = default;
 
    /**
     * Reset the meter (but not the peak hold).
@@ -221,33 +225,6 @@ public:
    [[nodiscard]] bool isActive() const noexcept { return m_active; }
 
    /**
-    * @brief Active (or de-activate) fader.
-    * @param faderActive When set to true, will activate the meter's fader.
-    * @see isFaderActive
-   */
-   void               setFaderActive (bool faderActive = true);
-   [[nodiscard]] bool isFaderActive() const noexcept { return m_fader.isActive(); }
-
-   void setFaderEnabled (bool faderEnabled = true);
-
-   /**
-    * Get the value of the meter fader.
-    *
-    * @return the current fader value [0..1].
-    */
-   [[nodiscard]] float getFaderValue() const noexcept { return m_fader.getValue(); }
-
-   /**
-    * @brief Set fader value.
-    *
-    * @param value              The value [0..1] the fader needs to be set to.
-    * @param notificationOption Select whether to notify the listeners.
-    * @param showFader          When set to true, the fader will briefly appear (when the value is changed).
-    * @exceptsafe               Shall not throw exceptions.
-    */
-   void setFaderValue (float value, NotificationOptions notificationOption = NotificationOptions::dontNotify, bool showFader = true) noexcept;
-
-   /**
     * @brief Set the meter font. 
     *
     * Font to be used for the header, value and label strip.
@@ -317,8 +294,39 @@ public:
    [[nodiscard]] bool isMinimalModeActive() const noexcept { return m_minimalMode; }
    [[nodiscard]] bool autoSetMinimalMode (int proposedWidth, int proposedHeight);
 
+#if SDTK_ENABLE_FADER
+   /**
+    * @brief Active (or de-activate) fader.
+    * @param faderActive When set to true, will activate the meter's fader.
+    * @see isFaderActive
+   */
+   void               setFaderActive (bool faderActive = true);
+   [[nodiscard]] bool isFaderActive() const noexcept { return m_fader.isActive(); }
+
+   void setFaderEnabled (bool faderEnabled = true);
+
+   /**
+    * Get the value of the meter fader.
+    *
+    * @return the current fader value [0..1].
+    */
+   [[nodiscard]] float getFaderValue() const noexcept { return m_fader.getValue(); }
+
+   /**
+    * @brief Set fader value.
+    *
+    * @param value              The value [0..1] the fader needs to be set to.
+    * @param notificationOption Select whether to notify the listeners.
+    * @param showFader          When set to true, the fader will briefly appear (when the value is changed).
+    * @exceptsafe               Shall not throw exceptions.
+    */
+   void setFaderValue (float value, NotificationOptions notificationOption = NotificationOptions::dontNotify, bool showFader = true) noexcept;
+
    void addFaderListener (Fader::Listener& listener) { m_fader.addListener (listener); }
    void removeFaderListener (Fader::Listener& listener) { m_fader.removeListener (listener); }
+
+#endif /* SDTK_ENABLE_FADER */
+
 
    //==============================================================================
    // Internal
@@ -353,9 +361,11 @@ private:
    // Private members.
    Header m_header;  // Info relating to the meter (name, channel type, info rect, index in a sequence of multiple meters).
 
-   Fader m_fader;
-
    Level m_level;
+
+#if SDTK_ENABLE_FADER
+   Fader m_fader;
+#endif /* SDTK_ENABLE_FADER */
 
    // GUI
    MeterPadding m_padding { 0, 0, 0, 0 };  // Space between meter and component's edge.
@@ -393,17 +403,20 @@ private:
 
    [[nodiscard]] juce::Colour getColourFromLnf (int colourId, const juce::Colour& fallbackColour) const;
 
-   void mouseDown (const juce::MouseEvent& event) override;
+#if SDTK_ENABLE_FADER
    void mouseDrag (const juce::MouseEvent& event) override;
+   void mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel) override;
+#endif /* SDTK_ENABLE_FADER */
+
+   void mouseDown (const juce::MouseEvent& event) override;
    void mouseMove (const juce::MouseEvent& event) override;
    void mouseExit (const juce::MouseEvent& event) override;
-   void mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel) override;
    void mouseDoubleClick (const juce::MouseEvent& event) override;
    void resetMouseOvers() noexcept;
    void setColours() noexcept;
 
    // clang-format on
-   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NewMeterComponent)
+   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MeterComponent)
 };
 
 }  // namespace sd::SoundMeter

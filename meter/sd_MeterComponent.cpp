@@ -34,13 +34,12 @@
 namespace sd::SoundMeter
 {
 
-
 #pragma region Misc Methods
 
 
-NewMeterComponent::NewMeterComponent (const juce::String& name, const std::vector<float>& ticks, MeterPadding padding, float meterDecy, bool headerVisible,
+MeterComponent::MeterComponent (const juce::String& name, const std::vector<float>& ticks, MeterPadding padding, float meterDecy, bool headerVisible,
                                       bool valueVisible, bool isLabelStrip /*= false*/, SoundMeter::Fader::Listener* faderListener /*= nullptr*/, ChannelType channelType /*= ChannelType::unknown*/)
-  : NewMeterComponent()
+  : MeterComponent()
 {
    setName (name);
    setTickMarks (ticks);
@@ -52,25 +51,32 @@ NewMeterComponent::NewMeterComponent (const juce::String& name, const std::vecto
    setIsLabelStrip (isLabelStrip);
    m_level.setPeakValueVisible (valueVisible);
 
+#if SDTK_ENABLE_FADER
    if (faderListener) addFaderListener (*faderListener);
+#endif
 }
 
 //==============================================================================
-void NewMeterComponent::reset()
+void MeterComponent::reset()
 {
    m_level.reset();
    refresh (true);
 }
 
+
+#if SDTK_ENABLE_FADER
+
 //==============================================================================
-void NewMeterComponent::flashFader()
+void MeterComponent::flashFader()
 {
    m_fader.flash();
    refresh (true);
 }
 
+#endif /* SDTK_ENABLE_FADER */
+
 //==============================================================================
-[[nodiscard]] juce::Colour NewMeterComponent::getColourFromLnf (int colourId, const juce::Colour& fallbackColour) const
+[[nodiscard]] juce::Colour MeterComponent::getColourFromLnf (int colourId, const juce::Colour& fallbackColour) const
 {
    if (isColourSpecified (colourId)) return findColour (colourId);
    if (getLookAndFeel().isColourSpecified (colourId)) return getLookAndFeel().findColour (colourId);
@@ -79,7 +85,46 @@ void NewMeterComponent::flashFader()
 }
 
 //==============================================================================
-void NewMeterComponent::setColours() noexcept
+[[nodiscard]] bool MeterComponent::autoSetMinimalMode (int proposedWidth, int proposedHeight)
+{
+   bool minimalMode = ! nameFits ("Lfe", proposedWidth);
+   if (proposedWidth < Constants::kMinModeWidthThreshold) minimalMode = true;
+   if (proposedHeight < Constants::kMinModeHeightThreshold) minimalMode = true;
+
+   setMinimalMode (minimalMode);
+
+   return minimalMode;
+}
+
+//==============================================================================
+void MeterComponent::setMinimalMode (bool minimalMode) noexcept
+{
+   if (minimalMode == m_minimalMode) return;
+
+   m_minimalMode = minimalMode;
+   showTickMarks (! m_minimalMode);                // ... show tick marks if it's not too narrow for ID and not in minimum mode.
+   setHeaderVisible (! m_minimalMode);             // ... show channel ID if it's not too narrow for ID and not in minimum mode.
+   showTickMarks (! m_minimalMode);                // ... show tick marks if it's not too narrow for ID and not in minimum mode.
+   m_level.setPeakValueVisible (! m_minimalMode);  // ... show peak value if it's not too narrow for ID and not in minimum mode.
+   setDirty();
+}
+
+//==============================================================================
+void MeterComponent::lookAndFeelChanged()
+{
+   setColours();
+   setDirty();
+}
+
+//==============================================================================
+void MeterComponent::visibilityChanged()
+{
+   setColours();
+   setDirty();
+}
+
+//==============================================================================
+void MeterComponent::setColours() noexcept
 {
    m_backgroundColour     = getColourFromLnf (backgroundColourId, juce::Colours::black);
    m_inactiveColour       = getColourFromLnf (inactiveColourId, juce::Colours::red);
@@ -95,60 +140,21 @@ void NewMeterComponent::setColours() noexcept
 }
 
 //==============================================================================
-[[nodiscard]] bool NewMeterComponent::autoSetMinimalMode (int proposedWidth, int proposedHeight)
-{
-   bool minimalMode = ! nameFits ("Lfe", proposedWidth);
-   if (proposedWidth < Constants::kMinModeWidthThreshold) minimalMode = true;
-   if (proposedHeight < Constants::kMinModeHeightThreshold) minimalMode = true;
-
-   setMinimalMode (minimalMode);
-
-   return minimalMode;
-}
-
-//==============================================================================
-void NewMeterComponent::setMinimalMode (bool minimalMode) noexcept
-{
-   if (minimalMode == m_minimalMode) return;
-
-   m_minimalMode = minimalMode;
-   showTickMarks (! m_minimalMode);                // ... show tick marks if it's not too narrow for ID and not in minimum mode.
-   setHeaderVisible (! m_minimalMode);             // ... show channel ID if it's not too narrow for ID and not in minimum mode.
-   showTickMarks (! m_minimalMode);                // ... show tick marks if it's not too narrow for ID and not in minimum mode.
-   m_level.setPeakValueVisible (! m_minimalMode);  // ... show peak value if it's not too narrow for ID and not in minimum mode.
-   setDirty();
-}
-
-//==============================================================================
-void NewMeterComponent::lookAndFeelChanged()
-{
-   setColours();
-   setDirty();
-}
-
-//==============================================================================
-void NewMeterComponent::visibilityChanged()
-{
-   setColours();
-   setDirty();
-}
-
-//==============================================================================
-void NewMeterComponent::showPeakValue (bool showPeakValue /*= true*/)
+void MeterComponent::showPeakValue (bool showPeakValue /*= true*/)
 {
    m_level.setPeakValueVisible (showPeakValue);
    setDirty();
 }
 
 //==============================================================================
-void NewMeterComponent::showTickMarks (bool showTickMarks /*= true*/)
+void MeterComponent::showTickMarks (bool showTickMarks /*= true*/)
 {
    m_level.setTickMarksVisible (showTickMarks);
    setDirty();
 }
 
 //==============================================================================
-void NewMeterComponent::showPeakHold (bool showPeakHold /*= true*/)
+void MeterComponent::showPeakHold (bool showPeakHold /*= true*/)
 {
    m_level.setPeakHoldVisible (showPeakHold);
    setDirty();
@@ -160,7 +166,7 @@ void NewMeterComponent::showPeakHold (bool showPeakHold /*= true*/)
 #pragma region Draw Methods
 
 //==============================================================================
-void NewMeterComponent::resized()
+void MeterComponent::resized()
 {
    auto meterBounds = SoundMeter::Helpers::applyPadding (getLocalBounds(), m_padding);
 
@@ -178,12 +184,14 @@ void NewMeterComponent::resized()
       if (m_level.isPeakValueVisible() && wideEnoughForValue) m_level.setValueBounds (meterBounds.removeFromBottom (Constants::kChannelNameHeight));
    }
 
+#if SDTK_ENABLE_FADER
    m_fader.setBounds (meterBounds);
+#endif
    m_level.setMeterBounds (meterBounds);
 }
 
 //==============================================================================
-void NewMeterComponent::paint (juce::Graphics& g)
+void MeterComponent::paint (juce::Graphics& g)
 {
    if (getLocalBounds().isEmpty()) return;
 
@@ -196,13 +204,16 @@ void NewMeterComponent::paint (juce::Graphics& g)
    // Draw the METER, unless it is a LABEL strip. Then draw the level values...
    m_isLabelStrip ? m_level.drawLabels (g, m_textColour) : drawMeter (g);
 
+#if SDTK_ENABLE_FADER
    // Draw FADER....
    m_fader.draw (g, m_faderColour);
+#endif
+
    setDirty (false);
 }
 
 //==============================================================================
-void NewMeterComponent::drawMeter (juce::Graphics& g)
+void MeterComponent::drawMeter (juce::Graphics& g)
 {
    using namespace SoundMeter::Constants;
 
@@ -227,14 +238,14 @@ void NewMeterComponent::drawMeter (juce::Graphics& g)
 }
 
 //==============================================================================
-[[nodiscard]] bool NewMeterComponent::isDirty (const juce::Rectangle<int>& rectToCheck /*= {}*/) const noexcept
+[[nodiscard]] bool MeterComponent::isDirty (const juce::Rectangle<int>& rectToCheck /*= {}*/) const noexcept
 {
    if (rectToCheck.isEmpty()) return ! m_dirtyRect.isEmpty();
    return m_dirtyRect.intersects (rectToCheck);
 }
 
 //==============================================================================
-void NewMeterComponent::refresh (const bool forceRefresh)
+void MeterComponent::refresh (const bool forceRefresh)
 {
    if (m_active)
    {
@@ -276,17 +287,58 @@ void NewMeterComponent::refresh (const bool forceRefresh)
 #pragma region Properties
 
 //==============================================================================
-void NewMeterComponent::setActive (bool isActive, NotificationOptions notify /*= NotificationOptions::dontNotify*/)
+void MeterComponent::setActive (bool isActive, NotificationOptions notify /*= NotificationOptions::dontNotify*/)
 {
    if (m_active == isActive) return;
    reset();
    m_active = isActive;
+
+#if SDTK_ENABLE_FADER
    if (notify == NotificationOptions::notify) m_fader.notify();
+#endif
+
+   setDirty();
+}
+
+void MeterComponent::resetMouseOvers() noexcept
+{
+   m_header.resetMouseOver();
+   m_level.resetMouseOverValue();
+}
+
+//==============================================================================
+void MeterComponent::setFont (const juce::Font& font) noexcept
+{
+   m_header.setFont (font.withHeight (Constants::kChannelNameFontHeight));
    setDirty();
 }
 
 //==============================================================================
-void NewMeterComponent::setFaderActive (const bool faderActive /*= true */)
+void MeterComponent::resetPeakHold() noexcept
+{
+   m_level.resetPeakHoldLevel();
+   setDirty();
+}
+
+//==============================================================================
+void MeterComponent::setHeader (Header header) noexcept
+{
+   m_header = header;
+   refresh (true);
+}
+
+//==============================================================================
+void MeterComponent::setChannelName (const juce::String& channelName)
+{
+   m_header.setName (channelName);
+   addDirty (m_header.getBounds());
+}
+
+
+#if SDTK_ENABLE_FADER
+
+//==============================================================================
+void MeterComponent::setFaderActive (const bool faderActive /*= true */)
 {
    m_fader.setActive (faderActive);
 
@@ -296,14 +348,8 @@ void NewMeterComponent::setFaderActive (const bool faderActive /*= true */)
    addDirty (m_fader.getBounds());
 }
 
-void NewMeterComponent::resetMouseOvers() noexcept
-{
-   m_header.resetMouseOver();
-   m_level.resetMouseOverValue();
-}
-
 //==============================================================================
-void NewMeterComponent::setFaderValue (const float value, NotificationOptions notificationOption /*= NotificationOptions::DontNotify*/, const bool mustShowFader /*= true*/) noexcept
+void MeterComponent::setFaderValue (const float value, NotificationOptions notificationOption /*= NotificationOptions::DontNotify*/, const bool mustShowFader /*= true*/) noexcept
 {
    if (m_fader.setValue (value, notificationOption))
    {
@@ -314,25 +360,13 @@ void NewMeterComponent::setFaderValue (const float value, NotificationOptions no
 }
 
 //==============================================================================
-void NewMeterComponent::setFaderEnabled (bool faderEnabled /*= true*/)
+void MeterComponent::setFaderEnabled (bool faderEnabled /*= true*/)
 {
    m_fader.setEnabled (faderEnabled);
    addDirty (m_fader.getBounds());
 }
 
-//==============================================================================
-void NewMeterComponent::setFont (const juce::Font& font) noexcept
-{
-   m_header.setFont (font.withHeight (Constants::kChannelNameFontHeight));
-   setDirty();
-}
-
-//==============================================================================
-void NewMeterComponent::resetPeakHold() noexcept
-{
-   m_level.resetPeakHoldLevel();
-   setDirty();
-}
+#endif /* SDTK_ENABLE_FADER */
 
 #pragma endregion
 
@@ -340,20 +374,24 @@ void NewMeterComponent::resetPeakHold() noexcept
 #pragma region Mouse Methods
 
 //==============================================================================
-void NewMeterComponent::mouseDown (const juce::MouseEvent& event)
+void MeterComponent::mouseDown (const juce::MouseEvent& event)
 {
    // Left mouse button down and fader is active...
-   if (event.mods == juce::ModifierKeys::leftButtonModifier && m_fader.isActive())
+   if (event.mods == juce::ModifierKeys::leftButtonModifier )
    {
+
+#if SDTK_ENABLE_FADER
       // Clicked on the METER part...
-      if (! m_header.isMouseOver (event.y) && ! m_level.isMouseOverValue (event.y))
+      if (! m_header.isMouseOver (event.y) && ! m_level.isMouseOverValue (event.y) && m_fader.isActive())
       {
          if (! isActive()) setActive (true);  // Activate if it was de-activated.
          m_fader.setValueFromPos (event.y);   // Set the fader level at the value clicked.
          addDirty (m_fader.getBounds());
       }
+#endif /* SDTK_ENABLE_FADER */
+
       // Clicked on the HEADER part...
-      else if (m_header.isMouseOver (event.y))
+      if (m_header.isMouseOver (event.y))
       {
          setActive (! isActive(), NotificationOptions::notify);
       }
@@ -361,7 +399,7 @@ void NewMeterComponent::mouseDown (const juce::MouseEvent& event)
 }
 
 //==============================================================================
-void NewMeterComponent::mouseMove (const juce::MouseEvent& event)
+void MeterComponent::mouseMove (const juce::MouseEvent& event)
 {
    setTooltip ("");
 
@@ -388,12 +426,16 @@ void NewMeterComponent::mouseMove (const juce::MouseEvent& event)
    // Check if the mouse is over the meter part...
    if (! m_header.isMouseOver() && ! m_level.isMouseOverValue())
    {
+
+#if SDTK_ENABLE_FADER
       if (m_fader.isActive())
       {
          setMouseCursor (juce::MouseCursor::PointingHandCursor);
          setTooltip (m_isLabelStrip ? "Drag to move master fader." : "Drag to move fader.");
       }
       else
+#endif /* SDTK_ENABLE_FADER */
+
       {
          setMouseCursor (juce::MouseCursor::NormalCursor);
       }
@@ -401,7 +443,7 @@ void NewMeterComponent::mouseMove (const juce::MouseEvent& event)
 }
 
 //==============================================================================
-void NewMeterComponent::mouseExit (const juce::MouseEvent& /*event*/)
+void MeterComponent::mouseExit (const juce::MouseEvent& /*event*/)
 {
    if (m_header.isMouseOver())
       addDirty (m_header.getBounds());
@@ -413,7 +455,24 @@ void NewMeterComponent::mouseExit (const juce::MouseEvent& /*event*/)
 }
 
 //==============================================================================
-void NewMeterComponent::mouseDrag (const juce::MouseEvent& event)
+void MeterComponent::mouseDoubleClick (const juce::MouseEvent& event)
+{
+   if (event.mods == juce::ModifierKeys::leftButtonModifier)
+   {
+      if (! m_header.isMouseOver (event.y))
+      {
+         if (m_level.isMouseOverValue (event.y))  // Double clicking on VALUE resets peak hold...
+            resetPeakHold();
+#if SDTK_ENABLE_FADER
+         else if (isActive())  // Double clicking on the FADER resets it to 0...
+            setFaderValue (1.0f, NotificationOptions::notify);
+#endif /* SDTK_ENABLE_FADER */
+      }
+   }
+}
+#if SDTK_ENABLE_FADER
+//==============================================================================
+void MeterComponent::mouseDrag (const juce::MouseEvent& event)
 {
    // When left button down, the meter is active, the fader is active and the mouse is not over the 'info' area...
    if (event.mods == juce::ModifierKeys::leftButtonModifier && isActive() && m_fader.isActive() && ! m_header.isMouseOver (event.y)
@@ -425,40 +484,12 @@ void NewMeterComponent::mouseDrag (const juce::MouseEvent& event)
 }
 
 //==============================================================================
-void NewMeterComponent::mouseDoubleClick (const juce::MouseEvent& event)
-{
-   if (event.mods == juce::ModifierKeys::leftButtonModifier)
-   {
-      if (! m_header.isMouseOver (event.y))
-      {
-         if (m_level.isMouseOverValue (event.y))  // Double clicking on VALUE resets peak hold...
-            resetPeakHold();
-         else if (isActive())  // Double clicking on the FADER resets it to 0...
-            setFaderValue (1.0f, NotificationOptions::notify);
-      }
-   }
-}
-
-//==============================================================================
-void NewMeterComponent::mouseWheelMove (const juce::MouseEvent& /*event*/, const juce::MouseWheelDetails& wheel)
+void MeterComponent::mouseWheelMove (const juce::MouseEvent& /*event*/, const juce::MouseWheelDetails& wheel)
 {
    setFaderValue (std::clamp<float> (m_fader.getValue() + (wheel.deltaY / Constants::kFaderSensitivity), 0.0f, 1.0f), NotificationOptions::notify, false);
 }
 
-//==============================================================================
-void NewMeterComponent::setHeader (Header header) noexcept
-{
-   m_header = header;
-   refresh (true);
-}
-
-//==============================================================================
-void NewMeterComponent::setChannelName (const juce::String& channelName)
-{
-   m_header.setName (channelName);
-   addDirty (m_header.getBounds());
-}
-
+#endif /* SDTK_ENABLE_FADER */
 
 #pragma endregion
 

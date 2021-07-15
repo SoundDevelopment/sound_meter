@@ -45,7 +45,9 @@ namespace sd::SoundMeter
  */
 class MetersPanel
   : public juce::Component
+#if SDTK_ENABLE_FADER
   , public sd::SoundMeter::Fader::Listener
+#endif
 {
 public:
    static constexpr auto kMasterFaderLeftPadding = 10;  ///< Padding (in pixels) on the left side of the master fader.
@@ -57,12 +59,12 @@ public:
    MetersPanel();
 
    /**
-    * @brief Constructor which accepts a channel format.
+    * @brief Constructor wich accepts a channel format.
     * 
     * This constructor will automatically setup the panel with the 
     * right amount of meters, named according to the channel format.
+    * 
     * @param channelFormat The channel format to use to initialise the panel.
-    * @see MixerPanel, ~MixerPanel
    */
    explicit MetersPanel (const juce::AudioChannelSet& channelFormat);
 
@@ -84,11 +86,6 @@ public:
    void reset();
 
    /**
-    * @brief Set all faders to unity gain.
-    */
-   void resetFaders();
-
-   /**
     * @brief Reset all meters.
     * Resets all meters (but not the peak hold.
    */
@@ -106,11 +103,6 @@ public:
    void setInputLevel (int channel, float value);
 
    /**
-    * @brief Notify the listeners the faders have been moved.
-   */
-   void notifyListeners();
-
-   /**
     * @brief Set the number of channels (meters) in the panel.
     * 
     * @param numChannels  The number of channels (meters).
@@ -125,6 +117,21 @@ public:
     * @param channelNames The (optional) channel names to use in the header of the meters.
     */
    void setChannelFormat (const juce::AudioChannelSet& channels, const std::vector<juce::String>& channelNames = {});
+
+   /**
+    * @brief Get the number of meters in the panel.
+    * @return The number of meters in the panel.
+   */
+   int getNumMeters() const noexcept { return m_meters.size(); }
+
+   /**
+    * @brief Get the default meters panel width.
+    * Get's the default panel width in pixels. 
+    * This is the width where all channels are wide enough to display
+    * all channel names.
+    * @return The default panel width (in pixels).
+   */
+   int getDefaultPanelWidth() const noexcept { return m_defaultPanelWidth; }
 
    /**
     * @brief Set the channel names to display above the meters.
@@ -174,12 +181,18 @@ public:
    void setFont (const juce::Font& newFont) noexcept;
 
    /**
+    * @brief Reset all peak hold indicators and 'values'.
+   */
+   void peakHoldReset();
+
+   /**
     * @brief Enable or disable the panel.
     * 
     * @param enabled When set to true, the meters panel will be displayed.
     */
    void setEnabled (bool enabled = true);
 
+#if SDTK_ENABLE_FADER
    /**
     * @brief Enable the faders on the meters.
     *
@@ -215,31 +228,16 @@ public:
    void toggleMute();
 
    /**
+    * @brief Set all faders to unity gain.
+    */
+   void resetFaders();
+
+   /**
     * Check if all channels have been set inactive..
     * 
     * @return True, if all channels are inactive (muted).
     */
    [[nodiscard]] bool areAllChannelsInactive();
-
-   /**
-    * @brief Reset all peak hold indicators and 'values'.
-   */
-   void peakHoldReset();
-
-   /**
-    * @brief Get the default mixer width.
-    * Get's the default mixer width in pixels. 
-    * This is the width where all channels are wide enough to display
-    * all channel names.
-    * @return The default mixer width (in pixels).
-   */
-   int getDefaultMixerWidth() const noexcept { return m_mixerDefaultWidth; }
-
-   /**
-    * @brief Get the number of meters in the panel.
-    * @return The number of meters in the panel.
-   */
-   int getNumMeters() const noexcept { return m_meters.size(); }
 
    /**
 	 * @brief A listener to any fader changes in the meters panel.
@@ -268,6 +266,8 @@ public:
    */
    void removeFadersListener (FadersChangeListener& listener) { m_fadersListeners.remove (&listener); }
 
+#endif /* SDTK_ENABLE_FADER */
+
    //==============================================================================
    // Internal juce methods...
 
@@ -275,20 +275,11 @@ public:
    void lookAndFeelChanged() override { setColours(); }
    void paint (juce::Graphics& g) override;
    void resized() override;
-   void mouseEnter (const juce::MouseEvent& event) override;
-   void mouseExit (const juce::MouseEvent& event) override;
 
 private:
    // clang-format off
 
-   using                            MetersType           = juce::OwnedArray<NewMeterComponent>;       ///< Container type for multiple meters.
-   using                            FadersListenerList   = juce::ListenerList<FadersChangeListener>;  ///< List of listeners to fader changes.
-
-   // Private members...
-   FadersListenerList               m_fadersListeners;                                                ///< List of listeners to fader changes.
-
-   std::vector<float>               m_faderGainsBuffer;
-   std::vector<float>               m_faderGains;
+   using                            MetersType           = juce::OwnedArray<MeterComponent>;       ///< Container type for multiple meters.
 
    juce::AudioChannelSet            m_channelFormat      = juce::AudioChannelSet::stereo();
 
@@ -297,26 +288,41 @@ private:
    std::vector<float>               m_tickMarks          = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };    ///< Tick-mark position in db.
    int                              m_meterWidth         = 20;                                        ///< Width of the meter (in pixels).
    int                              m_masterStripWidth   = m_meterWidth;                              ///< Width of the tick-mark labels (in pixels).
-   int                              m_mixerDefaultWidth  = 0;                                       
+   int                              m_defaultPanelWidth  = 0;                                       
    float                            m_meterDecayTime_ms  = Constants::kDefaultDecay_ms;               // NOLINT
 
-   NewMeterComponent                m_masterFader;
+   MeterComponent                m_masterFader;
 
    bool                             m_enabled            = true;
-   bool                             m_fadersEnabled      = false;
    juce::Font                       m_font               {};
    int                              m_guiRefreshRate     = 24;
    float                            m_warningRegion_db   = Constants::kWarningLevel_db;
    float                            m_peakRegion_db      = Constants::kPeakLevel_db;
 
    juce::Colour                     m_backgroundColour   = juce::Colours::black;
+      
+#if SDTK_ENABLE_FADER
+   using                            FadersListenerList   = juce::ListenerList<FadersChangeListener>;  ///< List of listeners to fader changes.
+
+   // Private members...
+   FadersListenerList               m_fadersListeners;                                                ///< List of listeners to fader changes.
+
+   std::vector<float>               m_faderGainsBuffer;
+   std::vector<float>               m_faderGains;
+   
+   bool                             m_fadersEnabled      = false;
+   
+   void                             faderChanged         ( NewMeterComponent* sourceMeter, float value ) override;
+   void                             notifyListeners      (); ///< Notify the listeners the faders have been moved.
+   void                             mouseEnter           (const juce::MouseEvent& event) override;
+   void                             mouseExit            (const juce::MouseEvent& event) override;
+#endif
 
    // Private methods...
    void                             setColours           ();
-   void                             faderChanged         ( NewMeterComponent* sourceMeter, float value ) override;
    void                             createMeters         ( const juce::AudioChannelSet& channelFormat, const std::vector<juce::String>& channelNames );
    void                             deleteMeters         ();
-   [[nodiscard]] NewMeterComponent* getMeter             ( const int meterIndex ) noexcept;
+   [[nodiscard]] MeterComponent* getMeter             ( const int meterIndex ) noexcept;
 
 
    // clang-format on
