@@ -248,34 +248,48 @@ public:
 
    /**
     * @brief Get the master fader.
+    * 
     * Get a reference to the master fader component.
+    * 
     * @return A reference to the master fader component.
    */
    const MeterComponent& getMasterFader() const noexcept { return m_masterFader; }
 
    /**
     * @brief Show (or hide) all the faders.
+    * 
     * @param showMixer When set to true, will show the faders. Otherwise it will hide them.
    */
    void showFaders (bool showMixer);
 
    /**
+    * @brief Set all faders to unity gain.
+    */
+   void resetFaders();
+  
+   /**
     * @brief Toggle mute channels.
+    * 
     * Mute all channels, or if all were muted, un-mute all.
+    * 
+    * @see muteAll
     */
    void toggleMute();
 
    /**
-    * @brief Set all faders to unity gain.
-    */
-   void resetFaders();
+    * @brief Mute (or un-mute) all meters.
+    * 
+    * @param mute When set to true, all meters will be muted.
+    * @see toggleMute
+   */
+   void muteAll (bool mute = true);
 
    /**
     * Check if all channels have been set inactive..
     * 
     * @return True, if all channels are inactive (muted).
     */
-   [[nodiscard]] bool areAllChannelsInactive();
+   [[nodiscard]] bool areAllMetersInactive();
 
    /**
 	 * @brief A listener to any fader changes in the meters panel.

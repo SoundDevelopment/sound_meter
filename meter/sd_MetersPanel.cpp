@@ -222,25 +222,42 @@ void MetersPanel::mouseEnter (const juce::MouseEvent& /*event*/)
 //==============================================================================
 void MetersPanel::faderChanged (MeterComponent* sourceMeter, float value)
 {
-   if (sourceMeter == &m_masterFader)  // Master strip fader moves all channel faders relatively to each other.
+   // Master strip fader moves all channel faders relatively to each other...
+   if (sourceMeter == &m_masterFader)
    {
       jassert (m_faderGains.size() == m_faderGainsBuffer.size());  // NOLINT
 
-      for (auto singleMeter: m_meters)  // ... apply it to the 'other' meters.
+      // If the master fader is ACTIVE ...
+      if (m_masterFader.isActive())
       {
-         auto meterIdx = m_meters.indexOf (singleMeter);
-         if (juce::isPositiveAndBelow (meterIdx, m_faderGains.size()) && singleMeter->isActive())
+         // ... but all meters are muted ...
+         if (areAllMetersInactive()) muteAll (false);  // ... un- mute all meters ...
+
+         // Apply the master fader VALUE to all meter faders ...
+         for (auto singleMeter: m_meters)
          {
-            m_faderGains[meterIdx] = m_faderGainsBuffer[meterIdx] * value;                                // Multiply the gain with the master fader value.
-            singleMeter->setFaderValue (m_faderGains[meterIdx], NotificationOptions::dontNotify, false);  //  Update the fader to display the new gain value.
+            auto meterIdx = m_meters.indexOf (singleMeter);
+            if (juce::isPositiveAndBelow (meterIdx, m_faderGains.size()))
+            {
+               m_faderGains[meterIdx] = m_faderGainsBuffer[meterIdx] * value;                                // Multiply the gain with the master fader value.
+               singleMeter->setFaderValue (m_faderGains[meterIdx], NotificationOptions::dontNotify, false);  // Update the fader to display the new gain value.
+            }
          }
       }
+      // If the master fader has been DE-ACTIVATED ...
+      else
+      {
+         muteAll();                                                                   // ... mute all meters ...
+         m_masterFader.setFaderValue (1.0f, NotificationOptions::dontNotify, false);  // ... and set the master fader to unity gain.
+      }
    }
-   else  // Any meter/fader but the master fader was moved ...
+   // Any meter/fader but the master fader was moved ...
+   else
    {
       m_masterFader.setFaderValue (1.0f, NotificationOptions::dontNotify, false);  // ... reset the master fader.
       getFaderValues (NotificationOptions::dontNotify);
    }
+
    notifyListeners();
 }
 
@@ -260,6 +277,9 @@ void MetersPanel::getFaderValues (NotificationOptions notificationOption /*= Not
       m_faderGains[meterIdx] = (m_meters[meterIdx]->isActive() ? m_meters[meterIdx]->getFaderValue() : 0.0f);
    }
 
+   // If all meters are in-active, so is the master fader ...
+   m_masterFader.setActive (! areAllMetersInactive(), NotificationOptions::dontNotify);
+
    m_faderGainsBuffer = m_faderGains;
 
    if (notificationOption == NotificationOptions::notify) notifyListeners();
@@ -271,7 +291,6 @@ void MetersPanel::notifyListeners()
    m_fadersListeners.call ([=] (FadersChangeListener& l) { l.fadersChanged (m_faderGains); });
 }
 
-
 //==============================================================================
 void MetersPanel::showFaders (bool mustShowFaders)
 {
@@ -281,7 +300,7 @@ void MetersPanel::showFaders (bool mustShowFaders)
 }
 
 //==============================================================================
-bool MetersPanel::areAllChannelsInactive()
+bool MetersPanel::areAllMetersInactive()
 {
    for (auto meter: m_meters)
       if (meter->isActive()) return false;
@@ -291,10 +310,19 @@ bool MetersPanel::areAllChannelsInactive()
 //==============================================================================
 void MetersPanel::toggleMute()
 {
-   bool allChannelsInactive = areAllChannelsInactive();
+   bool allChannelsInactive = areAllMetersInactive();
+   muteAll (! allChannelsInactive);
+}
+
+//==============================================================================
+void MetersPanel::muteAll (bool mute /*= true */)
+{
+   bool allChannelsInactive = areAllMetersInactive();
+   if (mute == allChannelsInactive) return;  // All meters already muted.
+
    for (auto meter: m_meters)
    {
-      meter->setActive (allChannelsInactive);
+      meter->setActive (! mute);
       meter->flashFader();
    }
    getFaderValues();

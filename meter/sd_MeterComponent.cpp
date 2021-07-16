@@ -37,8 +37,9 @@ namespace sd::SoundMeter
 #pragma region Misc Methods
 
 
-MeterComponent::MeterComponent (const juce::String& name, const std::vector<float>& ticks, MeterPadding padding, float meterDecy, bool headerVisible, bool valueVisible,
-                                bool isLabelStrip /*= false*/, [[maybe_unused]] SoundMeter::Fader::Listener* faderListener /*= nullptr*/, ChannelType channelType /*= ChannelType::unknown*/)
+MeterComponent::MeterComponent (const juce::String& name, const std::vector<float>& ticks, MeterPadding padding, float meterDecy, bool headerVisible,
+                                bool valueVisible, bool isLabelStrip /*= false*/, [[maybe_unused]] SoundMeter::Fader::Listener* faderListener /*= nullptr*/,
+                                ChannelType channelType /*= ChannelType::unknown*/)
   : MeterComponent()
 {
    setName (name);
@@ -94,6 +95,12 @@ void MeterComponent::flashFader()
    setMinimalMode (minimalMode);
 
    return minimalMode;
+}
+
+//==============================================================================
+[[nodiscard]] juce::Rectangle<int> MeterComponent::getLabelStripBounds() const noexcept
+{
+   return m_level.getMeterBounds().getUnion (m_header.getBounds());
 }
 
 //==============================================================================
@@ -200,7 +207,7 @@ void MeterComponent::paint (juce::Graphics& g)
    g.fillRect (getLocalBounds());
 
    g.setFont (m_header.getFont());
-  
+
    // Draw channel HEADER...
 
    bool faderEnabled = false;
@@ -277,12 +284,12 @@ void MeterComponent::refresh (const bool forceRefresh)
             if (level_px != m_level.getLevelDrawn()) addDirty (m_level.getMeterBounds());  // ... if so, meter part is 'dirty' and needs to redrawn.
          }
       }
-
-#if SDTK_ENABLE_FADER
-      // Repaint if the faders are being faded out...
-      if (! isDirty (m_level.getMeterBounds()) && m_fader.isFading()) addDirty (m_level.getMeterBounds());
-#endif
    }
+#if SDTK_ENABLE_FADER
+   // Repaint if the faders are being faded out...
+   if (! isDirty (m_level.getMeterBounds()) && m_fader.isFading()) addDirty (m_level.getMeterBounds());
+#endif
+
 
    // Redraw if dirty or forced to...
    if (forceRefresh)

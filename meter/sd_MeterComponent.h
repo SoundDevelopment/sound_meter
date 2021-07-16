@@ -295,7 +295,7 @@ public:
     *
     * @return The bounds of the 'meter' and 'header' parts combined.
     */
-   [[nodiscard]] juce::Rectangle<int> getLabelStripBounds() const noexcept { return m_level.getMeterBounds().getUnion( m_header.getBounds() ); }
+   [[nodiscard]] juce::Rectangle<int> getLabelStripBounds() const noexcept;
 
    void               setMinimalMode (bool minimalMode) noexcept;
    [[nodiscard]] bool isMinimalModeActive() const noexcept { return m_minimalMode; }
