@@ -63,7 +63,8 @@ void Header::draw (juce::Graphics& g, bool meterActive, bool faderEnabled, const
          g.setColour (inactiveColour.contrasting (0.8f));  // NOLINT
       }
    }
-   g.drawFittedText (headerText, m_bounds, juce::Justification::centred, 1);
+   if (headerText.isNotEmpty() )
+      g.drawFittedText (headerText, m_bounds, juce::Justification::centred, 1);
 }
 
 //==============================================================================

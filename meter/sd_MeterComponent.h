@@ -291,11 +291,11 @@ public:
    void useGradients (bool useGradients) noexcept { m_level.useGradients( useGradients ); }
 
    /**
-    * Get the bounds of the 'meter' part.
+    * Get the bounds of the 'meter' and 'header' parts combined.
     *
-    * @return the bounds of the meter.
+    * @return The bounds of the 'meter' and 'header' parts combined.
     */
-   [[nodiscard]] juce::Rectangle<int> getMeterBounds() const noexcept { return m_level.getMeterBounds(); }
+   [[nodiscard]] juce::Rectangle<int> getLabelStripBounds() const noexcept { return m_level.getMeterBounds().getUnion( m_header.getBounds() ); }
 
    void               setMinimalMode (bool minimalMode) noexcept;
    [[nodiscard]] bool isMinimalModeActive() const noexcept { return m_minimalMode; }

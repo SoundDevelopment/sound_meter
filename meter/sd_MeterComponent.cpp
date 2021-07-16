@@ -173,12 +173,12 @@ void MeterComponent::resized()
    m_level.setValueBounds (m_level.getValueBounds().withHeight (0));  // Set value height to a default of 0.
    m_header.setBounds (m_header.getBounds().withHeight (0));          // Set header height to a default of 0.
 
+   // channel IDs.
+   if (m_header.isVisible()) m_header.setBounds (meterBounds.removeFromTop (Constants::kChannelNameHeight));
+
    // Resize channel name and value...
    if (! m_isLabelStrip)  // Label strips do not have channel names or peak values.
    {
-      // channel IDs.
-      if (m_header.isVisible()) m_header.setBounds (meterBounds.removeFromTop (Constants::kChannelNameHeight));
-
       // Draw peak value.
       const bool wideEnoughForValue = m_header.getFont().getStringWidth ("-99.99") <= meterBounds.getWidth();
       if (m_level.isPeakValueVisible() && wideEnoughForValue) m_level.setValueBounds (meterBounds.removeFromBottom (Constants::kChannelNameHeight));
@@ -200,6 +200,17 @@ void MeterComponent::paint (juce::Graphics& g)
    g.fillRect (getLocalBounds());
 
    g.setFont (m_header.getFont());
+  
+   // Draw channel HEADER...
+
+   bool faderEnabled = false;
+
+#if SDTK_ENABLE_FADER
+   faderEnabled = m_fader.isEnabled();
+#endif
+
+   m_header.draw (g, isActive(), faderEnabled, m_mutedColour, m_mutedMouseOverColour, m_textColour, m_inactiveColour);
+
 
    // Draw the METER, unless it is a LABEL strip. Then draw the level values...
    m_isLabelStrip ? m_level.drawLabels (g, m_textColour) : drawMeter (g);
@@ -216,16 +227,6 @@ void MeterComponent::paint (juce::Graphics& g)
 void MeterComponent::drawMeter (juce::Graphics& g)
 {
    using namespace SoundMeter::Constants;
-
-   // Draw channel HEADER...
-
-   bool faderEnabled = false;
-
-#if SDTK_ENABLE_FADER
-   faderEnabled = m_fader.isEnabled();
-#endif
-
-   m_header.draw (g, isActive(), faderEnabled, m_mutedColour, m_mutedMouseOverColour, m_textColour, m_inactiveColour);
 
    // Draw peak level VALUE...
    m_level.drawPeakValue (g, m_textValueColour);
@@ -410,8 +411,6 @@ void MeterComponent::mouseDown (const juce::MouseEvent& event)
 //==============================================================================
 void MeterComponent::mouseMove (const juce::MouseEvent& event)
 {
-   setTooltip ("");
-
    bool faderEnabled = false;
 #if SDTK_ENABLE_FADER
    faderEnabled = m_fader.isEnabled();

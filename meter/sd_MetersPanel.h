@@ -152,7 +152,7 @@ public:
     * 
     * @return The default panel width (in pixels).
    */
-   int getDefaultPanelWidth() const noexcept { return m_defaultPanelWidth; }
+   int getAutoSizedPanelWidth() const noexcept { return m_autoSizedPanelWidth; }
 
    /**
     * @brief Set the channel names to display above the meters.
@@ -183,13 +183,13 @@ public:
     * 
     * @see refresh, setPanelRefreshRate
    */
-   void setInternalTiming (bool useInternalTiming) noexcept;
+   void useInternalTiming (bool useInternalTiming) noexcept;
 
    /**
     * @brief Set the refresh (redraw) rate of the meters.
     * 
     * Also used for meter ballistics.
-    * When using the internal timer this set's it's refresh rate.
+    * When using the internal timer (setInternalTiming) this set's it's refresh rate.
     * When manually redrawing (with refresh) you could (should) still provide the refresh rate
     * to optimize a smooth decay.
     * 
@@ -317,54 +317,53 @@ public:
 private:
    // clang-format off
 
-   using                            MetersType           = juce::OwnedArray<MeterComponent>;          // Container type for multiple meters.
+   using                            MetersType              = juce::OwnedArray<MeterComponent>;          // Container type for multiple meters.
 
-   juce::AudioChannelSet            m_channelFormat      = juce::AudioChannelSet::stereo();
+   juce::AudioChannelSet            m_channelFormat         = juce::AudioChannelSet::stereo();
 
-   MetersType                       m_meters;                                                         // All meter objects.
+   MetersType                       m_meters;                                                            // All meter objects.
 
-   std::vector<float>               m_tickMarks          = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };    // Tick-mark position in db.
-   int                              m_meterWidth         = 20;                                        // Width of the meter (in pixels).
-   int                              m_masterStripWidth   = m_meterWidth;                              // Width of the tick-mark labels (in pixels).
-   int                              m_defaultPanelWidth  = 0;                                       
-   float                            m_meterDecayTime_ms  = Constants::kDefaultDecay_ms;               // NOLINT
+   std::vector<float>               m_tickMarks             = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };    // Tick-mark position in db.
+   int                              m_meterWidth            = 20;                                        // Width of the meter (in pixels).
+   int                              m_masterStripWidth      = m_meterWidth;                              // Width of the tick-mark labels (in pixels).
+   int                              m_autoSizedPanelWidth   = 0;                                       
+   float                            m_meterDecayTime_ms     = Constants::kDefaultDecay_ms;               // NOLINT
 
    MeterComponent                   m_masterFader;
 
-   bool                             m_enabled            = true;
-   bool                             m_internalTimer      = true;
-   bool                             m_useGradients       = true;
-   juce::Font                       m_font               {};
-   int                              m_panelRefreshRate     = 24;
-   float                            m_warningRegion_db   = Constants::kWarningLevel_db;
-   float                            m_peakRegion_db      = Constants::kPeakLevel_db;
+   bool                             m_enabled               = true;
+   bool                             m_internalTimer         = true;
+   bool                             m_useGradients          = true;
+   juce::Font                       m_font                  {};
+   int                              m_panelRefreshRate      = 24;
+   float                            m_warningRegion_db      = Constants::kWarningLevel_db;
+   float                            m_peakRegion_db         = Constants::kPeakLevel_db;
 
-   juce::Colour                     m_backgroundColour   = juce::Colours::black;
+   juce::Colour                     m_backgroundColour      = juce::Colours::black;
       
 #if SDTK_ENABLE_FADER
-   using                            FadersListenerList   = juce::ListenerList<FadersChangeListener>;  // List of listeners to fader changes.
-                                                                                                       
-   // Private members...                                                                               
-   FadersListenerList               m_fadersListeners;                                                // List of listeners to fader changes.
 
+   // Fader members and methods...
+   using                            FadersListenerList      = juce::ListenerList<FadersChangeListener>;  // List of listeners to fader changes.
+                                                                           
+   FadersListenerList               m_fadersListeners;                                                   // List of listeners to fader changes.
    std::vector<float>               m_faderGainsBuffer;
-   std::vector<float>               m_faderGains;
+   std::vector<float>               m_faderGains;  
+   bool                             m_fadersEnabled         = false;
    
-   bool                             m_fadersEnabled      = false;
-   
-   void                             timerCallback        () override { refresh(); }
-   void                             notifyListeners      ();                                          // Notify the listeners the faders have been moved.
-   void                             mouseEnter           (const juce::MouseEvent& event) override;
-   void                             mouseExit            (const juce::MouseEvent& event) override;
-   void                             faderChanged         ( MeterComponent* sourceMeter, float value ) override;
+   void                             timerCallback           () override { refresh(); }
+   void                             notifyListeners         ();                                          // Notify the listeners the faders have been moved.
+   void                             mouseEnter              (const juce::MouseEvent& event) override;
+   void                             mouseExit               (const juce::MouseEvent& event) override;
+   void                             faderChanged            ( MeterComponent* sourceMeter, float value ) override;
    
 #endif
 
    // Private methods...
-   void                             setColours           ();
-   void                             createMeters         ( const juce::AudioChannelSet& channelFormat, const std::vector<juce::String>& channelNames );
-   void                             deleteMeters         ();
-   [[nodiscard]] MeterComponent*    getMeter             ( const int meterIndex ) noexcept;
+   void                             setColours              ();
+   void                             createMeters            ( const juce::AudioChannelSet& channelFormat, const std::vector<juce::String>& channelNames );
+   void                             deleteMeters            ();
+   [[nodiscard]] MeterComponent*    getMeter                ( const int meterIndex ) noexcept;
 
 
    // clang-format on

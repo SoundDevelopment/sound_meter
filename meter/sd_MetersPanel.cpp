@@ -37,7 +37,7 @@ namespace sd::SoundMeter
 MetersPanel::MetersPanel()
   : m_tickMarks ({ -1.0f, -3.0f, -6.0f, -9.0f, -18.0f }),  // Tick-mark position in db.
     m_meterDecayTime_ms (Constants::kDefaultDecay_ms),
-    m_masterFader (Constants::kMetersPanelId, m_tickMarks, MeterPadding (kMasterFaderLeftPadding, 0, 0, 0), m_meterDecayTime_ms, false, false, true,
+    m_masterFader (Constants::kMetersPanelId, m_tickMarks, MeterPadding (kMasterFaderLeftPadding, 0, 0, 0), m_meterDecayTime_ms, true, false, true,
 #if SDTK_ENABLE_FADER
                    this)
 #else
@@ -120,7 +120,7 @@ void MetersPanel::setPanelRefreshRate (int refreshRate_hz) noexcept
 }
 
 //==============================================================================
-void MetersPanel::setInternalTiming (bool useInternalTiming) noexcept
+void MetersPanel::useInternalTiming (bool useInternalTiming) noexcept
 {
    m_internalTimer = useInternalTiming;
 
@@ -191,8 +191,8 @@ void MetersPanel::resized()
    else
    {
       // Use the dimensions of the 'meter' part (without the 'header' and 'value' part).
-      auto meterPartBounds = m_meters[0]->getMeterBounds();
-      m_masterFader.setBounds (panelBounds.removeFromRight (m_masterStripWidth).withY (meterPartBounds.getY()).withHeight (meterPartBounds.getHeight()));
+      auto masterFaderBounds = m_meters[0]->getLabelStripBounds();
+      m_masterFader.setBounds (panelBounds.removeFromRight (m_masterStripWidth).withY (masterFaderBounds.getY()).withHeight (masterFaderBounds.getHeight()));
       m_masterFader.showTickMarks (true);
    }
 }
@@ -448,13 +448,13 @@ void MetersPanel::setChannelNames (const std::vector<juce::String>& channelNames
          {
             m_meters[meterIdx]->setChannelName (channelNames[meterIdx]);  // ... and set the channel name.
 
-            // Calculate the default meter width so it fits the largest of channel names...
+            // Calculate the meter width so it fits the largest of channel names...
             defaultMeterWidth = std::max (defaultMeterWidth, m_meters[meterIdx]->getChannelNameWidth());
          }
       }
       else
       {
-         // Calculate the default meter width so it fits the largest of full type descriptions...
+         // Calculate the meter width so it fits the largest of full type descriptions...
          defaultMeterWidth = std::max (defaultMeterWidth, m_meters[meterIdx]->getChannelTypeWidth());
       }
    }
@@ -467,10 +467,9 @@ void MetersPanel::setChannelNames (const std::vector<juce::String>& channelNames
 
    // Calculate default mixer width...
    // This is the width at which all channel names can be displayed.
-   m_defaultPanelWidth = static_cast<int> (defaultMeterWidth * static_cast<float> (numMeters));  // Min. width needed for channel names.
-   m_defaultPanelWidth += numMeters * kFaderRightPadding;                                        // Add the padding that is on the right side of the channels.
-   m_defaultPanelWidth += kLabelWidth + kMasterFaderLeftPadding;                                 // Add master fader width (incl. padding).
-   // m_mixerDefaultWidth += kLabelWidth;
+   m_autoSizedPanelWidth = static_cast<int> (defaultMeterWidth * static_cast<float> (numMeters));  // Min. width needed for channel names.
+   m_autoSizedPanelWidth += numMeters * kFaderRightPadding;                                        // Add the padding that is on the right side of the channels.
+   m_autoSizedPanelWidth += kLabelWidth + kMasterFaderLeftPadding;                                 // Add master fader width (incl. padding).
 }
 
 //==============================================================================
