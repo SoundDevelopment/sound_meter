@@ -193,6 +193,8 @@ public:
     */
    [[nodiscard]] bool isPeakHoldVisible() const noexcept { return m_peakHoldVisible; }
 
+   void enableValue (bool valueEnabled) noexcept {  m_valueEnabled = valueEnabled; }
+
    /**
     * @brief Show the peak value.
     *
@@ -203,7 +205,7 @@ public:
     * 
     * @see isPeakValueVisible, resetPeakHoldLevel
     */
-   void setPeakValueVisible (bool isVisible) noexcept { m_peakValueVisible = isVisible; }
+   void setValueVisible (bool isVisible) noexcept { m_valueVisible = isVisible; }
 
    /**
     * @brief Check if the peak 'value' part is visible.
@@ -215,7 +217,7 @@ public:
     *
     * @see setPeakValueVisible, resetPeakHoldLevel
     */
-   [[nodiscard]] bool isPeakValueVisible() const noexcept { return m_peakValueVisible; }
+   [[nodiscard]] bool isPeakValueVisible() const noexcept { return m_valueVisible && m_valueEnabled; }
 
    /**
     * @brief Reset the peak hold level.
@@ -357,7 +359,8 @@ private:
 
    bool m_tickMarksVisible = true;
    bool m_peakHoldVisible  = true;
-   bool m_peakValueVisible = false;
+   bool m_valueVisible = false;
+   bool m_valueEnabled = true;
    bool m_mouseOverValue   = false;
    bool m_useGradients     = true;
 

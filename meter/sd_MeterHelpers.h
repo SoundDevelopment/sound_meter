@@ -47,6 +47,7 @@ namespace Constants
 static constexpr auto kMinWidth               = 2;
 static constexpr auto kMaxWidth               = 500;
 static constexpr auto kLabelWidth             = 30;
+static constexpr auto kLabelStripTextPadding  = 2;
 static constexpr auto kMaxLevel_db            = 0.0f;     ///< Max meter level in db.
 static constexpr auto kMinDecay_ms            = 100.0f;   ///< Min. meter decay speed in milliseconds.
 static constexpr auto kMaxDecay_ms            = 2000.0f;  ///< Max. meter decay speed in milliseconds.

@@ -102,8 +102,9 @@ public:
     */
    void setFont (const juce::Font& font) noexcept;
 
-   [[nodiscard]] bool isVisible() const noexcept { return m_visible; }
+   [[nodiscard]] bool isVisible() const noexcept { return m_visible && m_enabled; }
    void               setVisible (bool visible) noexcept { m_visible = visible; }
+   void               setEnabled (bool enable) noexcept { m_enabled = enable; }
 
    [[nodiscard]] bool isMouseOver (const int y) noexcept
    {
@@ -127,25 +128,24 @@ public:
    void setReferredWidth (float referredWidth) noexcept { m_referredWidth = referredWidth; }
 
 private:
-   juce::AudioChannelSet::ChannelType m_type = juce::AudioChannelSet::ChannelType::unknown;
+   bool m_visible = true;
+   bool m_enabled = true;
 
    // Info
-   juce::String m_name                 = "";
-   juce::String m_typeDescription      = "";
-   juce::String m_typeAbbrDecscription = "";
+   juce::String                       m_name                 = "";
+   juce::AudioChannelSet::ChannelType m_type                 = juce::AudioChannelSet::ChannelType::unknown;
+   juce::String                       m_typeDescription      = "";
+   juce::String                       m_typeAbbrDecscription = "";
 
+   juce::Font m_font;
 
+   // Bounds
+   juce::Rectangle<int> m_bounds {};
    float                m_nameWidth     = 0.0f;
    float                m_typeWidth     = 0.0f;
    float                m_referredWidth = 0.0f;
-   juce::Rectangle<int> m_bounds {};
-   juce::Font           m_font;
-   bool                 m_visible   = true;
-   bool                 m_mouseOver = false;
+   bool                 m_mouseOver     = false;
 
-   /**
-    * @brief Calculate the width (in pixels) the info would take up.
-   */
    void calculateInfoWidth();
 
    // clang-format on

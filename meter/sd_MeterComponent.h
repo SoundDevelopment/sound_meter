@@ -181,11 +181,9 @@ public:
    */
    void setChannelType (ChannelType channelType) { m_header.setType (channelType); }
 
-   void setHeaderVisible (bool showChannelName = true)
-   {
-      m_header.setVisible (showChannelName);
-      addDirty (m_header.getBounds());
-   }
+   void showHeader (bool headerVisible ) noexcept;
+   void enableHeader (bool headerEnabled ) noexcept;
+
    [[nodiscard]] bool nameFits (const juce::String& name, int widthAvailable) const { return m_header.infoFits (name, widthAvailable); }
 
    /**
@@ -259,7 +257,9 @@ public:
     * @param showPeakValue When set true, shows the value level (in dB) below the meter.
     * @see showPeakHold
     */
-   void showPeakValue (bool showPeakValue = true);
+   void showValue (bool showValue = true);
+
+   void enableValue (bool valueEnabled = true) noexcept;
 
    /**
     * @brief Show tick-marks (divider lines) on the meter.
@@ -413,9 +413,9 @@ private:
 #if SDTK_ENABLE_FADER
    void mouseDrag (const juce::MouseEvent& event) override;
    void mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel) override;
+   void mouseDown (const juce::MouseEvent& event) override;
 #endif /* SDTK_ENABLE_FADER */
 
-   void mouseDown (const juce::MouseEvent& event) override;
    void mouseMove (const juce::MouseEvent& event) override;
    void mouseExit (const juce::MouseEvent& event) override;
    void mouseDoubleClick (const juce::MouseEvent& event) override;

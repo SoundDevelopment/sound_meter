@@ -37,20 +37,21 @@ namespace sd::SoundMeter
 #pragma region Misc Methods
 
 
-MeterComponent::MeterComponent (const juce::String& name, const std::vector<float>& ticks, MeterPadding padding, float meterDecy, bool headerVisible,
-                                bool valueVisible, bool isLabelStrip /*= false*/, [[maybe_unused]] SoundMeter::Fader::Listener* faderListener /*= nullptr*/,
+MeterComponent::MeterComponent (const juce::String& name, const std::vector<float>& ticks, MeterPadding padding, float meterDecay, bool headerEnabled,
+                                bool valueEnabled, bool isLabelStrip /*= false*/, [[maybe_unused]] SoundMeter::Fader::Listener* faderListener /*= nullptr*/,
                                 ChannelType channelType /*= ChannelType::unknown*/)
   : MeterComponent()
 {
    setName (name);
    setTickMarks (ticks);
    setPadding (padding);
-   setDecay (meterDecy);
+   setDecay (meterDecay);
    setChannelType (channelType);
 
-   setHeaderVisible (headerVisible);
+   enableHeader (headerEnabled);
+   enableValue( valueEnabled);
    setIsLabelStrip (isLabelStrip);
-   m_level.setPeakValueVisible (valueVisible);
+   m_level.setValueVisible (valueEnabled);
 
 #if SDTK_ENABLE_FADER
    if (faderListener) addFaderListener (*faderListener);
@@ -109,10 +110,10 @@ void MeterComponent::setMinimalMode (bool minimalMode) noexcept
    if (minimalMode == m_minimalMode) return;
 
    m_minimalMode = minimalMode;
-   showTickMarks (! m_minimalMode);                // ... show tick marks if it's not too narrow for ID and not in minimum mode.
-   setHeaderVisible (! m_minimalMode);             // ... show channel ID if it's not too narrow for ID and not in minimum mode.
-   showTickMarks (! m_minimalMode);                // ... show tick marks if it's not too narrow for ID and not in minimum mode.
-   m_level.setPeakValueVisible (! m_minimalMode);  // ... show peak value if it's not too narrow for ID and not in minimum mode.
+   showTickMarks (! m_minimalMode);            // ... show tick marks if it's not too narrow for ID and not in minimum mode.
+   showHeader (! m_minimalMode);         // ... show channel ID if it's not too narrow for ID and not in minimum mode.
+   showTickMarks (! m_minimalMode);            // ... show tick marks if it's not too narrow for ID and not in minimum mode.
+   m_level.setValueVisible (! m_minimalMode);  // ... show peak value if it's not too narrow for ID and not in minimum mode.
    setDirty();
 }
 
@@ -147,9 +148,32 @@ void MeterComponent::setColours() noexcept
 }
 
 //==============================================================================
-void MeterComponent::showPeakValue (bool showPeakValue /*= true*/)
+void MeterComponent::enableHeader (bool headerEnabled) noexcept
 {
-   m_level.setPeakValueVisible (showPeakValue);
+   m_header.setEnabled (headerEnabled);
+   if (headerEnabled) m_header.setVisible (true);
+   addDirty (m_header.getBounds());
+}
+
+//==============================================================================
+void MeterComponent::showHeader (bool headerVisible) noexcept
+{
+   m_header.setVisible (headerVisible);
+   addDirty (m_header.getBounds());
+}
+
+//==============================================================================
+void MeterComponent::enableValue (bool valueEnabled /*= true*/) noexcept
+{
+   m_level.enableValue (valueEnabled);
+   if (valueEnabled) m_level.setValueVisible (true);
+   addDirty (m_level.getValueBounds());
+}
+
+//==============================================================================
+void MeterComponent::showValue (bool showValue /*= true*/)
+{
+   m_level.setValueVisible (showValue);
    setDirty();
 }
 
@@ -218,9 +242,23 @@ void MeterComponent::paint (juce::Graphics& g)
 
    m_header.draw (g, isActive(), faderEnabled, m_mutedColour, m_mutedMouseOverColour, m_textColour, m_inactiveColour);
 
+   // Draw the LABEL STRIP ...
+   if (m_isLabelStrip)
+   {
+      // If not active, fill an inactive background.
+      if (! m_active)
+      {
+         g.setColour (m_inactiveColour);
+         g.fillRect (m_level.getMeterBounds());
+      }
 
-   // Draw the METER, unless it is a LABEL strip. Then draw the level values...
-   m_isLabelStrip ? m_level.drawLabels (g, m_textColour) : drawMeter (g);
+      m_level.drawLabels (g, m_textColour);
+   }
+   // ... otherwise draw the METER ...
+   else
+   {
+      drawMeter (g);
+   }
 
 #if SDTK_ENABLE_FADER
    // Draw FADER....
@@ -351,7 +389,6 @@ void MeterComponent::setChannelName (const juce::String& channelName)
    addDirty (m_header.getBounds());
 }
 
-
 #if SDTK_ENABLE_FADER
 
 //==============================================================================
@@ -390,14 +427,15 @@ void MeterComponent::setFaderEnabled (bool faderEnabled /*= true*/)
 
 #pragma region Mouse Methods
 
+
+#if SDTK_ENABLE_FADER
+
 //==============================================================================
 void MeterComponent::mouseDown (const juce::MouseEvent& event)
 {
    // Left mouse button down and fader is active...
-   if (event.mods == juce::ModifierKeys::leftButtonModifier)
+   if (event.mods == juce::ModifierKeys::leftButtonModifier && m_fader.isEnabled())
    {
-
-#if SDTK_ENABLE_FADER
       // Clicked on the METER part...
       if (! m_header.isMouseOver (event.y) && ! m_level.isMouseOverValue (event.y) && m_fader.isActive())
       {
@@ -405,7 +443,6 @@ void MeterComponent::mouseDown (const juce::MouseEvent& event)
          m_fader.setValueFromPos (event.y);   // Set the fader level at the value clicked.
          addDirty (m_fader.getBounds());
       }
-#endif /* SDTK_ENABLE_FADER */
 
       // Clicked on the HEADER part...
       if (m_header.isMouseOver (event.y))
@@ -415,9 +452,12 @@ void MeterComponent::mouseDown (const juce::MouseEvent& event)
    }
 }
 
+#endif /* SDTK_ENABLE_FADER */
+
 //==============================================================================
 void MeterComponent::mouseMove (const juce::MouseEvent& event)
 {
+   // Check if the FADER is enabled...
    bool faderEnabled = false;
 #if SDTK_ENABLE_FADER
    faderEnabled = m_fader.isEnabled();
@@ -426,10 +466,10 @@ void MeterComponent::mouseMove (const juce::MouseEvent& event)
    // Check if the mouse is over the header part...
    bool isMouseOverHeader      = m_header.isMouseOver();                                 // Get the previous mouse over flag, to check if it has changed.
    bool mouseOverHeaderChanged = (isMouseOverHeader != m_header.isMouseOver (event.y));  // Check if it has changed.
-   if (m_header.isMouseOver() && mouseOverHeaderChanged && faderEnabled)
+   if (m_header.isMouseOver() && mouseOverHeaderChanged && faderEnabled)  // If the mouse entered the 'header' part for the first time and the fader is enabled...
    {
-      setMouseCursor (juce::MouseCursor::PointingHandCursor);  // NOLINT
-      setTooltip ("Mute or un-mute channel");                  // If it is over and changed set the tooltip.
+      setMouseCursor (juce::MouseCursor::PointingHandCursor);
+      setTooltip ("Mute or un-mute channel");
    }
    if (mouseOverHeaderChanged) addDirty (m_header.getBounds());  // Mouse over status has changed. Repaint.
 

@@ -38,7 +38,7 @@ namespace sd::SoundMeter
 //==============================================================================
 void Level::drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColour) const
 {
-   if (! m_peakValueVisible) return;
+   if (! m_valueVisible) return;
    if (m_valueBounds.isEmpty()) return;
 
    // Draw PEAK value...
@@ -130,7 +130,7 @@ void Level::drawLabels (juce::Graphics& g, const juce::Colour& textColour) const
                                             m_meterBounds.getY() + static_cast<int> (round ((m_meterBounds.getHeight() * (1.0f - tick.gain)) - (fontsize / 2.0f))),  // NOLINT
                                             m_meterBounds.getWidth(), static_cast<int> (fontsize));
 
-      g.drawFittedText (juce::String (std::abs (tick.decibels)), labelrect, juce::Justification::topLeft, 1);
+      g.drawFittedText (juce::String (std::abs (tick.decibels)), labelrect.reduced( Constants::kLabelStripTextPadding, 0 ), juce::Justification::topLeft, 1);
    }
 }
 

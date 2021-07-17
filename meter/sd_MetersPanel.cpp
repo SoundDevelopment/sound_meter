@@ -37,22 +37,22 @@ namespace sd::SoundMeter
 MetersPanel::MetersPanel()
   : m_tickMarks ({ -1.0f, -3.0f, -6.0f, -9.0f, -18.0f }),  // Tick-mark position in db.
     m_meterDecayTime_ms (Constants::kDefaultDecay_ms),
-    m_masterFader (Constants::kMetersPanelId, m_tickMarks, MeterPadding (kMasterFaderLeftPadding, 0, 0, 0), m_meterDecayTime_ms, true, false, true,
+    m_labelStrip (Constants::kMetersPanelId, m_tickMarks, MeterPadding (kLabelStripLeftPadding, 0, 0, 0), m_meterDecayTime_ms, m_headerEnabled, false, true,
 #if SDTK_ENABLE_FADER
-                   this)
+                  this)
 #else
-                   nullptr)
+                  nullptr)
 #endif
 {
    // Set master strip options...
-   m_masterFader.setRegions (m_warningRegion_db, m_peakRegion_db);
+   m_labelStrip.setRegions (m_warningRegion_db, m_peakRegion_db);
 
 #if SDTK_ENABLE_FADER
-   m_masterFader.setFaderActive (m_fadersEnabled);
-   m_masterFader.addMouseListener (this, true);
+   m_labelStrip.setFaderActive (m_fadersEnabled);
+   m_labelStrip.addMouseListener (this, true);
 #endif
 
-   addAndMakeVisible (m_masterFader);
+   addAndMakeVisible (m_labelStrip);
 
    setPaintingIsUnclipped (true);
 
@@ -74,8 +74,8 @@ MetersPanel::~MetersPanel()
 {
 
 #if SDTK_ENABLE_FADER
-   m_masterFader.removeFaderListener (*this);
-   m_masterFader.removeMouseListener (this);
+   m_labelStrip.removeFaderListener (*this);
+   m_labelStrip.removeMouseListener (this);
 #endif
 
    deleteMeters();
@@ -89,12 +89,12 @@ void MetersPanel::reset()
 #if SDTK_ENABLE_FADER
    m_faderGains.clear();
    m_faderGainsBuffer.clear();
-   m_masterFader.setFaderActive (false);
+   m_labelStrip.setFaderActive (false);
 #endif
 
-   m_masterFader.showTickMarks (false);
-   m_masterStripWidth = 0;
-   m_channelFormat    = juce::AudioChannelSet::stereo();
+   m_labelStrip.showTickMarks (false);
+   m_labelStripWidth = 0;
+   m_channelFormat   = juce::AudioChannelSet::stereo();
 
    refresh (true);
 }
@@ -102,7 +102,7 @@ void MetersPanel::reset()
 //==============================================================================
 void MetersPanel::refresh (const bool forceRefresh /*= false*/)
 {
-   m_masterFader.refresh (forceRefresh);
+   m_labelStrip.refresh (forceRefresh);
    for (auto* meter: m_meters)
       meter->refresh (forceRefresh);
 }
@@ -112,7 +112,7 @@ void MetersPanel::setPanelRefreshRate (int refreshRate_hz) noexcept
 {
    m_panelRefreshRate = refreshRate_hz;
 
-   if (m_internalTimer)
+   if (m_useInternalTimer)
    {
       stopTimer();
       startTimerHz (refreshRate_hz);
@@ -122,7 +122,7 @@ void MetersPanel::setPanelRefreshRate (int refreshRate_hz) noexcept
 //==============================================================================
 void MetersPanel::useInternalTiming (bool useInternalTiming) noexcept
 {
-   m_internalTimer = useInternalTiming;
+   m_useInternalTimer = useInternalTiming;
 
    stopTimer();
 
@@ -159,18 +159,18 @@ void MetersPanel::resized()
    const auto panelWidth  = panelBounds.getWidth();
 
    // By default show the MASTER strip.
-   m_masterStripWidth = kLabelWidth;
+   m_labelStripWidth = m_useLabelStrip ? kLabelWidth : 0;
 
    // Calculate meter width from available width taking into account the extra width needed when showing the master strip...
-   m_meterWidth = std::clamp ((panelWidth - m_masterStripWidth) / numOfMeters, kMinWidth, kMaxWidth);
+   m_meterWidth = std::clamp ((panelWidth - m_labelStripWidth) / numOfMeters, kMinWidth, kMaxWidth);
 
    bool minModeEnabled = m_meters[0]->autoSetMinimalMode (m_meterWidth, panelHeight);
 
-   // Don't show the master strip in minimum mode...
-   if (minModeEnabled) m_masterStripWidth = 0;
+   // Don't show the label strip in minimum mode...
+   if (minModeEnabled) m_labelStripWidth = 0;
 
-   // Calculate actual width (taking into account the min. mode)...
-   m_meterWidth = std::clamp ((panelWidth - m_masterStripWidth) / numOfMeters, kMinWidth, kMaxWidth);
+   // Re-calculate actual width (taking into account the min. mode)...
+   if (m_useLabelStrip) m_meterWidth = std::clamp ((panelWidth - m_labelStripWidth) / numOfMeters, kMinWidth, kMaxWidth);
 
    // Position all meters and adapt them to the current size...
    for (auto meter: m_meters)
@@ -184,16 +184,16 @@ void MetersPanel::resized()
    }
 
    // Position MASTER strip...
-   if (m_masterStripWidth == 0)
+   if (m_labelStripWidth == 0)
    {
-      m_masterFader.setBounds ({});
+      m_labelStrip.setBounds ({});
    }
    else
    {
-      // Use the dimensions of the 'meter' part (without the 'header' and 'value' part).
-      auto masterFaderBounds = m_meters[0]->getLabelStripBounds();
-      m_masterFader.setBounds (panelBounds.removeFromRight (m_masterStripWidth).withY (masterFaderBounds.getY()).withHeight (masterFaderBounds.getHeight()));
-      m_masterFader.showTickMarks (true);
+      // Use the dimensions of the 'meter' part combined with the 'value' part...
+      auto labelStripBounds = m_meters[0]->getLabelStripBounds();
+      m_labelStrip.setBounds (panelBounds.removeFromRight (m_labelStripWidth).withY (labelStripBounds.getY()).withHeight (labelStripBounds.getHeight()));
+      m_labelStrip.showTickMarks (true);
    }
 }
 
@@ -215,7 +215,7 @@ void MetersPanel::mouseEnter (const juce::MouseEvent& /*event*/)
    {
       for (auto meter: m_meters)
          meter->setFaderActive (true);
-      m_masterFader.setFaderActive (true);
+      m_labelStrip.setFaderActive (true);
    }
 }
 
@@ -223,12 +223,12 @@ void MetersPanel::mouseEnter (const juce::MouseEvent& /*event*/)
 void MetersPanel::faderChanged (MeterComponent* sourceMeter, float value)
 {
    // Master strip fader moves all channel faders relatively to each other...
-   if (sourceMeter == &m_masterFader)
+   if (sourceMeter == &m_labelStrip)
    {
       jassert (m_faderGains.size() == m_faderGainsBuffer.size());  // NOLINT
 
       // If the master fader is ACTIVE ...
-      if (m_masterFader.isActive())
+      if (m_labelStrip.isActive())
       {
          // ... but all meters are muted ...
          if (areAllMetersInactive()) muteAll (false);  // ... un- mute all meters ...
@@ -247,14 +247,14 @@ void MetersPanel::faderChanged (MeterComponent* sourceMeter, float value)
       // If the master fader has been DE-ACTIVATED ...
       else
       {
-         muteAll();                                                                   // ... mute all meters ...
-         m_masterFader.setFaderValue (1.0f, NotificationOptions::dontNotify, false);  // ... and set the master fader to unity gain.
+         muteAll();                                                                  // ... mute all meters ...
+         m_labelStrip.setFaderValue (1.0f, NotificationOptions::dontNotify, false);  // ... and set the master fader to unity gain.
       }
    }
    // Any meter/fader but the master fader was moved ...
    else
    {
-      m_masterFader.setFaderValue (1.0f, NotificationOptions::dontNotify, false);  // ... reset the master fader.
+      m_labelStrip.setFaderValue (1.0f, NotificationOptions::dontNotify, false);  // ... reset the master fader.
       getFaderValues (NotificationOptions::dontNotify);
    }
 
@@ -278,7 +278,7 @@ void MetersPanel::getFaderValues (NotificationOptions notificationOption /*= Not
    }
 
    // If all meters are in-active, so is the master fader ...
-   m_masterFader.setActive (! areAllMetersInactive(), NotificationOptions::dontNotify);
+   m_labelStrip.setActive (! areAllMetersInactive(), NotificationOptions::dontNotify);
 
    m_faderGainsBuffer = m_faderGains;
 
@@ -294,7 +294,7 @@ void MetersPanel::notifyListeners()
 //==============================================================================
 void MetersPanel::showFaders (bool mustShowFaders)
 {
-   m_masterFader.setFaderActive (mustShowFaders);
+   m_labelStrip.setFaderActive (mustShowFaders);
    for (auto meter: m_meters)
       meter->setFaderActive (mustShowFaders);
 }
@@ -340,7 +340,7 @@ void MetersPanel::resetFaders()
       meter->setActive (true);
       meter->setFaderValue (1.0f);
    }
-   m_masterFader.setFaderValue (1.0f);
+   m_labelStrip.setFaderValue (1.0f);
    notifyListeners();
 }
 
@@ -349,7 +349,7 @@ void MetersPanel::setFadersEnabled (bool fadersEnabled) noexcept
 {
    for (auto* meter: m_meters)
       meter->setFaderEnabled (fadersEnabled);
-   m_masterFader.setFaderEnabled (fadersEnabled);
+   m_labelStrip.setFaderEnabled (fadersEnabled);
    m_fadersEnabled = fadersEnabled;
 }
 
@@ -369,7 +369,7 @@ void MetersPanel::createMeters (const juce::AudioChannelSet& channelFormat, cons
    for (int channelIdx = 0; channelIdx < channelFormat.size(); ++channelIdx)
    {
       auto meter = std::make_unique<MeterComponent> (Constants::kMetersPanelId, m_tickMarks, MeterPadding (0, kFaderRightPadding, 0, 0), m_meterDecayTime_ms,
-                                                     true, true, false,
+                                                     m_headerEnabled, m_valueEnabled, false,
 #if SDTK_ENABLE_FADER
                                                      this,
 #else
@@ -497,7 +497,7 @@ void MetersPanel::setChannelNames (const std::vector<juce::String>& channelNames
    // This is the width at which all channel names can be displayed.
    m_autoSizedPanelWidth = static_cast<int> (defaultMeterWidth * static_cast<float> (numMeters));  // Min. width needed for channel names.
    m_autoSizedPanelWidth += numMeters * kFaderRightPadding;                                        // Add the padding that is on the right side of the channels.
-   m_autoSizedPanelWidth += kLabelWidth + kMasterFaderLeftPadding;                                 // Add master fader width (incl. padding).
+   m_autoSizedPanelWidth += kLabelWidth + kLabelStripLeftPadding;                                  // Add master fader width (incl. padding).
 }
 
 //==============================================================================
@@ -527,7 +527,7 @@ void MetersPanel::setFont (const juce::Font& newFont) noexcept
 {
    for (auto* meter: m_meters)
       meter->setFont (newFont);
-   m_masterFader.setFont (newFont);
+   m_labelStrip.setFont (newFont);
    m_font = newFont;
 }
 
@@ -542,8 +542,8 @@ void MetersPanel::setEnabled (bool enabled /*= true*/)
       meter->setVisible (enabled);
    }
 
-   m_masterFader.setEnabled (enabled);
-   m_masterFader.setVisible (enabled);
+   m_labelStrip.setEnabled (enabled);
+   m_labelStrip.setVisible (enabled);
 
    refresh (true);
 }
@@ -555,6 +555,42 @@ void MetersPanel::useGradients (bool useGradients) noexcept
    for (auto* meter: m_meters)
       meter->useGradients (useGradients);
 }
+
+//==============================================================================
+void MetersPanel::useLabelStrip (bool useLabelStrip)
+{
+   m_useLabelStrip = useLabelStrip;
+   resized();
+}
+
+//==============================================================================
+void MetersPanel::enableHeader (bool headerEnabled) 
+{
+   if ( m_headerEnabled == headerEnabled ) return;
+
+   m_headerEnabled = headerEnabled;
+   m_labelStrip.enableHeader( headerEnabled );
+
+   for (auto* meter: m_meters)
+      meter->enableHeader (headerEnabled);
+
+   resized();
+}
+
+//==============================================================================
+void MetersPanel::enableValue (bool valueEnabled) 
+{ 
+   if (m_valueEnabled == valueEnabled) return;
+
+   m_valueEnabled = valueEnabled;
+   m_labelStrip.enableValue (valueEnabled);
+
+   for (auto* meter: m_meters)
+      meter->enableValue (valueEnabled);
+
+   resized();
+}
+
 
 //==============================================================================
 void MetersPanel::setRegions (float warningRegion_db, float peakRegion_db)

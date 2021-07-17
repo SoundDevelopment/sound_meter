@@ -51,8 +51,8 @@ class MetersPanel
 #endif
 {
 public:
-   static constexpr auto kMasterFaderLeftPadding = 10;  ///< Padding (in pixels) on the left side of the master fader.
-   static constexpr auto kFaderRightPadding      = 1;   ///< Padding (in pixels) on the right side of the channel faders.
+   static constexpr auto kLabelStripLeftPadding = 5;  ///< Padding (in pixels) on the left side of the label strip (which can double as a master fader).
+   static constexpr auto kFaderRightPadding     = 1;  ///< Padding (in pixels) on the right side of the channel faders.
 
    /**
     * @brief Constructor.
@@ -173,18 +173,17 @@ public:
    void setRegions (float warningRegion_db, float peakRegion_db);
 
    /**
-    * @brief Set the timing option to use (internal/external).
+    * @brief Set meter decay rate.
     * 
-    * When using internal timing, the panel will update it's meters by itself using
-    * the refresh rate specified in setPanelRefreshRate.
-    * On external, the user has to do this manually with the 'refresh' method.
+    * Set's the meter's decay rate in milliseconds.
+    * The meter's attack is instant.
     * 
-    * @param useInternalTiming When set to true, the meter panel will update itself.
+    * @param decay The time it takes the meter to decay (in ms).
     * 
-    * @see refresh, setPanelRefreshRate
+    * @see setPanelRefreshRate
    */
-   void useInternalTiming (bool useInternalTiming) noexcept;
-
+   void setMeterDecay (float decay_ms);
+   
    /**
     * @brief Set the refresh (redraw) rate of the meters.
     * 
@@ -200,16 +199,58 @@ public:
    void setPanelRefreshRate (int refreshRate) noexcept;
 
    /**
-    * @brief Set meter decay rate.
+    * @brief Set the timing option to use (internal/external).
     * 
-    * Set's the meter's decay rate in milliseconds.
-    * The meter's attack is instant.
+    * When using internal timing, the panel will update it's meters by itself using
+    * the refresh rate specified in setPanelRefreshRate.
+    * On external, the user has to do this manually with the 'refresh' method.
     * 
-    * @param decay The time it takes the meter to decay (in ms).
+    * @param useInternalTiming When set to true, the meter panel will update itself.
     * 
-    * @see setPanelRefreshRate
+    * @see refresh, setPanelRefreshRate
    */
-   void setMeterDecay (float decay_ms);
+   void useInternalTiming (bool useInternalTiming) noexcept;
+  
+   /**
+    * @brief Use gradients in stead of hard region boundaries.
+    * @param useGradients When set to true, uses smooth gradients. False gives hard region boundaries.=
+   */
+   void useGradients (bool useGradients) noexcept;
+
+   /**
+    * @brief Use a label strip next to the meters.
+    * 
+    * This label strip displays the level of the tick-marks in decibels.
+    * When faders are enabled, this also functions as a master fader
+    * for the other faders.
+    * 
+    * @param useLabelStrip When set to true, this will display a label strip on the right side of the meters.
+   */
+   void useLabelStrip (bool useLabelStrip);
+
+   /**
+    * @brief Enable the 'header' part above the meters.
+    * 
+    * This will display the channel name (a custom one that the user can set)
+    * or the channel type (left, right, center, etc...).
+    * This also doubles as a mute button for the specific channel.
+    * 
+    * @param headerEnabled When set to true, the 'header' part will be shown.
+    * @see showValue, setChannelNames
+   */
+   void enableHeader (bool headerEnabled);
+ 
+   /**
+    * @brief Enable the 'value' part below the meters.
+    * 
+    * This will display the peak value, in decibels, below the meter.
+    * The level displayed here matches the peak level indicator on the meter.
+    * Double clicking will reset the peak hold value (as well as the indicator).
+    * 
+    * @param valueEnabled When set to true, the 'value' part will be shown.
+    * @see enableHeader, resetPeakHold
+   */
+   void enableValue (bool valueEnabled);
 
    /**
     * @brief Set the font to be used in the panel and it's meters.
@@ -223,12 +264,6 @@ public:
     * @param enabled When set to true, the meters panel will be displayed.
     */
    void setEnabled (bool enabled = true);
-  
-   /**
-    * @brief Use gradients in stead of hard region boundaries.
-    * @param useGradients When set to true, uses smooth gradients. False gives hard region boundaries.=
-   */
-   void useGradients (bool useGradients) noexcept;
 
 #if SDTK_ENABLE_FADER
    /**
@@ -253,7 +288,7 @@ public:
     * 
     * @return A reference to the master fader component.
    */
-   const MeterComponent& getMasterFader() const noexcept { return m_masterFader; }
+   const MeterComponent& getMasterFader() const noexcept { return m_labelStrip; }
 
    /**
     * @brief Show (or hide) all the faders.
@@ -339,15 +374,18 @@ private:
 
    std::vector<float>               m_tickMarks             = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };    // Tick-mark position in db.
    int                              m_meterWidth            = 20;                                        // Width of the meter (in pixels).
-   int                              m_masterStripWidth      = m_meterWidth;                              // Width of the tick-mark labels (in pixels).
+   int                              m_labelStripWidth      = m_meterWidth;                              // Width of the tick-mark labels (in pixels).
    int                              m_autoSizedPanelWidth   = 0;                                       
    float                            m_meterDecayTime_ms     = Constants::kDefaultDecay_ms;               // NOLINT
 
-   MeterComponent                   m_masterFader;
+   MeterComponent                   m_labelStrip;
 
    bool                             m_enabled               = true;
-   bool                             m_internalTimer         = true;
+   bool                             m_useInternalTimer      = true;
    bool                             m_useGradients          = true;
+   bool                             m_useLabelStrip         = true;
+   bool                             m_headerEnabled         = true;
+   bool                             m_valueEnabled          = true;
    juce::Font                       m_font                  {};
    int                              m_panelRefreshRate      = 24;
    float                            m_warningRegion_db      = Constants::kWarningLevel_db;

@@ -38,7 +38,7 @@ namespace sd::SoundMeter
 void Header::draw (juce::Graphics& g, bool meterActive, bool faderEnabled, const juce::Colour& mutedColour, const juce::Colour& mutedMouseOver,
                    const juce::Colour& textColour, const juce::Colour& inactiveColour)
 {
-   if (! m_visible) return;
+   if (! isVisible() ) return;
    if (m_bounds.isEmpty()) return;
 
    // Draw channel names...
