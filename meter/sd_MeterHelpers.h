@@ -87,6 +87,23 @@ struct MeterPadding
 };
 
 /**
+ * @brief All meter options for appearance and functionality.
+*/
+struct Options
+{
+   float              warningRegion_db  = Constants::kWarningLevel_db;             ///< Boundary level from normal to warning.
+   float              peakRegion_db     = Constants::kPeakLevel_db;                ///< Boundary level from warning to peak.
+   float              meterDecayTime_ms = Constants::kDefaultDecay_ms;             ///< Meter decay in milliseconds.
+   bool               headerEnabled     = true;                                    ///< Enable the 'header' part of the meter.
+   bool               valueEnabled      = true;                                    ///< Enable the 'value' part of the meter.
+   bool               faderEnabled      = true;                                    ///< Enable the fader (overlayed over the meter).
+   bool               useGradient       = true;                                    ///< Use gradients to fill the meter or hard region boundaries.
+   bool               showTickMarks     = true;                                    ///< Show tick-marks. Divider lines on the meter at certain db levels.
+   std::vector<float> tickMarks         = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };  ///< Tick-mark position in db.
+   juce::Font         font {};                                                     ///< Font to use in all text of the meters.
+};
+
+/**
  * @brief Type indicating whether to notify the listeners or not.
 */
 enum class NotificationOptions

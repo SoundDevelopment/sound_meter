@@ -35,9 +35,7 @@ namespace sd::SoundMeter
 
 //==============================================================================
 MetersPanel::MetersPanel()
-  : m_tickMarks ({ -1.0f, -3.0f, -6.0f, -9.0f, -18.0f }),  // Tick-mark position in db.
-    m_meterDecayTime_ms (Constants::kDefaultDecay_ms),
-    m_labelStrip (Constants::kMetersPanelId, m_tickMarks, MeterPadding (kLabelStripLeftPadding, 0, 0, 0), m_meterDecayTime_ms, m_headerEnabled, false, true,
+  : m_labelStrip (m_options, MeterPadding (kLabelStripLeftPadding, 0, 0, 0), Constants::kMetersPanelId, true, juce::AudioChannelSet::ChannelType::unknown,
 #if SDTK_ENABLE_FADER
                   this)
 #else
@@ -45,10 +43,10 @@ MetersPanel::MetersPanel()
 #endif
 {
    // Set master strip options...
-   m_labelStrip.setRegions (m_warningRegion_db, m_peakRegion_db);
+   m_options.tickMarks = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };  // Tick-mark position in db.
 
 #if SDTK_ENABLE_FADER
-   m_labelStrip.setFaderActive (m_fadersEnabled);
+   m_labelStrip.setFaderActive (m_options.faderEnabled);
    m_labelStrip.addMouseListener (this, true);
 #endif
 
@@ -138,7 +136,7 @@ void MetersPanel::paint (juce::Graphics& g)
    if (! m_enabled)
    {
       g.setColour (m_backgroundColour.contrasting (1.0f));
-      g.setFont (m_font.withHeight (14.0f));
+      g.setFont (m_options.font.withHeight (14.0f));
       g.drawFittedText ("No audio device open for playback. ", getLocalBounds(), juce::Justification::centred, 5);  // NOLINT
    }
 }
@@ -345,12 +343,12 @@ void MetersPanel::resetFaders()
 }
 
 //==============================================================================
-void MetersPanel::setFadersEnabled (bool fadersEnabled) noexcept
+void MetersPanel::setFadersEnabled (bool faderEnabled) noexcept
 {
    for (auto* meter: m_meters)
-      meter->setFaderEnabled (fadersEnabled);
-   m_labelStrip.setFaderEnabled (fadersEnabled);
-   m_fadersEnabled = fadersEnabled;
+      meter->setFaderEnabled (faderEnabled);
+   m_labelStrip.setFaderEnabled (faderEnabled);
+   m_options.faderEnabled = faderEnabled;
 }
 
 
@@ -368,28 +366,24 @@ void MetersPanel::createMeters (const juce::AudioChannelSet& channelFormat, cons
    // Create enough meters to match the channel format...
    for (int channelIdx = 0; channelIdx < channelFormat.size(); ++channelIdx)
    {
-      auto meter = std::make_unique<MeterComponent> (Constants::kMetersPanelId, m_tickMarks, MeterPadding (0, kFaderRightPadding, 0, 0), m_meterDecayTime_ms,
-                                                     m_headerEnabled, m_valueEnabled, false,
+      auto meter = std::make_unique<MeterComponent> (m_options, MeterPadding (0, kFaderRightPadding, 0, 0), Constants::kMetersPanelId, false,
+                                                     channelFormat.getTypeOfChannel (channelIdx),
 #if SDTK_ENABLE_FADER
-                                                     this,
+                                                     this
 #else
-                                                     nullptr,
+                                                     nullptr
 #endif
-                                                     channelFormat.getTypeOfChannel (channelIdx));
+      );
 
-      meter->setRegions (m_warningRegion_db, m_peakRegion_db);
       meter->setGuiRefreshRate (static_cast<float> (m_panelRefreshRate));
-      meter->setFont (m_font);
       meter->addMouseListener (this, true);
       meter->setVisible (m_enabled);
       meter->setEnabled (m_enabled);
-      meter->useGradients (m_useGradients);
-#if SDTK_ENABLE_FADER
-      meter->setFaderEnabled (m_fadersEnabled);
-#endif
-      addChildComponent (meter.get());
 
+      addChildComponent (meter.get());
       m_meters.add (meter.release());
+
+      m_labelStrip.setActive (true);
    }
 
    setChannelNames (channelNames);
@@ -517,18 +511,18 @@ void MetersPanel::resetPeakHold()
 //==============================================================================
 void MetersPanel::setMeterDecay (float decay_ms)
 {
-   m_meterDecayTime_ms = decay_ms;
+   m_options.meterDecayTime_ms = decay_ms;
    for (auto* meter: m_meters)
-      meter->setDecay (m_meterDecayTime_ms);
+      meter->setDecay (decay_ms);
 }
 
 //==============================================================================
 void MetersPanel::setFont (const juce::Font& newFont) noexcept
 {
+   m_options.font = newFont;
    for (auto* meter: m_meters)
       meter->setFont (newFont);
    m_labelStrip.setFont (newFont);
-   m_font = newFont;
 }
 
 //==============================================================================
@@ -547,42 +541,50 @@ void MetersPanel::setEnabled (bool enabled /*= true*/)
 
    refresh (true);
 }
-
 //==============================================================================
+
+void MetersPanel::showTickMarks (bool showTickMarks)
+{
+   m_options.showTickMarks = showTickMarks;
+   for (auto* meter: m_meters)
+      meter->showTickMarks (showTickMarks);
+   m_labelStrip.showTickMarks (showTickMarks);
+}
+//==============================================================================
+
 void MetersPanel::useGradients (bool useGradients) noexcept
 {
-   m_useGradients = useGradients;
+   m_options.useGradient = useGradients;
    for (auto* meter: m_meters)
       meter->useGradients (useGradients);
 }
-
 //==============================================================================
+
 void MetersPanel::useLabelStrip (bool useLabelStrip)
 {
    m_useLabelStrip = useLabelStrip;
    resized();
 }
-
 //==============================================================================
-void MetersPanel::enableHeader (bool headerEnabled) 
-{
-   if ( m_headerEnabled == headerEnabled ) return;
 
-   m_headerEnabled = headerEnabled;
-   m_labelStrip.enableHeader( headerEnabled );
+void MetersPanel::enableHeader (bool headerEnabled)
+{
+   if (m_options.headerEnabled == headerEnabled) return;
+
+   m_options.headerEnabled = headerEnabled;
+   m_labelStrip.enableHeader (headerEnabled);
 
    for (auto* meter: m_meters)
       meter->enableHeader (headerEnabled);
 
    resized();
 }
-
 //==============================================================================
-void MetersPanel::enableValue (bool valueEnabled) 
-{ 
-   if (m_valueEnabled == valueEnabled) return;
 
-   m_valueEnabled = valueEnabled;
+void MetersPanel::enableValue (bool valueEnabled)
+{
+   if (m_options.valueEnabled == valueEnabled) return;
+
    m_labelStrip.enableValue (valueEnabled);
 
    for (auto* meter: m_meters)
@@ -595,8 +597,8 @@ void MetersPanel::enableValue (bool valueEnabled)
 //==============================================================================
 void MetersPanel::setRegions (float warningRegion_db, float peakRegion_db)
 {
-   m_warningRegion_db = warningRegion_db;
-   m_peakRegion_db    = peakRegion_db;
+   m_options.warningRegion_db = warningRegion_db;
+   m_options.peakRegion_db    = peakRegion_db;
 
    for (auto* meter: m_meters)
       meter->setRegions (warningRegion_db, peakRegion_db);

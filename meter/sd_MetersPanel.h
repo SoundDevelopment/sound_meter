@@ -183,7 +183,7 @@ public:
     * @see setPanelRefreshRate
    */
    void setMeterDecay (float decay_ms);
-   
+
    /**
     * @brief Set the refresh (redraw) rate of the meters.
     * 
@@ -210,7 +210,7 @@ public:
     * @see refresh, setPanelRefreshRate
    */
    void useInternalTiming (bool useInternalTiming) noexcept;
-  
+
    /**
     * @brief Use gradients in stead of hard region boundaries.
     * @param useGradients When set to true, uses smooth gradients. False gives hard region boundaries.=
@@ -239,7 +239,7 @@ public:
     * @see showValue, setChannelNames
    */
    void enableHeader (bool headerEnabled);
- 
+
    /**
     * @brief Enable the 'value' part below the meters.
     * 
@@ -254,9 +254,9 @@ public:
 
    /**
     * @brief Set the font to be used in the panel and it's meters.
-    * @param newFont The font to use.
+    * @param font The font to use.
    */
-   void setFont (const juce::Font& newFont) noexcept;
+   void setFont (const juce::Font& font) noexcept;
 
    /**
     * @brief Enable or disable the panel.
@@ -265,13 +265,31 @@ public:
     */
    void setEnabled (bool enabled = true);
 
+   /**
+    * @brief Show tick-marks (divider lines) on the meter.
+    *
+    * A tick mark is a horizontal line, dividing the meter. 
+    * This is also the place the label strip will put it's text values.
+    *
+    * @param showTickMarks When set true, shows the tick-marks. 
+    */
+   void showTickMarks (bool showTickMarks);
+
 #if SDTK_ENABLE_FADER
+
+   /**
+    * @brief Show (or hide) all the faders.
+    * 
+    * @param showMixer When set to true, will show the faders. Otherwise it will hide them.
+   */
+   void showFaders (bool showMixer);
+
    /**
     * @brief Enable the faders on the meters.
     *
-    * @param fadersEnabled When set to true, the faders are enabled.
+    * @param faderEnabled When set to true, the faders are enabled.
     */
-   void setFadersEnabled (bool fadersEnabled) noexcept;
+   void setFadersEnabled (bool faderEnabled) noexcept;
 
    /**
     * @brief Get values from all faders.
@@ -291,17 +309,10 @@ public:
    const MeterComponent& getMasterFader() const noexcept { return m_labelStrip; }
 
    /**
-    * @brief Show (or hide) all the faders.
-    * 
-    * @param showMixer When set to true, will show the faders. Otherwise it will hide them.
-   */
-   void showFaders (bool showMixer);
-
-   /**
     * @brief Set all faders to unity gain.
     */
    void resetFaders();
-  
+
    /**
     * @brief Toggle mute channels.
     * 
@@ -371,25 +382,19 @@ private:
    juce::AudioChannelSet            m_channelFormat         = juce::AudioChannelSet::stereo();
 
    MetersType                       m_meters;                                                            // All meter objects.
-
-   std::vector<float>               m_tickMarks             = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };    // Tick-mark position in db.
-   int                              m_meterWidth            = 20;                                        // Width of the meter (in pixels).
-   int                              m_labelStripWidth      = m_meterWidth;                              // Width of the tick-mark labels (in pixels).
-   int                              m_autoSizedPanelWidth   = 0;                                       
-   float                            m_meterDecayTime_ms     = Constants::kDefaultDecay_ms;               // NOLINT
-
+   
    MeterComponent                   m_labelStrip;
+
+   Options                          m_options;
+
+   int                              m_meterWidth            = 20;                                        // Width of the meter (in pixels).
+   int                              m_labelStripWidth       = m_meterWidth;                              // Width of the tick-mark labels (in pixels).
+   int                              m_autoSizedPanelWidth   = 0;                                       
 
    bool                             m_enabled               = true;
    bool                             m_useInternalTimer      = true;
-   bool                             m_useGradients          = true;
    bool                             m_useLabelStrip         = true;
-   bool                             m_headerEnabled         = true;
-   bool                             m_valueEnabled          = true;
-   juce::Font                       m_font                  {};
    int                              m_panelRefreshRate      = 24;
-   float                            m_warningRegion_db      = Constants::kWarningLevel_db;
-   float                            m_peakRegion_db         = Constants::kPeakLevel_db;
 
    juce::Colour                     m_backgroundColour      = juce::Colours::black;
       
@@ -401,7 +406,6 @@ private:
    FadersListenerList               m_fadersListeners;                                                   // List of listeners to fader changes.
    std::vector<float>               m_faderGainsBuffer;
    std::vector<float>               m_faderGains;  
-   bool                             m_fadersEnabled         = false;
    
    void                             timerCallback           () override { refresh(); }
    void                             notifyListeners         ();                                          // Notify the listeners the faders have been moved.

@@ -36,29 +36,40 @@ namespace sd::SoundMeter
 
 #pragma region Misc Methods
 
+MeterComponent::MeterComponent()
+#if SDTK_ENABLE_FADER
+  : m_fader (this)
+#endif
+{
+   setPaintingIsUnclipped (true);
+}
+//==============================================================================
 
-MeterComponent::MeterComponent (const juce::String& name, const std::vector<float>& ticks, MeterPadding padding, float meterDecay, bool headerEnabled,
-                                bool valueEnabled, bool isLabelStrip /*= false*/, [[maybe_unused]] SoundMeter::Fader::Listener* faderListener /*= nullptr*/,
-                                ChannelType channelType /*= ChannelType::unknown*/)
+MeterComponent::MeterComponent (Options meterOptions, MeterPadding padding, const juce::String& channelName, bool isLabelStrip /*= false*/,
+                                ChannelType channelType /*= ChannelType::unknown*/, [[maybe_unused]] Fader::Listener* faderListener /*= nullptr*/)
   : MeterComponent()
 {
-   setName (name);
-   setTickMarks (ticks);
-   setPadding (padding);
-   setDecay (meterDecay);
+   setName (channelName);
    setChannelType (channelType);
-
-   enableHeader (headerEnabled);
-   enableValue( valueEnabled);
+   setPadding (padding);
+   setRegions (meterOptions.warningRegion_db, meterOptions.peakRegion_db);
+   setTickMarks (meterOptions.tickMarks);
+   showTickMarks (meterOptions.showTickMarks);
+   setDecay (meterOptions.meterDecayTime_ms);
+   useGradients (meterOptions.useGradient);
+   enableHeader (meterOptions.headerEnabled);
+   enableValue (meterOptions.valueEnabled);
+   setFaderEnabled (meterOptions.faderEnabled);
    setIsLabelStrip (isLabelStrip);
-   m_level.setValueVisible (valueEnabled);
+   setFont (meterOptions.font);
+   // m_level.setValueVisible (valueEnabled);
 
 #if SDTK_ENABLE_FADER
    if (faderListener) addFaderListener (*faderListener);
 #endif
 }
-
 //==============================================================================
+
 void MeterComponent::reset()
 {
    m_level.reset();
@@ -111,7 +122,7 @@ void MeterComponent::setMinimalMode (bool minimalMode) noexcept
 
    m_minimalMode = minimalMode;
    showTickMarks (! m_minimalMode);            // ... show tick marks if it's not too narrow for ID and not in minimum mode.
-   showHeader (! m_minimalMode);         // ... show channel ID if it's not too narrow for ID and not in minimum mode.
+   showHeader (! m_minimalMode);               // ... show channel ID if it's not too narrow for ID and not in minimum mode.
    showTickMarks (! m_minimalMode);            // ... show tick marks if it's not too narrow for ID and not in minimum mode.
    m_level.setValueVisible (! m_minimalMode);  // ... show peak value if it's not too narrow for ID and not in minimum mode.
    setDirty();
@@ -539,7 +550,7 @@ void MeterComponent::mouseDrag (const juce::MouseEvent& event)
        && ! m_level.isMouseOverValue (event.y))
    {
       m_fader.setValueFromPos (event.y);
-      addDirty (m_fader.getBounds());
+      addDirty (m_fader.getBounds().getUnion (m_header.getBounds()));
    }
 }
 

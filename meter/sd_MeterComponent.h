@@ -51,14 +51,10 @@ public:
 
    using ChannelType = juce::AudioChannelSet::ChannelType;
 
-   MeterComponent() 
-#if SDTK_ENABLE_FADER
-   : m_fader (this)
-#endif
-   { setPaintingIsUnclipped (true); }
+   MeterComponent();
 
-   MeterComponent (const juce::String& name, const std::vector<float>& ticks, MeterPadding padding, float meterDecy, bool headerVisible, bool valueVisible,
-                      bool isLabelStrip = false, Fader::Listener* faderListener = nullptr, ChannelType channelType = ChannelType::unknown);
+   MeterComponent (Options meterOptions, MeterPadding padding, const juce::String& channelName, bool isLabelStrip = false, ChannelType channelType = ChannelType::unknown,
+                      [[maybe_unused]] Fader::Listener* faderListener = nullptr);
 
    ~MeterComponent() override = default;
 
