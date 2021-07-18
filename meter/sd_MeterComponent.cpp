@@ -50,21 +50,13 @@ MeterComponent::MeterComponent (Options meterOptions, MeterPadding padding, cons
   : MeterComponent()
 {
    setName (channelName);
-   setVisible (meterOptions.enabled);
-   setEnabled (meterOptions.enabled);
    setChannelType (channelType);
-   setPadding (padding);
-   setRegions (meterOptions.warningRegion_db, meterOptions.peakRegion_db);
-   setTickMarks (meterOptions.tickMarks);
-   showTickMarks (meterOptions.showTickMarks);
-   setDecay (meterOptions.meterDecayTime_ms);
-   useGradients (meterOptions.useGradient);
-   enableHeader (meterOptions.headerEnabled);
-   enableValue (meterOptions.valueEnabled);
-   setFaderEnabled (meterOptions.faderEnabled);
+
+   setOptions (meterOptions);
+
    setIsLabelStrip (isLabelStrip);
-   setFont (meterOptions.font);
-   // m_level.setValueVisible (valueEnabled);
+
+   setPadding (padding);
 
 #if SDTK_ENABLE_FADER
    if (faderListener) addFaderListener (*faderListener);
@@ -387,12 +379,21 @@ void MeterComponent::resetPeakHold() noexcept
    m_level.resetPeakHoldLevel();
    setDirty();
 }
-
 //==============================================================================
-void MeterComponent::setHeader (Header header) noexcept
+
+void MeterComponent::setOptions (Options meterOptions)
 {
-   m_header = header;
-   refresh (true);
+   setVisible (meterOptions.enabled);
+   setEnabled (meterOptions.enabled);
+   setRegions (meterOptions.warningRegion_db, meterOptions.peakRegion_db);
+   setTickMarks (meterOptions.tickMarks);
+   showTickMarks (meterOptions.showTickMarks);
+   setDecay (meterOptions.meterDecayTime_ms);
+   useGradients (meterOptions.useGradient);
+   enableHeader (meterOptions.headerEnabled);
+   enableValue (meterOptions.valueEnabled);
+   setFaderEnabled (meterOptions.faderEnabled);
+   setRefreshRate (static_cast<float>(meterOptions.refreshRate));
 }
 
 //==============================================================================

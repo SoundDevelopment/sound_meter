@@ -54,10 +54,18 @@ public:
    static constexpr auto kLabelStripLeftPadding = 5;  ///< Padding (in pixels) on the left side of the label strip (which can double as a master fader).
    static constexpr auto kFaderRightPadding     = 1;  ///< Padding (in pixels) on the right side of the channel faders.
 
+   
    /**
-    * @brief Constructor.
+    * @brief Constructor
    */
    MetersPanel();
+
+   /**
+    * @brief Constructor with meter options.
+    * 
+    * @param meterOptions The options to use with the meters and the label strip.
+   */
+   MetersPanel (Options meterOptions);
 
    /**
     * @brief Constructor which accepts a channel format.
@@ -68,6 +76,16 @@ public:
     * @param channelFormat The channel format to use to initialise the panel.
    */
    explicit MetersPanel (const juce::AudioChannelSet& channelFormat);
+   
+   /**
+    * @brief Constructor with meter options and which accepts a channel format.
+    * 
+    * This constructor will automatically setup the panel with the 
+    * right amount of meters, named according to the channel format.
+    * 
+    * @param channelFormat The channel format to use to initialise the panel.
+   */
+   MetersPanel (Options meterOptions, const juce::AudioChannelSet& channelFormat);
 
    /** @brief Destructor.*/
    ~MetersPanel() override;
@@ -259,6 +277,13 @@ public:
    void setFont (const juce::Font& font) noexcept;
 
    /**
+    * @brief Set meter options defining appearance and functionality.
+    * 
+    * @param meterOptions The options to apply to the meters and label strip.
+   */
+   void setOptions (Options meterOptions);
+
+   /**
     * @brief Enable or disable the panel.
     * 
     * @param enabled When set to true, the meters panel will be displayed.
@@ -377,23 +402,17 @@ public:
 private:
    // clang-format off
 
-   using                            MetersType              = juce::OwnedArray<MeterComponent>;          // Container type for multiple meters.
-
-   juce::AudioChannelSet            m_channelFormat         = juce::AudioChannelSet::stereo();
-
-   MetersType                       m_meters;                                                            // All meter objects.
-   
+   using                            MetersType              = juce::OwnedArray<MeterComponent>;  
+   MetersType                       m_meters;   
    MeterComponent                   m_labelStrip;
-
-   Options                          m_options;
-
-   int                              m_meterWidth            = 20;                                        // Width of the meter (in pixels).
-   int                              m_labelStripWidth       = m_meterWidth;                              // Width of the tick-mark labels (in pixels).
-   int                              m_autoSizedPanelWidth   = 0;                                       
-
-   bool                             m_useInternalTimer      = true;
+   
+   juce::AudioChannelSet            m_channelFormat         = juce::AudioChannelSet::stereo();
+   Options                          m_options               {};
+   
+   bool                             m_useInternalTimer      = true; 
    bool                             m_useLabelStrip         = true;
-   int                              m_panelRefreshRate      = 24;
+   juce::Font                       m_font;  
+   int                              m_autoSizedPanelWidth   = 0;                                       
 
    juce::Colour                     m_backgroundColour      = juce::Colours::black;
       

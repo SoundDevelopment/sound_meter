@@ -92,18 +92,20 @@ public:
    // Properties.
 
    /**
-    * Sets the gui refresh rate. 
+    * Sets the meter's refresh rate. 
     *
-    * This determines the refresh rate when using internal clocking.
+    * Set this to optimize the meter's decay rate.
     * 
     * @param guiRefreshRate refresh rate in hz.
+    * @see setDecay, getDecay
     */
-   void setGuiRefreshRate (float guiRefreshRate) noexcept { m_level.setRefreshRate (guiRefreshRate); }
+   void setRefreshRate (float guiRefreshRate) noexcept { m_level.setRefreshRate (guiRefreshRate); }
 
    /**
     * Set meter decay.
     *
     * @param decay_ms meter decay in milliseconds.
+    * @see getDecay, setRefreshRate
     */
    void setDecay (float decay_ms) noexcept { m_level.setDecay (decay_ms); }
 
@@ -111,6 +113,7 @@ public:
     * Get meter decay.
     *
     * @return meter decay in milliseconds
+    * @see setDecay, setRefreshRate
     */
    [[nodiscard]] float getDecay() const noexcept { return m_level.getDecay(); }
 
@@ -149,13 +152,13 @@ public:
    void setPadding (MeterPadding padding) noexcept { m_padding = padding; }
 
    /**
-    * Set the meter's 'header' part's info.
+    * Set the meter's options.
     *
-    * This meter's header part contains info like channel name, index, type, etc..
+    * The options determine the appearance and functionality of the meter.
     *
-    * @param header the header info to setup the 
+    * @param meterOptions Meter options to use.
     */
-   void setHeader (Header header) noexcept;
+   void setOptions( Options meterOptions );
 
    /**
     * @brief Set the channel name.
@@ -278,7 +281,6 @@ public:
     * @see showTickMarks
     */
    void setTickMarks (const std::vector<float>& ticks) { m_level.setTickMarks (ticks); }
-
 
    /**
     * @brief Use gradients in stead of hard region boundaries.
