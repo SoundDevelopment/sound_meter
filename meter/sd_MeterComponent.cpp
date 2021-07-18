@@ -50,6 +50,8 @@ MeterComponent::MeterComponent (Options meterOptions, MeterPadding padding, cons
   : MeterComponent()
 {
    setName (channelName);
+   setVisible (meterOptions.enabled);
+   setEnabled (meterOptions.enabled);
    setChannelType (channelType);
    setPadding (padding);
    setRegions (meterOptions.warningRegion_db, meterOptions.peakRegion_db);

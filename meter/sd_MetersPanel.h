@@ -391,7 +391,6 @@ private:
    int                              m_labelStripWidth       = m_meterWidth;                              // Width of the tick-mark labels (in pixels).
    int                              m_autoSizedPanelWidth   = 0;                                       
 
-   bool                             m_enabled               = true;
    bool                             m_useInternalTimer      = true;
    bool                             m_useLabelStrip         = true;
    int                              m_panelRefreshRate      = 24;

@@ -133,7 +133,7 @@ void MetersPanel::paint (juce::Graphics& g)
    g.setColour (m_backgroundColour);
    g.fillRect (getLocalBounds());
 
-   if (! m_enabled)
+   if (! m_options.enabled)
    {
       g.setColour (m_backgroundColour.contrasting (1.0f));
       g.setFont (m_options.font.withHeight (14.0f));
@@ -377,8 +377,6 @@ void MetersPanel::createMeters (const juce::AudioChannelSet& channelFormat, cons
 
       meter->setGuiRefreshRate (static_cast<float> (m_panelRefreshRate));
       meter->addMouseListener (this, true);
-      meter->setVisible (m_enabled);
-      meter->setEnabled (m_enabled);
 
       addChildComponent (meter.get());
       m_meters.add (meter.release());
@@ -528,7 +526,7 @@ void MetersPanel::setFont (const juce::Font& newFont) noexcept
 //==============================================================================
 void MetersPanel::setEnabled (bool enabled /*= true*/)
 {
-   m_enabled = enabled;
+   m_options.enabled = enabled;
 
    for (auto meter: m_meters)
    {
