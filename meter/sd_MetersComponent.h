@@ -41,12 +41,12 @@ namespace sd::SoundMeter
 {
 
 /**
- * @brief Panel containing one or more meters.
+ * @brief Component containing one or more meters.
  * 
- * This is the one that should be used. After setting the channel format it
+ * After setting the channel format it 
  * will automatically create the needed meters and give them proper names.
  */
-class MetersPanel
+class MetersComponent
   : public juce::Component
   , private juce::Timer
 #if SDTK_ENABLE_FADER
@@ -56,19 +56,18 @@ class MetersPanel
 public:
    static constexpr auto kLabelStripLeftPadding = 5;  ///< Padding (in pixels) on the left side of the label strip (which can double as a master fader).
    static constexpr auto kFaderRightPadding     = 1;  ///< Padding (in pixels) on the right side of the channel faders.
-
    
    /**
     * @brief Constructor
    */
-   MetersPanel();
+   MetersComponent();
 
    /**
     * @brief Constructor with meter options.
     * 
     * @param meterOptions The options to use with the meters and the label strip.
    */
-   MetersPanel (Options meterOptions);
+   MetersComponent (Options meterOptions);
 
    /**
     * @brief Constructor which accepts a channel format.
@@ -78,7 +77,7 @@ public:
     * 
     * @param channelFormat The channel format to use to initialise the panel.
    */
-   explicit MetersPanel (const juce::AudioChannelSet& channelFormat);
+   explicit MetersComponent (const juce::AudioChannelSet& channelFormat);
    
    /**
     * @brief Constructor with meter options and which accepts a channel format.
@@ -88,10 +87,10 @@ public:
     * 
     * @param channelFormat The channel format to use to initialise the panel.
    */
-   MetersPanel (Options meterOptions, const juce::AudioChannelSet& channelFormat);
+   MetersComponent (Options meterOptions, const juce::AudioChannelSet& channelFormat);
 
    /** @brief Destructor.*/
-   ~MetersPanel() override;
+   ~MetersComponent() override;
 
    /**
     * @brief Refresh (redraw) the meters panel.
@@ -162,7 +161,7 @@ public:
     * 
     * @see setNumChannels, setChannelFormat
    */
-   int getNumMeters() const noexcept { return m_meters.size(); }
+   int getNumMeters() const noexcept { return m_meterChannels.size(); }
 
    /**
     * @brief Get the default meters panel width.
@@ -334,7 +333,7 @@ public:
     * 
     * @return A reference to the master fader component.
    */
-   const MeterComponent& getMasterFader() const noexcept { return m_labelStrip; }
+   const MeterChannel& getMasterFader() const noexcept { return m_labelStrip; }
 
    /**
     * @brief Set all faders to unity gain.
@@ -405,9 +404,9 @@ public:
 private:
    // clang-format off
 
-   using                            MetersType              = juce::OwnedArray<MeterComponent>;  
-   MetersType                       m_meters;   
-   MeterComponent                   m_labelStrip;
+   using                            MetersType              = juce::OwnedArray<MeterChannel>;  
+   MetersType                       m_meterChannels;   
+   MeterChannel                     m_labelStrip;
    
    juce::AudioChannelSet            m_channelFormat         = juce::AudioChannelSet::stereo();
    Options                          m_options               {};
@@ -432,7 +431,7 @@ private:
    void                             notifyListeners         ();                                          // Notify the listeners the faders have been moved.
    void                             mouseEnter              (const juce::MouseEvent& event) override;
    void                             mouseExit               (const juce::MouseEvent& event) override;
-   void                             faderChanged            ( MeterComponent* sourceMeter, float value ) override;
+   void                             faderChanged            ( MeterChannel* sourceMeter, float value ) override;
    
 #endif
 
@@ -440,11 +439,11 @@ private:
    void                             setColours              ();
    void                             createMeters            ( const juce::AudioChannelSet& channelFormat, const std::vector<juce::String>& channelNames );
    void                             deleteMeters            ();
-   [[nodiscard]] MeterComponent*    getMeter                ( const int meterIndex ) noexcept;
-
+   [[nodiscard]] MeterChannel*      getMeterChannel         ( const int meterIndex ) noexcept;
+      
 
    // clang-format on
-   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MetersPanel)
+   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MetersComponent)
 };
 
 }  // namespace sd::SoundMeter

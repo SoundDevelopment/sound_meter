@@ -30,10 +30,6 @@
     ==============================================================================
 */
 
-// TODO: - Refer to other meters.
-// TODO: - Mute all header over master fader.
-// TODO: - Optional internal timing.
-// TODO: - Gradients.
 // TODO: - LnF methods.
 
 
@@ -52,5 +48,5 @@
 #include "meter/sd_MeterLevel.cpp"
 #include "meter/sd_MeterFader.cpp"
 #include "meter/sd_MeterHeader.cpp"
-#include "meter/sd_MeterComponent.cpp"
-#include "meter/sd_MetersPanel.cpp"
+#include "meter/sd_MeterChannel.cpp"
+#include "meter/sd_MetersComponent.cpp"

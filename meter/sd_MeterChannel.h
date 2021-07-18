@@ -31,21 +31,21 @@
 */
 
 
-#ifndef SD_SOUND_METER_COMPONENT_H
-#define SD_SOUND_METER_COMPONENT_H
+#ifndef SD_SOUND_METER_METERCHANNEL_H
+#define SD_SOUND_METER_METERCHANNEL_H
 
 
 namespace sd::SoundMeter
 {
 
 /**
- * @brief An individual meter component.
+ * @brief An individual meter channel.
  * 
  * This represents a single meter.
- * Use the MetersPanel to create multiple meters matching
+ * Use the MetersComponent to create multiple meters matching
  * the specified channel format.
 */
-class MeterComponent
+class MeterChannel
   : public juce::Component
   , public juce::SettableTooltipClient
 {
@@ -55,7 +55,7 @@ public:
    /**
     * @brief Default constructor.
    */
-   MeterComponent();
+   MeterChannel();
 
    /**
     * @brief Parameterized constructor.
@@ -67,8 +67,8 @@ public:
     * @param channelType   The channel type (left, right, centre, etc...).
     * @param faderListener A listener to any changes in the fader.
    */
-   MeterComponent (Options meterOptions, MeterPadding padding, const juce::String& channelName, bool isLabelStrip = false,
-                   ChannelType channelType = ChannelType::unknown, [[maybe_unused]] Fader::Listener* faderListener = nullptr);
+   MeterChannel (Options meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip = false,
+                 ChannelType channelType = ChannelType::unknown, [[maybe_unused]] Fader::Listener* faderListener = nullptr);
 
    /**
     * @brief Reset the meter (but not the peak hold).
@@ -157,7 +157,7 @@ public:
     *
     * @param padding Amount of padding to apply.
     */
-   void setPadding (MeterPadding padding) noexcept { m_padding = padding; }
+   void setPadding (Padding padding) noexcept { m_padding = padding; }
 
    /**
     * @brief Set the meter's options.
@@ -263,7 +263,7 @@ public:
     * @param notify   Determine whether to notify all listeners or not.
     * @see isActive
     */
-   void               setActive (bool isActive, NotificationOptions notify = NotificationOptions::dontNotify);
+   void setActive (bool isActive, NotificationOptions notify = NotificationOptions::dontNotify);
 
    /**
     * @brief Check if the meter is active (un-muted).
@@ -354,11 +354,13 @@ public:
 
 #if SDTK_ENABLE_FADER
    /**
-    * @brief Active (or de-activate) fader.
+    * @brief Activate (or de-activate) fader.
     * @param faderActive When set to true, will activate the meter's fader.
     * @see isFaderActive
    */
-   void               setFaderActive (bool faderActive = true);
+   void setFaderActive (bool faderActive = true);
+
+
    [[nodiscard]] bool isFaderActive() const noexcept { return m_fader.isActive(); }
 
    void setFaderEnabled (bool faderEnabled = true);
@@ -426,7 +428,7 @@ private:
 #endif /* SDTK_ENABLE_FADER */
 
    // GUI
-   MeterPadding m_padding { 0, 0, 0, 0 };  // Space between meter and component's edge.
+   Padding m_padding { 0, 0, 0, 0 };  // Space between meter and component's edge.
 
    // Flags
    bool                 m_active       = true;
@@ -474,9 +476,9 @@ private:
    void setColours() noexcept;
 
    // clang-format on
-   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MeterComponent)
+   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MeterChannel)
 };
 
 }  // namespace sd::SoundMeter
 
-#endif /* SD_SOUND_METER_COMPONENT_H */
+#endif /* SD_SOUND_METER_METERCHANNEL_H */

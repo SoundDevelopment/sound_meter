@@ -33,12 +33,12 @@
 namespace sd::SoundMeter
 {
 
-MetersPanel::MetersPanel() : MetersPanel (Options()) { }
+MetersComponent::MetersComponent() : MetersComponent (Options()) { }
 //==============================================================================
 
-MetersPanel::MetersPanel (Options meterOptions)
+MetersComponent::MetersComponent (Options meterOptions)
   : m_options (meterOptions),
-    m_labelStrip (meterOptions, MeterPadding (kLabelStripLeftPadding, 0, 0, 0), Constants::kMetersPanelId, true, juce::AudioChannelSet::ChannelType::unknown,
+    m_labelStrip (meterOptions, Padding (kLabelStripLeftPadding, 0, 0, 0), Constants::kMetersPanelId, true, juce::AudioChannelSet::ChannelType::unknown,
 #if SDTK_ENABLE_FADER
                   this)
 #else
@@ -60,10 +60,10 @@ MetersPanel::MetersPanel (Options meterOptions)
 }
 //==============================================================================
 
-MetersPanel::MetersPanel (const juce::AudioChannelSet& channelFormat) : MetersPanel (Options(), channelFormat) {};
+MetersComponent::MetersComponent (const juce::AudioChannelSet& channelFormat) : MetersComponent (Options(), channelFormat) {};
 //==============================================================================
 
-MetersPanel::MetersPanel (Options meterOptions, const juce::AudioChannelSet& channelFormat) : MetersPanel (meterOptions)
+MetersComponent::MetersComponent (Options meterOptions, const juce::AudioChannelSet& channelFormat) : MetersComponent (meterOptions)
 {
    m_channelFormat = channelFormat;
 
@@ -71,7 +71,7 @@ MetersPanel::MetersPanel (Options meterOptions, const juce::AudioChannelSet& cha
 }
 //==============================================================================
 
-MetersPanel::~MetersPanel()
+MetersComponent::~MetersComponent()
 {
 
 #if SDTK_ENABLE_FADER
@@ -83,7 +83,7 @@ MetersPanel::~MetersPanel()
 }
 //==============================================================================
 
-void MetersPanel::reset()
+void MetersComponent::reset()
 {
    deleteMeters();
 
@@ -94,26 +94,26 @@ void MetersPanel::reset()
 #endif
 
    m_labelStrip.showTickMarks (false);
-   m_channelFormat   = juce::AudioChannelSet::stereo();
+   m_channelFormat = juce::AudioChannelSet::stereo();
 
    refresh (true);
 }
 //==============================================================================
 
-void MetersPanel::refresh (const bool forceRefresh /*= false*/)
+void MetersComponent::refresh (const bool forceRefresh /*= false*/)
 {
    m_labelStrip.refresh (forceRefresh);
-   for (auto* meter: m_meters)
-      meter->refresh (forceRefresh);
+   for (auto* meterChannel: m_meterChannels)
+      meterChannel->refresh (forceRefresh);
 }
 //==============================================================================
 
-void MetersPanel::setPanelRefreshRate (int refreshRate_hz) noexcept
+void MetersComponent::setPanelRefreshRate (int refreshRate_hz) noexcept
 {
    m_options.refreshRate = refreshRate_hz;
 
    m_labelStrip.setRefreshRate (static_cast<float> (refreshRate_hz));
-   for (auto* meter: m_meters)
+   for (auto* meter: m_meterChannels)
       meter->setRefreshRate (static_cast<float> (refreshRate_hz));
 
    if (m_useInternalTimer)
@@ -124,7 +124,7 @@ void MetersPanel::setPanelRefreshRate (int refreshRate_hz) noexcept
 }
 //==============================================================================
 
-void MetersPanel::useInternalTiming (bool useInternalTiming) noexcept
+void MetersComponent::useInternalTiming (bool useInternalTiming) noexcept
 {
    m_useInternalTimer = useInternalTiming;
 
@@ -134,7 +134,7 @@ void MetersPanel::useInternalTiming (bool useInternalTiming) noexcept
 }
 //==============================================================================
 
-void MetersPanel::paint (juce::Graphics& g)
+void MetersComponent::paint (juce::Graphics& g)
 {
    g.setColour (m_backgroundColour);
    g.fillRect (getLocalBounds());
@@ -148,12 +148,12 @@ void MetersPanel::paint (juce::Graphics& g)
 }
 //==============================================================================
 
-void MetersPanel::resized()
+void MetersComponent::resized()
 {
    using namespace Constants;
 
    // Get the number of meters present...
-   const int numOfMeters = static_cast<int> (m_meters.size());
+   const int numOfMeters = static_cast<int> (m_meterChannels.size());
 
    if (numOfMeters == 0) return;
 
@@ -168,7 +168,7 @@ void MetersPanel::resized()
    // Calculate meter width from available width taking into account the extra width needed when showing the master strip...
    auto meterWidth = std::clamp ((panelWidth - labelStripWidth) / numOfMeters, kMinWidth, kMaxWidth);
 
-   bool minModeEnabled = m_meters[0]->autoSetMinimalMode (meterWidth, panelHeight);
+   bool minModeEnabled = m_meterChannels[0]->autoSetMinimalMode (meterWidth, panelHeight);
 
    // Don't show the label strip in minimum mode...
    if (minModeEnabled) labelStripWidth = 0;
@@ -177,13 +177,13 @@ void MetersPanel::resized()
    if (m_useLabelStrip) meterWidth = std::clamp ((panelWidth - labelStripWidth) / numOfMeters, kMinWidth, kMaxWidth);
 
    // Position all meters and adapt them to the current size...
-   for (auto meter: m_meters)
+   for (auto meterChannel: m_meterChannels)
    {
-      meter->setMinimalMode (minModeEnabled);
-      meter->setBounds (panelBounds.removeFromLeft (meterWidth));  // ... set it's width to m_meterWidth
+      meterChannel->setMinimalMode (minModeEnabled);
+      meterChannel->setBounds (panelBounds.removeFromLeft (meterWidth));  // ... set it's width to m_meterWidth
 
 #if SDTK_ENABLE_FADER
-      if (minModeEnabled) meter->setFaderActive (false);  // ... do not show the gain fader if it's too narrow.
+      if (minModeEnabled) meterChannel->setFaderActive (false);  // ... do not show the gain fader if it's too narrow.
 #endif
    }
 
@@ -195,20 +195,20 @@ void MetersPanel::resized()
    else
    {
       // Use the dimensions of the 'meter' part combined with the 'value' part...
-      auto labelStripBounds = m_meters[0]->getLabelStripBounds();
+      auto labelStripBounds = m_meterChannels[0]->getLabelStripBounds();
       m_labelStrip.setBounds (panelBounds.removeFromRight (labelStripWidth).withY (labelStripBounds.getY()).withHeight (labelStripBounds.getHeight()));
       m_labelStrip.showTickMarks (true);
    }
 }
 //==============================================================================
 
-void MetersPanel::setChannelNames (const std::vector<juce::String>& channelNames)
+void MetersComponent::setChannelNames (const std::vector<juce::String>& channelNames)
 {
    using namespace Constants;
 
    const int numChannelNames = static_cast<int> (channelNames.size());
 
-   const int numMeters = m_meters.size();
+   const int numMeters = m_meterChannels.size();
 
    auto defaultMeterWidth = static_cast<float> (kMinWidth);
 
@@ -219,22 +219,22 @@ void MetersPanel::setChannelNames (const std::vector<juce::String>& channelNames
       {
          if (channelNames[meterIdx].isNotEmpty())
          {
-            m_meters[meterIdx]->setChannelName (channelNames[meterIdx]);  // ... and set the channel name.
+            m_meterChannels[meterIdx]->setChannelName (channelNames[meterIdx]);  // ... and set the channel name.
 
             // Calculate the meter width so it fits the largest of channel names...
-            defaultMeterWidth = std::max (defaultMeterWidth, m_meters[meterIdx]->getChannelNameWidth());
+            defaultMeterWidth = std::max (defaultMeterWidth, m_meterChannels[meterIdx]->getChannelNameWidth());
          }
       }
       else
       {
          // Calculate the meter width so it fits the largest of full type descriptions...
-         defaultMeterWidth = std::max (defaultMeterWidth, m_meters[meterIdx]->getChannelTypeWidth());
+         defaultMeterWidth = std::max (defaultMeterWidth, m_meterChannels[meterIdx]->getChannelTypeWidth());
       }
    }
 
    if (channelNames.empty())
    {
-      for (auto& meter: m_meters)
+      for (auto& meter: m_meterChannels)
          meter->setReferredTypeWidth (defaultMeterWidth);
    }
 
@@ -250,29 +250,29 @@ void MetersPanel::setChannelNames (const std::vector<juce::String>& channelNames
 
 //==============================================================================
 
-void MetersPanel::mouseExit (const juce::MouseEvent& /*event*/)
+void MetersComponent::mouseExit (const juce::MouseEvent& /*event*/)
 {
    showFaders (false);
 }
 //==============================================================================
 
-void MetersPanel::mouseEnter (const juce::MouseEvent& /*event*/)
+void MetersComponent::mouseEnter (const juce::MouseEvent& /*event*/)
 {
-   if (m_meters.isEmpty()) return;
+   if (m_meterChannels.isEmpty()) return;
 
-   if (! m_meters[0]->isMinimalModeActive())
+   if (! m_meterChannels[0]->isMinimalModeActive())
    {
-      for (auto meter: m_meters)
-         meter->setFaderActive (true);
+      for (auto meterChannel: m_meterChannels)
+         meterChannel->setFaderActive (true);
       m_labelStrip.setFaderActive (true);
    }
 }
 //==============================================================================
 
-void MetersPanel::faderChanged (MeterComponent* sourceMeter, float value)
+void MetersComponent::faderChanged (MeterChannel* sourceChannel, float value)
 {
    // Master strip fader moves all channel faders relatively to each other...
-   if (sourceMeter == &m_labelStrip)
+   if (sourceChannel == &m_labelStrip)
    {
       jassert (m_faderGains.size() == m_faderGainsBuffer.size());  // NOLINT
 
@@ -283,9 +283,9 @@ void MetersPanel::faderChanged (MeterComponent* sourceMeter, float value)
          if (areAllMetersInactive()) muteAll (false);  // ... un- mute all meters ...
 
          // Apply the master fader VALUE to all meter faders ...
-         for (auto singleMeter: m_meters)
+         for (auto singleMeter: m_meterChannels)
          {
-            auto meterIdx = m_meters.indexOf (singleMeter);
+            auto meterIdx = m_meterChannels.indexOf (singleMeter);
             if (juce::isPositiveAndBelow (meterIdx, m_faderGains.size()))
             {
                m_faderGains[meterIdx] = m_faderGainsBuffer[meterIdx] * value;                                // Multiply the gain with the master fader value.
@@ -311,19 +311,19 @@ void MetersPanel::faderChanged (MeterComponent* sourceMeter, float value)
 }
 //==============================================================================
 
-void MetersPanel::getFaderValues (NotificationOptions notificationOption /*= NotificationOptions::notify*/)
+void MetersComponent::getFaderValues (NotificationOptions notificationOption /*= NotificationOptions::notify*/)
 {
-   if (m_meters.isEmpty()) return;
+   if (m_meterChannels.isEmpty()) return;
 
    // Set number of mixer gains to match the number of channels...
-   jassert (m_faderGains.size() == m_meters.size());  // NOLINT
+   jassert (m_faderGains.size() == m_meterChannels.size());  // NOLINT
    // if( static_cast<int>( m_mixerGains.size() ) != m_meters.size() ) m_mixerGains.resize( m_meters.size() );
 
    // Loop through all meters...
-   for (int meterIdx = 0; meterIdx < m_meters.size(); ++meterIdx)
+   for (int channelIdx = 0; channelIdx < m_meterChannels.size(); ++channelIdx)
    {
       // If the meter is active, get the value from the fader, otherwise a value of 0.0 is used...
-      m_faderGains[meterIdx] = (m_meters[meterIdx]->isActive() ? m_meters[meterIdx]->getFaderValue() : 0.0f);
+      m_faderGains[channelIdx] = (m_meterChannels[channelIdx]->isActive() ? m_meterChannels[channelIdx]->getFaderValue() : 0.0f);
    }
 
    // If all meters are in-active, so is the master fader ...
@@ -335,69 +335,72 @@ void MetersPanel::getFaderValues (NotificationOptions notificationOption /*= Not
 }
 //==============================================================================
 
-void MetersPanel::notifyListeners()
+void MetersComponent::notifyListeners()
 {
    m_fadersListeners.call ([=] (FadersChangeListener& l) { l.fadersChanged (m_faderGains); });
 }
 //==============================================================================
 
-void MetersPanel::showFaders (bool mustShowFaders)
+void MetersComponent::showFaders (bool mustShowFaders)
 {
    m_labelStrip.setFaderActive (mustShowFaders);
-   for (auto meter: m_meters)
-      meter->setFaderActive (mustShowFaders);
+   for (auto meterChannel: m_meterChannels)
+      meterChannel->setFaderActive (mustShowFaders);
 }
 //==============================================================================
 
-bool MetersPanel::areAllMetersInactive()
+bool MetersComponent::areAllMetersInactive()
 {
-   for (auto meter: m_meters)
-      if (meter->isActive()) return false;
+   for (auto meterChannel: m_meterChannels)
+      if (meterChannel->isActive()) return false;
    return true;
 }
 //==============================================================================
 
-void MetersPanel::toggleMute()
+void MetersComponent::toggleMute()
 {
    bool allChannelsInactive = areAllMetersInactive();
    muteAll (! allChannelsInactive);
 }
 //==============================================================================
 
-void MetersPanel::muteAll (bool mute /*= true */)
+void MetersComponent::muteAll (bool mute /*= true */)
 {
    bool allChannelsInactive = areAllMetersInactive();
    if (mute == allChannelsInactive) return;  // All meters already muted.
 
-   for (auto meter: m_meters)
+   for (auto meterChannel: m_meterChannels)
    {
-      meter->setActive (! mute);
-      meter->flashFader();
+      meterChannel->setActive (! mute);
+      meterChannel->flashFader();
    }
    getFaderValues();
 }
 //==============================================================================
 
-void MetersPanel::resetFaders()
+void MetersComponent::resetFaders()
 {
    std::fill (m_faderGains.begin(), m_faderGains.end(), 1.0f);  // Set all fader gains to unity.
    m_faderGainsBuffer = m_faderGains;                           // Copy the just reset fade gains to it's buffer.
 
    // Activate (un-mute) all faders and set them to unity gain...
-   for (const auto& meter: m_meters)
+   for (const auto& meterChannel: m_meterChannels)
    {
-      meter->setActive (true);
-      meter->setFaderValue (1.0f);
+      meterChannel->setActive (true);
+      meterChannel->setFaderValue (1.0f);
+      meterChannel->flashFader();
    }
+   m_labelStrip.setActive( true );
    m_labelStrip.setFaderValue (1.0f);
+   m_labelStrip.flashFader();
    notifyListeners();
 }
 //==============================================================================
 
-void MetersPanel::setFadersEnabled (bool faderEnabled) noexcept
+void MetersComponent::setFadersEnabled (bool faderEnabled) noexcept
 {
-   for (auto* meter: m_meters)
-      meter->setFaderEnabled (faderEnabled);
+   for (auto* meterChannel: m_meterChannels)
+      meterChannel->setFaderEnabled (faderEnabled);
    m_labelStrip.setFaderEnabled (faderEnabled);
    m_options.faderEnabled = faderEnabled;
 }
@@ -406,7 +409,7 @@ void MetersPanel::setFadersEnabled (bool faderEnabled) noexcept
 #endif /* SDTK_ENABLE_FADER */
 
 //==============================================================================
-void MetersPanel::setNumChannels (int numChannels, const std::vector<juce::String>& channelNames /*= {}*/)
+void MetersComponent::setNumChannels (int numChannels, const std::vector<juce::String>& channelNames /*= {}*/)
 {
    if (numChannels <= 0) return;
 
@@ -414,14 +417,14 @@ void MetersPanel::setNumChannels (int numChannels, const std::vector<juce::Strin
 }
 
 //==============================================================================
-void MetersPanel::setChannelFormat (const juce::AudioChannelSet& channelFormat, const std::vector<juce::String>& channelNames)
+void MetersComponent::setChannelFormat (const juce::AudioChannelSet& channelFormat, const std::vector<juce::String>& channelNames)
 {
    if (channelFormat.size() == 0) return;
 
    m_channelFormat = channelFormat;
 
    // Make sure the number of meters matches the number of channels ...
-   if (channelFormat.size() != m_meters.size())
+   if (channelFormat.size() != m_meterChannels.size())
    {
       deleteMeters();                              // ... if not, then delete all previous meters ...
       createMeters (channelFormat, channelNames);  // ... and create new ones, matching the required channel format.
@@ -446,31 +449,31 @@ void MetersPanel::setChannelFormat (const juce::AudioChannelSet& channelFormat, 
 
 //==============================================================================
 
-void MetersPanel::setInputLevel (int channel, float value)
+void MetersComponent::setInputLevel (int channel, float value)
 {
-   if (auto* meter = getMeter (channel)) meter->setInputLevel (value);
+   if (auto* meterChannel = getMeterChannel (channel)) meterChannel->setInputLevel (value);
 }
 //==============================================================================
 
-void MetersPanel::createMeters (const juce::AudioChannelSet& channelFormat, const std::vector<juce::String>& channelNames)
+void MetersComponent::createMeters (const juce::AudioChannelSet& channelFormat, const std::vector<juce::String>& channelNames)
 {
    // Create enough meters to match the channel format...
    for (int channelIdx = 0; channelIdx < channelFormat.size(); ++channelIdx)
    {
-      auto meter = std::make_unique<MeterComponent> (m_options, MeterPadding (0, kFaderRightPadding, 0, 0), Constants::kMetersPanelId, false,
-                                                     channelFormat.getTypeOfChannel (channelIdx),
+      auto meterChannel = std::make_unique<MeterChannel> (m_options, Padding (0, kFaderRightPadding, 0, 0), Constants::kMetersPanelId, false,
+                                                   channelFormat.getTypeOfChannel (channelIdx),
 #if SDTK_ENABLE_FADER
-                                                     this
+                                                   this
 #else
-                                                     nullptr
+                                                   nullptr
 #endif
       );
 
-      meter->setFont (m_font);
-      meter->addMouseListener (this, true);
+      meterChannel->setFont (m_font);
+      meterChannel->addMouseListener (this, true);
 
-      addChildComponent (meter.get());
-      m_meters.add (meter.release());
+      addChildComponent (meterChannel.get());
+      m_meterChannels.add (meterChannel.release());
 
       m_labelStrip.setActive (true);
    }
@@ -479,74 +482,74 @@ void MetersPanel::createMeters (const juce::AudioChannelSet& channelFormat, cons
 }
 //==============================================================================
 
-void MetersPanel::deleteMeters()
+void MetersComponent::deleteMeters()
 {
 #if SDTK_ENABLE_FADER
-   for (auto meter: m_meters)
+   for (auto meterChannel: m_meterChannels)
    {
-      meter->removeFaderListener (*this);
-      meter->removeMouseListener (this);
+      meterChannel->removeFaderListener (*this);
+      meterChannel->removeMouseListener (this);
    }
 #endif
 
-   m_meters.clear();
+   m_meterChannels.clear();
 }
 //==============================================================================
 
-MeterComponent* MetersPanel::getMeter (const int meterIndex) noexcept
+MeterChannel* MetersComponent::getMeterChannel (const int meterIndex) noexcept
 {
-   return (juce::isPositiveAndBelow (meterIndex, m_meters.size()) ? m_meters[meterIndex] : nullptr);
+   return (juce::isPositiveAndBelow (meterIndex, m_meterChannels.size()) ? m_meterChannels[meterIndex] : nullptr);
 }
 //==============================================================================
 
-void MetersPanel::resetMeters()
+void MetersComponent::resetMeters()
 {
-   for (auto* meter: m_meters)
-      meter->reset();
+   for (auto* meterChannel: m_meterChannels)
+      meterChannel->reset();
 }
 //==============================================================================
 
-void MetersPanel::resetPeakHold()
+void MetersComponent::resetPeakHold()
 {
-   for (auto* meter: m_meters)
-      meter->resetPeakHold();
+   for (auto* meterChannel: m_meterChannels)
+      meterChannel->resetPeakHold();
 }
 //==============================================================================
 
-void MetersPanel::setMeterDecay (float decay_ms)
+void MetersComponent::setMeterDecay (float decay_ms)
 {
    m_options.meterDecayTime_ms = decay_ms;
-   for (auto* meter: m_meters)
-      meter->setDecay (decay_ms);
+   for (auto* meterChannel: m_meterChannels)
+      meterChannel->setDecay (decay_ms);
 }
 //==============================================================================
 
-void MetersPanel::setFont (const juce::Font& newFont) noexcept
+void MetersComponent::setFont (const juce::Font& newFont) noexcept
 {
    m_font = newFont;
-   for (auto* meter: m_meters)
-      meter->setFont (newFont);
+   for (auto* meterChannel: m_meterChannels)
+      meterChannel->setFont (newFont);
    m_labelStrip.setFont (newFont);
 }
 //==============================================================================
 
-void MetersPanel::setOptions (Options meterOptions)
+void MetersComponent::setOptions (Options meterOptions)
 {
    m_options = meterOptions;
-   for (auto* meter: m_meters)
-      meter->setOptions (meterOptions);
+   for (auto* meterChannel: m_meterChannels)
+      meterChannel->setOptions (meterOptions);
    m_labelStrip.setOptions (meterOptions);
 }
 //==============================================================================
 
-void MetersPanel::setEnabled (bool enabled /*= true*/)
+void MetersComponent::setEnabled (bool enabled /*= true*/)
 {
    m_options.enabled = enabled;
 
-   for (auto meter: m_meters)
+   for (auto meterChannel: m_meterChannels)
    {
-      meter->setEnabled (enabled);
-      meter->setVisible (enabled);
+      meterChannel->setEnabled (enabled);
+      meterChannel->setVisible (enabled);
    }
 
    m_labelStrip.setEnabled (enabled);
@@ -556,73 +559,73 @@ void MetersPanel::setEnabled (bool enabled /*= true*/)
 }
 //==============================================================================
 
-void MetersPanel::showTickMarks (bool showTickMarks)
+void MetersComponent::showTickMarks (bool showTickMarks)
 {
    m_options.showTickMarks = showTickMarks;
-   for (auto* meter: m_meters)
-      meter->showTickMarks (showTickMarks);
+   for (auto* meterChannel: m_meterChannels)
+      meterChannel->showTickMarks (showTickMarks);
    m_labelStrip.showTickMarks (showTickMarks);
 }
 //==============================================================================
 
-void MetersPanel::useGradients (bool useGradients) noexcept
+void MetersComponent::useGradients (bool useGradients) noexcept
 {
    m_options.useGradient = useGradients;
-   for (auto* meter: m_meters)
-      meter->useGradients (useGradients);
+   for (auto* meterChannel: m_meterChannels)
+      meterChannel->useGradients (useGradients);
 }
 //==============================================================================
 
-void MetersPanel::useLabelStrip (bool useLabelStrip)
+void MetersComponent::useLabelStrip (bool useLabelStrip)
 {
    m_useLabelStrip = useLabelStrip;
    resized();
 }
 //==============================================================================
 
-void MetersPanel::enableHeader (bool headerEnabled)
+void MetersComponent::enableHeader (bool headerEnabled)
 {
    if (m_options.headerEnabled == headerEnabled) return;
 
    m_options.headerEnabled = headerEnabled;
    m_labelStrip.enableHeader (headerEnabled);
 
-   for (auto* meter: m_meters)
-      meter->enableHeader (headerEnabled);
+   for (auto* meterChannel: m_meterChannels)
+      meterChannel->enableHeader (headerEnabled);
 
    resized();
 }
 //==============================================================================
 
-void MetersPanel::enableValue (bool valueEnabled)
+void MetersComponent::enableValue (bool valueEnabled)
 {
    if (m_options.valueEnabled == valueEnabled) return;
 
    m_labelStrip.enableValue (valueEnabled);
 
-   for (auto* meter: m_meters)
-      meter->enableValue (valueEnabled);
+   for (auto* meterChannel: m_meterChannels)
+      meterChannel->enableValue (valueEnabled);
 
    resized();
 }
 //==============================================================================
 
-void MetersPanel::setRegions (float warningRegion_db, float peakRegion_db)
+void MetersComponent::setRegions (float warningRegion_db, float peakRegion_db)
 {
    m_options.warningRegion_db = warningRegion_db;
    m_options.peakRegion_db    = peakRegion_db;
 
-   for (auto* meter: m_meters)
-      meter->setRegions (warningRegion_db, peakRegion_db);
+   for (auto* meterChannel: m_meterChannels)
+      meterChannel->setRegions (warningRegion_db, peakRegion_db);
 }
 //==============================================================================
 
-void MetersPanel::setColours()
+void MetersComponent::setColours()
 {
-   if (isColourSpecified (MeterComponent::backgroundColourId))
-      m_backgroundColour = findColour (MeterComponent::backgroundColourId);
-   else if (getLookAndFeel().isColourSpecified (MeterComponent::backgroundColourId))
-      m_backgroundColour = getLookAndFeel().findColour (MeterComponent::backgroundColourId);
+   if (isColourSpecified (MeterChannel::backgroundColourId))
+      m_backgroundColour = findColour (MeterChannel::backgroundColourId);
+   else if (getLookAndFeel().isColourSpecified (MeterChannel::backgroundColourId))
+      m_backgroundColour = getLookAndFeel().findColour (MeterChannel::backgroundColourId);
 }
 
 }  // namespace sd::SoundMeter

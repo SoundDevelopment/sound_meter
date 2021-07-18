@@ -30,11 +30,12 @@
     ==============================================================================
 */
 
+
 namespace sd::SoundMeter::Helpers
 {
 
 //==============================================================================
-[[nodiscard]] juce::Rectangle<int> applyPadding (const juce::Rectangle<int>& rectToPad, MeterPadding paddingToApply)
+[[nodiscard]] juce::Rectangle<int> applyPadding (const juce::Rectangle<int>& rectToPad, Padding paddingToApply)
 {
    juce::Rectangle<int> result { rectToPad };
    if (juce::isPositiveAndBelow (paddingToApply.left, result.getWidth())) result.setLeft (rectToPad.getX() + paddingToApply.left);

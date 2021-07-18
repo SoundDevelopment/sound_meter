@@ -73,7 +73,7 @@ END_JUCE_MODULE_DECLARATION
 #include "meter/sd_MeterLevel.h"
 #include "meter/sd_MeterFader.h"
 #include "meter/sd_MeterHeader.h"
-#include "meter/sd_MeterComponent.h"
-#include "meter/sd_MetersPanel.h"
+#include "meter/sd_MeterChannel.h"
+#include "meter/sd_MetersComponent.h"
 
 #endif  //SOUND_METER_HEADER_H

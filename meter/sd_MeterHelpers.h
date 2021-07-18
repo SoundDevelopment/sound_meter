@@ -70,7 +70,7 @@ static constexpr auto kMetersPanelId          = "meters_panel";  ///< ID (name) 
  * @brief Amount of padding to use on the meters.
  * Padding is the space between the meter and the component's edge.
 */
-struct MeterPadding
+struct Padding
 {
    /**
     * @brief Constructor.
@@ -79,7 +79,7 @@ struct MeterPadding
     * @param newTop    New top padding amount (in pixels).
     * @param newBottom New bottom padding amount (in pixels).
    */
-   MeterPadding (int newLeft, int newRight, int newTop, int newBottom) : left (newLeft), right (newRight), top (newTop), bottom (newBottom) {};
+   Padding (int newLeft, int newRight, int newTop, int newBottom) : left (newLeft), right (newRight), top (newTop), bottom (newBottom) {};
    int left   = 0;  ///< Space between meter and left border (in pixels).
    int right  = 0;  ///< Space between meter and right border (in pixels).
    int top    = 0;  ///< Space between meter and top border (in pixels).
@@ -125,7 +125,7 @@ namespace Helpers
  * @param paddingToApply The padding to apply (left, right, top, bottom).
  * @return The padded rectangle.
 */
-[[nodiscard]] juce::Rectangle<int> applyPadding (const juce::Rectangle<int>& rectToPad, MeterPadding paddingToApply);
+[[nodiscard]] juce::Rectangle<int> applyPadding (const juce::Rectangle<int>& rectToPad, Padding paddingToApply);
 
 }  // namespace Helpers
 

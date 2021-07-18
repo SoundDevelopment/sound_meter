@@ -36,7 +36,7 @@
 namespace sd::SoundMeter
 {
 
-class MeterComponent;
+class MeterChannel;
 
 /**
  * @brief Class responsible for the fader.
@@ -44,7 +44,7 @@ class MeterComponent;
 class Fader
 {
 public:
-   explicit Fader (MeterComponent* parentMeter) : m_parentMeter (parentMeter) {};
+   explicit Fader (MeterChannel* parentMeter) : m_parentMeter (parentMeter) {};
 
    /**
     * Draw the fader.
@@ -88,7 +88,7 @@ public:
    struct Listener
    {
       virtual ~Listener()                                                  = default;
-      virtual void faderChanged (MeterComponent* sourceMeter, float value) = 0;
+      virtual void faderChanged (MeterChannel* sourceMeter, float value) = 0;
    };
 
    void addListener (Listener& listener);
@@ -97,7 +97,7 @@ public:
 private:
    std::atomic<float>           m_faderValue { 1.0f };  // Fader value (between 0..1).
    juce::ListenerList<Listener> m_faderListeners;
-   SoundMeter::MeterComponent*  m_parentMeter = nullptr;
+   SoundMeter::MeterChannel*  m_parentMeter = nullptr;
    bool                         m_active      = false;
    bool                         m_enabled     = false;
    bool                         m_mouseOver   = false;

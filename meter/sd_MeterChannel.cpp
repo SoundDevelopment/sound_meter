@@ -36,7 +36,7 @@ namespace sd::SoundMeter
 
 #pragma region Misc Methods
 
-MeterComponent::MeterComponent()
+MeterChannel::MeterChannel()
 #if SDTK_ENABLE_FADER
   : m_fader (this)
 #endif
@@ -45,9 +45,9 @@ MeterComponent::MeterComponent()
 }
 //==============================================================================
 
-MeterComponent::MeterComponent (Options meterOptions, MeterPadding padding, const juce::String& channelName, bool isLabelStrip /*= false*/,
+MeterChannel::MeterChannel (Options meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip /*= false*/,
                                 ChannelType channelType /*= ChannelType::unknown*/, [[maybe_unused]] Fader::Listener* faderListener /*= nullptr*/)
-  : MeterComponent()
+  : MeterChannel()
 {
    setName (channelName);
    setChannelType (channelType);
@@ -64,7 +64,7 @@ MeterComponent::MeterComponent (Options meterOptions, MeterPadding padding, cons
 }
 //==============================================================================
 
-void MeterComponent::reset()
+void MeterChannel::reset()
 {
    m_level.reset();
    refresh (true);
@@ -74,7 +74,7 @@ void MeterComponent::reset()
 #if SDTK_ENABLE_FADER
 
 //==============================================================================
-void MeterComponent::flashFader()
+void MeterChannel::flashFader()
 {
    m_fader.flash();
    refresh (true);
@@ -83,7 +83,7 @@ void MeterComponent::flashFader()
 #endif /* SDTK_ENABLE_FADER */
 
 //==============================================================================
-[[nodiscard]] juce::Colour MeterComponent::getColourFromLnf (int colourId, const juce::Colour& fallbackColour) const
+[[nodiscard]] juce::Colour MeterChannel::getColourFromLnf (int colourId, const juce::Colour& fallbackColour) const
 {
    if (isColourSpecified (colourId)) return findColour (colourId);
    if (getLookAndFeel().isColourSpecified (colourId)) return getLookAndFeel().findColour (colourId);
@@ -92,7 +92,7 @@ void MeterComponent::flashFader()
 }
 
 //==============================================================================
-[[nodiscard]] bool MeterComponent::autoSetMinimalMode (int proposedWidth, int proposedHeight)
+[[nodiscard]] bool MeterChannel::autoSetMinimalMode (int proposedWidth, int proposedHeight)
 {
    bool minimalMode = ! nameFits ("Lfe", proposedWidth);
    if (proposedWidth < Constants::kMinModeWidthThreshold) minimalMode = true;
@@ -104,13 +104,13 @@ void MeterComponent::flashFader()
 }
 
 //==============================================================================
-[[nodiscard]] juce::Rectangle<int> MeterComponent::getLabelStripBounds() const noexcept
+[[nodiscard]] juce::Rectangle<int> MeterChannel::getLabelStripBounds() const noexcept
 {
    return m_level.getMeterBounds().getUnion (m_header.getBounds());
 }
 
 //==============================================================================
-void MeterComponent::setMinimalMode (bool minimalMode) noexcept
+void MeterChannel::setMinimalMode (bool minimalMode) noexcept
 {
    if (minimalMode == m_minimalMode) return;
 
@@ -123,21 +123,21 @@ void MeterComponent::setMinimalMode (bool minimalMode) noexcept
 }
 
 //==============================================================================
-void MeterComponent::lookAndFeelChanged()
+void MeterChannel::lookAndFeelChanged()
 {
    setColours();
    setDirty();
 }
 
 //==============================================================================
-void MeterComponent::visibilityChanged()
+void MeterChannel::visibilityChanged()
 {
    setColours();
    setDirty();
 }
 
 //==============================================================================
-void MeterComponent::setColours() noexcept
+void MeterChannel::setColours() noexcept
 {
    m_backgroundColour     = getColourFromLnf (backgroundColourId, juce::Colours::black);
    m_inactiveColour       = getColourFromLnf (inactiveColourId, juce::Colours::red);
@@ -153,7 +153,7 @@ void MeterComponent::setColours() noexcept
 }
 
 //==============================================================================
-void MeterComponent::enableHeader (bool headerEnabled) noexcept
+void MeterChannel::enableHeader (bool headerEnabled) noexcept
 {
    m_header.setEnabled (headerEnabled);
    if (headerEnabled) m_header.setVisible (true);
@@ -161,14 +161,14 @@ void MeterComponent::enableHeader (bool headerEnabled) noexcept
 }
 
 //==============================================================================
-void MeterComponent::showHeader (bool headerVisible) noexcept
+void MeterChannel::showHeader (bool headerVisible) noexcept
 {
    m_header.setVisible (headerVisible);
    addDirty (m_header.getBounds());
 }
 
 //==============================================================================
-void MeterComponent::enableValue (bool valueEnabled /*= true*/) noexcept
+void MeterChannel::enableValue (bool valueEnabled /*= true*/) noexcept
 {
    m_level.enableValue (valueEnabled);
    if (valueEnabled) m_level.setValueVisible (true);
@@ -176,21 +176,21 @@ void MeterComponent::enableValue (bool valueEnabled /*= true*/) noexcept
 }
 
 //==============================================================================
-void MeterComponent::showValue (bool showValue /*= true*/)
+void MeterChannel::showValue (bool showValue /*= true*/)
 {
    m_level.setValueVisible (showValue);
    setDirty();
 }
 
 //==============================================================================
-void MeterComponent::showTickMarks (bool showTickMarks /*= true*/)
+void MeterChannel::showTickMarks (bool showTickMarks /*= true*/)
 {
    m_level.setTickMarksVisible (showTickMarks);
    setDirty();
 }
 
 //==============================================================================
-void MeterComponent::showPeakHold (bool showPeakHold /*= true*/)
+void MeterChannel::showPeakHold (bool showPeakHold /*= true*/)
 {
    m_level.setPeakHoldVisible (showPeakHold);
    setDirty();
@@ -202,7 +202,7 @@ void MeterComponent::showPeakHold (bool showPeakHold /*= true*/)
 #pragma region Draw Methods
 
 //==============================================================================
-void MeterComponent::resized()
+void MeterChannel::resized()
 {
    auto meterBounds = SoundMeter::Helpers::applyPadding (getLocalBounds(), m_padding);
 
@@ -227,7 +227,7 @@ void MeterComponent::resized()
 }
 
 //==============================================================================
-void MeterComponent::paint (juce::Graphics& g)
+void MeterChannel::paint (juce::Graphics& g)
 {
    if (getLocalBounds().isEmpty()) return;
 
@@ -274,7 +274,7 @@ void MeterComponent::paint (juce::Graphics& g)
 }
 
 //==============================================================================
-void MeterComponent::drawMeter (juce::Graphics& g)
+void MeterChannel::drawMeter (juce::Graphics& g)
 {
    using namespace SoundMeter::Constants;
 
@@ -296,14 +296,14 @@ void MeterComponent::drawMeter (juce::Graphics& g)
 }
 
 //==============================================================================
-[[nodiscard]] bool MeterComponent::isDirty (const juce::Rectangle<int>& rectToCheck /*= {}*/) const noexcept
+[[nodiscard]] bool MeterChannel::isDirty (const juce::Rectangle<int>& rectToCheck /*= {}*/) const noexcept
 {
    if (rectToCheck.isEmpty()) return ! m_dirtyRect.isEmpty();
    return m_dirtyRect.intersects (rectToCheck);
 }
 
 //==============================================================================
-void MeterComponent::refresh (const bool forceRefresh)
+void MeterChannel::refresh (const bool forceRefresh)
 {
    if (m_active)
    {
@@ -347,7 +347,7 @@ void MeterComponent::refresh (const bool forceRefresh)
 #pragma region Properties
 
 //==============================================================================
-void MeterComponent::setActive (bool isActive, [[maybe_unused]] NotificationOptions notify /*= NotificationOptions::dontNotify*/)
+void MeterChannel::setActive (bool isActive, [[maybe_unused]] NotificationOptions notify /*= NotificationOptions::dontNotify*/)
 {
    if (m_active == isActive) return;
    reset();
@@ -360,28 +360,28 @@ void MeterComponent::setActive (bool isActive, [[maybe_unused]] NotificationOpti
    setDirty();
 }
 
-void MeterComponent::resetMouseOvers() noexcept
+void MeterChannel::resetMouseOvers() noexcept
 {
    m_header.resetMouseOver();
    m_level.resetMouseOverValue();
 }
 
 //==============================================================================
-void MeterComponent::setFont (const juce::Font& font) noexcept
+void MeterChannel::setFont (const juce::Font& font) noexcept
 {
    m_header.setFont (font.withHeight (Constants::kChannelNameFontHeight));
    setDirty();
 }
 
 //==============================================================================
-void MeterComponent::resetPeakHold() noexcept
+void MeterChannel::resetPeakHold() noexcept
 {
    m_level.resetPeakHoldLevel();
    setDirty();
 }
 //==============================================================================
 
-void MeterComponent::setOptions (Options meterOptions)
+void MeterChannel::setOptions (Options meterOptions)
 {
    setVisible (meterOptions.enabled);
    setEnabled (meterOptions.enabled);
@@ -397,14 +397,14 @@ void MeterComponent::setOptions (Options meterOptions)
 }
 
 //==============================================================================
-void MeterComponent::setChannelName (const juce::String& channelName)
+void MeterChannel::setChannelName (const juce::String& channelName)
 {
    m_header.setName (channelName);
    addDirty (m_header.getBounds());
 }
 //==============================================================================
 
-void MeterComponent::setRegions (float warningRegion_db, float peakRegion_db)
+void MeterChannel::setRegions (float warningRegion_db, float peakRegion_db)
 {
    m_level.setRegions (warningRegion_db, peakRegion_db);
    refresh (true);
@@ -413,7 +413,7 @@ void MeterComponent::setRegions (float warningRegion_db, float peakRegion_db)
 
 #if SDTK_ENABLE_FADER
 
-void MeterComponent::setFaderActive (const bool faderActive /*= true */)
+void MeterChannel::setFaderActive (const bool faderActive /*= true */)
 {
    m_fader.setActive (faderActive);
 
@@ -424,7 +424,7 @@ void MeterComponent::setFaderActive (const bool faderActive /*= true */)
 }
 //==============================================================================
 
-void MeterComponent::setFaderValue (const float value, NotificationOptions notificationOption /*= NotificationOptions::DontNotify*/, const bool mustShowFader /*= true*/) noexcept
+void MeterChannel::setFaderValue (const float value, NotificationOptions notificationOption /*= NotificationOptions::DontNotify*/, const bool mustShowFader /*= true*/) noexcept
 {
    if (m_fader.setValue (value, notificationOption))
    {
@@ -435,7 +435,7 @@ void MeterComponent::setFaderValue (const float value, NotificationOptions notif
 }
 
 //==============================================================================
-void MeterComponent::setFaderEnabled (bool faderEnabled /*= true*/)
+void MeterChannel::setFaderEnabled (bool faderEnabled /*= true*/)
 {
    m_fader.setEnabled (faderEnabled);
    addDirty (m_fader.getBounds());
@@ -452,7 +452,7 @@ void MeterComponent::setFaderEnabled (bool faderEnabled /*= true*/)
 #if SDTK_ENABLE_FADER
 
 //==============================================================================
-void MeterComponent::mouseDown (const juce::MouseEvent& event)
+void MeterChannel::mouseDown (const juce::MouseEvent& event)
 {
    // Left mouse button down and fader is active...
    if (event.mods == juce::ModifierKeys::leftButtonModifier && m_fader.isEnabled())
@@ -476,7 +476,7 @@ void MeterComponent::mouseDown (const juce::MouseEvent& event)
 #endif /* SDTK_ENABLE_FADER */
 
 //==============================================================================
-void MeterComponent::mouseMove (const juce::MouseEvent& event)
+void MeterChannel::mouseMove (const juce::MouseEvent& event)
 {
    // Check if the FADER is enabled...
    bool faderEnabled = false;
@@ -524,7 +524,7 @@ void MeterComponent::mouseMove (const juce::MouseEvent& event)
 }
 
 //==============================================================================
-void MeterComponent::mouseExit (const juce::MouseEvent& /*event*/)
+void MeterChannel::mouseExit (const juce::MouseEvent& /*event*/)
 {
    if (m_header.isMouseOver())
       addDirty (m_header.getBounds());
@@ -536,7 +536,7 @@ void MeterComponent::mouseExit (const juce::MouseEvent& /*event*/)
 }
 
 //==============================================================================
-void MeterComponent::mouseDoubleClick (const juce::MouseEvent& event)
+void MeterChannel::mouseDoubleClick (const juce::MouseEvent& event)
 {
    if (event.mods == juce::ModifierKeys::leftButtonModifier)
    {
@@ -553,7 +553,7 @@ void MeterComponent::mouseDoubleClick (const juce::MouseEvent& event)
 }
 #if SDTK_ENABLE_FADER
 //==============================================================================
-void MeterComponent::mouseDrag (const juce::MouseEvent& event)
+void MeterChannel::mouseDrag (const juce::MouseEvent& event)
 {
    // When left button down, the meter is active, the fader is active and the mouse is not over the 'info' area...
    if (event.mods == juce::ModifierKeys::leftButtonModifier && isActive() && m_fader.isActive() && ! m_header.isMouseOver (event.y)
@@ -565,7 +565,7 @@ void MeterComponent::mouseDrag (const juce::MouseEvent& event)
 }
 
 //==============================================================================
-void MeterComponent::mouseWheelMove (const juce::MouseEvent& /*event*/, const juce::MouseWheelDetails& wheel)
+void MeterChannel::mouseWheelMove (const juce::MouseEvent& /*event*/, const juce::MouseWheelDetails& wheel)
 {
    setFaderValue (std::clamp<float> (m_fader.getValue() + (wheel.deltaY / Constants::kFaderSensitivity), 0.0f, 1.0f), NotificationOptions::notify, false);
 }
