@@ -103,8 +103,30 @@ public:
    void setFont (const juce::Font& font) noexcept;
 
    [[nodiscard]] bool isVisible() const noexcept { return m_visible && m_enabled; }
-   void               setVisible (bool visible) noexcept { m_visible = visible; }
-   void               setEnabled (bool enable) noexcept { m_enabled = enable; }
+
+   /**
+    * @brief Show the 'header' part of the meter.
+    * 
+    * The 'header' part is the part above the meter displaying
+    * the channel name (when set) or the channel type.
+    * It also doubles as a mute button for the specific channel.
+    * 
+    * @param visible When set to true, the header part will be visible.
+    * @see setVisible, isVisible
+   */
+   void setVisible (bool visible) noexcept { m_visible = visible; }
+
+   /**
+    * @brief Enable the 'header' part of the meter.
+    * 
+    * The 'header' part is the part above the meter displaying
+    * the channel name (when set) or the channel type.
+    * It also doubles as a mute button for the specific channel.
+    * 
+    * @param enable When set to true, the header part will be enabled.
+    * @see setVisible, isVisible
+   */
+   void setEnabled (bool enable) noexcept { m_enabled = enable; }
 
    [[nodiscard]] bool isMouseOver (const int y) noexcept
    {

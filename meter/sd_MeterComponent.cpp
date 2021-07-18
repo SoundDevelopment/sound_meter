@@ -393,7 +393,7 @@ void MeterComponent::setOptions (Options meterOptions)
    enableHeader (meterOptions.headerEnabled);
    enableValue (meterOptions.valueEnabled);
    setFaderEnabled (meterOptions.faderEnabled);
-   setRefreshRate (static_cast<float>(meterOptions.refreshRate));
+   setRefreshRate (static_cast<float> (meterOptions.refreshRate));
 }
 
 //==============================================================================
@@ -402,10 +402,17 @@ void MeterComponent::setChannelName (const juce::String& channelName)
    m_header.setName (channelName);
    addDirty (m_header.getBounds());
 }
+//==============================================================================
+
+void MeterComponent::setRegions (float warningRegion_db, float peakRegion_db)
+{
+   m_level.setRegions (warningRegion_db, peakRegion_db);
+   refresh (true);
+}
+//==============================================================================
 
 #if SDTK_ENABLE_FADER
 
-//==============================================================================
 void MeterComponent::setFaderActive (const bool faderActive /*= true */)
 {
    m_fader.setActive (faderActive);
@@ -415,8 +422,8 @@ void MeterComponent::setFaderActive (const bool faderActive /*= true */)
 
    addDirty (m_fader.getBounds());
 }
-
 //==============================================================================
+
 void MeterComponent::setFaderValue (const float value, NotificationOptions notificationOption /*= NotificationOptions::DontNotify*/, const bool mustShowFader /*= true*/) noexcept
 {
    if (m_fader.setValue (value, notificationOption))

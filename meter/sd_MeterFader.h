@@ -44,7 +44,7 @@ class MeterComponent;
 class Fader
 {
 public:
-   explicit Fader( MeterComponent* parentMeter ) : m_parentMeter( parentMeter ) {};
+   explicit Fader (MeterComponent* parentMeter) : m_parentMeter (parentMeter) {};
 
    /**
     * Draw the fader.
@@ -52,15 +52,19 @@ public:
     * @param g juce graphics context to draw into.
     * @param faderColour colour to draw the fader in.
     */
-   void draw( juce::Graphics& g, const juce::Colour& faderColour );
+   void draw (juce::Graphics& g, const juce::Colour& faderColour);
 
-   void                               flash();
+   /**
+    * @brief Show the fader briefly and fade out (unless overridden and shown longer).
+    */
+   void flash();
+
    [[nodiscard]] bool                 isActive() const noexcept;
-   void                               setActive( bool setActive = true ) noexcept;
-   void                               setBounds( const juce::Rectangle<int>& bounds ) noexcept;
+   void                               setActive (bool setActive = true) noexcept;
+   void                               setBounds (const juce::Rectangle<int>& bounds) noexcept;
    [[nodiscard]] juce::Rectangle<int> getBounds() const noexcept;
    [[nodiscard]] bool                 isEnabled() const noexcept;
-   void                               setEnabled( bool enabled = true ) noexcept;
+   void                               setEnabled (bool enabled = true) noexcept;
    [[nodiscard]] float                getValue() const noexcept;
 
    /**
@@ -70,8 +74,8 @@ public:
     * @param notificationOption  Select whether to notify the listeners.
     * @return                    True, if the value actually changed.
     */
-   bool               setValue( float value, NotificationOptions notificationOption = NotificationOptions::notify );
-   void               setValueFromPos( int pos, NotificationOptions notificationOption = NotificationOptions::notify );
+   bool               setValue (float value, NotificationOptions notificationOption = NotificationOptions::notify);
+   void               setValueFromPos (int pos, NotificationOptions notificationOption = NotificationOptions::notify);
    [[nodiscard]] int  getTimeSinceStartFade() const noexcept;
    [[nodiscard]] bool isFading() const noexcept { return m_isFading; }
    void               notify();
@@ -83,25 +87,25 @@ public:
     */
    struct Listener
    {
-      virtual ~Listener()                                                      = default;
-      virtual void faderChanged( MeterComponent* sourceMeter, float value ) = 0;
+      virtual ~Listener()                                                  = default;
+      virtual void faderChanged (MeterComponent* sourceMeter, float value) = 0;
    };
 
-   void addListener( Listener& listener );
-   void removeListener( Listener& listener );
+   void addListener (Listener& listener);
+   void removeListener (Listener& listener);
 
 private:
-   std::atomic<float>             m_faderValue { 1.0f };  // Fader value (between 0..1).
-   juce::ListenerList<Listener>   m_faderListeners;
-   SoundMeter::MeterComponent* m_parentMeter = nullptr;
-   bool                           m_active      = false;
-   bool                           m_enabled     = false;
-   bool                           m_mouseOver   = false;
-   bool                           m_isFading    = false;
-   int                            m_fadeStart   = 0;
-   juce::Rectangle<int>           m_bounds {};
+   std::atomic<float>           m_faderValue { 1.0f };  // Fader value (between 0..1).
+   juce::ListenerList<Listener> m_faderListeners;
+   SoundMeter::MeterComponent*  m_parentMeter = nullptr;
+   bool                         m_active      = false;
+   bool                         m_enabled     = false;
+   bool                         m_mouseOver   = false;
+   bool                         m_isFading    = false;
+   int                          m_fadeStart   = 0;
+   juce::Rectangle<int>         m_bounds {};
 
-   JUCE_LEAK_DETECTOR( Fader )
+   JUCE_LEAK_DETECTOR (Fader)
 };
 
 }  // namespace sd::SoundMeter

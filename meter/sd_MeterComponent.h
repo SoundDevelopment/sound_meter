@@ -39,52 +39,63 @@ namespace sd::SoundMeter
 {
 
 /**
- * @brief The meter component.
+ * @brief An individual meter component.
+ * 
+ * This represents a single meter.
+ * Use the MetersPanel to create multiple meters matching
+ * the specified channel format.
 */
 class MeterComponent
   : public juce::Component
   , public juce::SettableTooltipClient
 {
 public:
-   //==============================================================================
-   // clang-format off
-
    using ChannelType = juce::AudioChannelSet::ChannelType;
 
+   /**
+    * @brief Default constructor.
+   */
    MeterComponent();
 
-   MeterComponent (Options meterOptions, MeterPadding padding, const juce::String& channelName, bool isLabelStrip = false, ChannelType channelType = ChannelType::unknown,
-                      [[maybe_unused]] Fader::Listener* faderListener = nullptr);
-
-   ~MeterComponent() override = default;
+   /**
+    * @brief Parameterized constructor.
+    * 
+    * @param meterOptions  Meter options to use (defining appearance and functionality).
+    * @param padding       Padding to use (space between meter and the edge of the component).
+    * @param channelName   The channel name (set by the user).
+    * @param isLabelStrip  When set to true, this meter will function as a label strip (with markers for levels at the tick-marks).
+    * @param channelType   The channel type (left, right, centre, etc...).
+    * @param faderListener A listener to any changes in the fader.
+   */
+   MeterComponent (Options meterOptions, MeterPadding padding, const juce::String& channelName, bool isLabelStrip = false,
+                   ChannelType channelType = ChannelType::unknown, [[maybe_unused]] Fader::Listener* faderListener = nullptr);
 
    /**
-    * Reset the meter (but not the peak hold).
+    * @brief Reset the meter (but not the peak hold).
     *
     * @see resetPeakHold
     */
    void reset();
 
    /**
-    * Set the input level from the audio engine. 
+    * @brief Set the input level from the audio engine. 
     *
     * Called from the audio thread!
     *
-    * @param inputLevel new input level (in amp).
+    * @param inputLevel New input level (in amp).
     */
    inline void setInputLevel (float inputLevel) noexcept { m_level.setInputLevel (inputLevel); }
 
    /**
-    * Show the fader briefly and fade out, unless overridden and shown longer.
+    * @brief Show the fader briefly and fade out (unless overridden and shown longer).
     */
-
-   // Show the fader briefly and fade out, unless overridden and shown longer.
    void flashFader();
 
    /**
-    * Refresh the meter with the current input level.
+    * @brief Refresh the meter with the current input level.
     *
-    * @param forceRefresh when set, the meter will be repainted no matter what.
+    * @param forceRefresh When set to true, the meter will be forced to repaint (even if not dirty).
+    * @see setRefreshRate
     */
    void refresh (bool forceRefresh);
 
@@ -92,42 +103,43 @@ public:
    // Properties.
 
    /**
-    * Sets the meter's refresh rate. 
+    * @brief Sets the meter's refresh rate. 
     *
     * Set this to optimize the meter's decay rate.
     * 
-    * @param guiRefreshRate refresh rate in hz.
+    * @param guiRefreshRate Refresh rate in Hz.
     * @see setDecay, getDecay
     */
    void setRefreshRate (float guiRefreshRate) noexcept { m_level.setRefreshRate (guiRefreshRate); }
 
    /**
-    * Set meter decay.
+    * @brief Set meter decay.
     *
-    * @param decay_ms meter decay in milliseconds.
+    * @param decay_ms Meter decay in milliseconds.
     * @see getDecay, setRefreshRate
     */
    void setDecay (float decay_ms) noexcept { m_level.setDecay (decay_ms); }
 
    /**
-    * Get meter decay.
+    * @brief Get meter decay.
     *
-    * @return meter decay in milliseconds
+    * @return Meter decay in milliseconds.
     * @see setDecay, setRefreshRate
     */
    [[nodiscard]] float getDecay() const noexcept { return m_level.getDecay(); }
 
    /**
-    * Set whether this meter is a label strip. 
+    * @brief Set whether this meter is a label strip. 
     *
-    * A label strip only draws the value labels, but does display any level.
+    * A label strip only draws the value labels (at the tick-marks),
+    * but does display any level.
     *
     * @param isLabelStrip when set, this meter behave like a label strip.
     */
    void setIsLabelStrip (bool isLabelStrip = false) noexcept { m_isLabelStrip = isLabelStrip; }  // When enabled, just draw the labels, not the meter.
 
    /**
-    * Set the levels dividing the different regions of the meter. 
+    * @brief Set the levels dividing the different regions of the meter. 
     *
     * The meter has 3 regions. Normal, warning and peak. 
     * The peak region level supplied need to be larger then the warning region level. 
@@ -135,30 +147,26 @@ public:
     * @param warningRegion_db sets the level (in db) dividing the normal and warning regions of the meter.
     * @param peakRegion_db sets the level (in db) dividing the warning and peak regions of the meter.
     */
-   void setRegions (float warningRegion_db, float peakRegion_db)
-   {
-      m_level.setRegions (warningRegion_db, peakRegion_db);
-      refresh (true);
-   }
+   void setRegions (float warningRegion_db, float peakRegion_db);
 
    /**
-    * Set the padding of the meter. 
+    * @brief Set the padding of the meter. 
     *
     * The padding is the space between the meter and the edges 
     * of the component.
     *
-    * @param padding amount of padding to apply.
+    * @param padding Amount of padding to apply.
     */
    void setPadding (MeterPadding padding) noexcept { m_padding = padding; }
 
    /**
-    * Set the meter's options.
+    * @brief Set the meter's options.
     *
     * The options determine the appearance and functionality of the meter.
     *
     * @param meterOptions Meter options to use.
     */
-   void setOptions( Options meterOptions );
+   void setOptions (Options meterOptions);
 
    /**
     * @brief Set the channel name.
@@ -169,7 +177,7 @@ public:
    */
    void setChannelName (const juce::String& channelName);
 
-    /**
+   /**
     * @brief Set the channel type.
     * 
     * For instance: left, right, center, etc..
@@ -180,22 +188,58 @@ public:
    */
    void setChannelType (ChannelType channelType) { m_header.setType (channelType); }
 
-   void showHeader (bool headerVisible ) noexcept;
-   void enableHeader (bool headerEnabled ) noexcept;
+   /**
+    * @brief Show the 'header' part of the meter.
+    * 
+    * The 'header' part is the part above the meter displaying
+    * the channel name (when set) or the channel type.
+    * It also doubles as a mute button for the specific channel.
+    * 
+    * @param headerVisible When set to true, the 'header' part will be visible.
+    * @see enableHeader
+   */
+   void showHeader (bool headerVisible) noexcept;
 
+   /**
+    * @brief Enable the 'header' part of the meter.
+    * 
+    * The 'header' part is the part above the meter displaying
+    * the channel name (when set) or the channel type.
+    * It also doubles as a mute button for the specific channel.
+    * 
+    * @param headerEnabled When set to true, the header part will be enabled.
+    * @see showHeader
+   */
+   void enableHeader (bool headerEnabled) noexcept;
+
+   /**
+    * @brief Check if a specified name will fit in a give width (in pixels).
+    *
+    * This can be a more detailed, multiline description of the function,
+    * and it's containing logic.
+    *
+    * @param name           The name to check the width of.
+    * @param widthAvailable The width (in pixels) available to fit the name in.
+    * @return               True, if the name will fit in the given width (in pixels).
+    *
+    * @see getChannelNameWidth, setChannelNames
+    */
    [[nodiscard]] bool nameFits (const juce::String& name, int widthAvailable) const { return m_header.infoFits (name, widthAvailable); }
 
    /**
-    * Get the width (in pixels) of the channel info in the 'header' part.
+    * @brief Get the width (in pixels) of the channel info in the 'header' part.
     *
     * @return The width (in pixels) taken by the channel info in the 'header' part.
+    * 
+    * @see getChannelTypeWidth, nameFits, setChannelName
     */
    [[nodiscard]] float getChannelNameWidth() const noexcept { return m_header.getNameWidth(); }
 
-      /**
-    * Get the width (in pixels) of the full type description in the 'header' part.
+   /**
+    * @brief Get the width (in pixels) of the full type description in the 'header' part.
     *
     * @return The width (in pixels) taken by the full type description in the 'header' part.
+    * @see getChannelNameWidth, nameFits, setChannelType
     */
    [[nodiscard]] float getChannelTypeWidth() const noexcept { return m_header.getTypeWidth(); }
 
@@ -210,15 +254,24 @@ public:
     * 
     * @param referredWidth The width (in pixels) to use when deciding what to display in the header.
    */
-   void setReferredTypeWidth (float referredTypeWidth) { m_header.setReferredWidth( referredTypeWidth ); }
+   void setReferredTypeWidth (float referredTypeWidth) { m_header.setReferredWidth (referredTypeWidth); }
 
    /**
-    * Active or de-activate (mute) meter.
+    * @brief Activate or de-activate (mute) the meter.
     *
-    * @param isActive when set, the meter is active.
-    * @param notify determine whether to notify all listeners.
+    * @param isActive When set to true, the meter is active.
+    * @param notify   Determine whether to notify all listeners or not.
+    * @see isActive
     */
    void               setActive (bool isActive, NotificationOptions notify = NotificationOptions::dontNotify);
+
+   /**
+    * @brief Check if the meter is active (un-muted).
+    *
+    * @return True, if the meter is active (un-muted).
+    *
+    * @see setActive
+    */
    [[nodiscard]] bool isActive() const noexcept { return m_active; }
 
    /**
@@ -286,7 +339,7 @@ public:
     * @brief Use gradients in stead of hard region boundaries.
     * @param useGradients When set to true, uses smooth gradients. False gives hard region boundaries.=
    */
-   void useGradients (bool useGradients) noexcept { m_level.useGradients( useGradients ); }
+   void useGradients (bool useGradients) noexcept { m_level.useGradients (useGradients); }
 
    /**
     * Get the bounds of the 'meter' and 'header' parts combined.

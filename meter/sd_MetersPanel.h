@@ -42,6 +42,9 @@ namespace sd::SoundMeter
 
 /**
  * @brief Panel containing one or more meters.
+ * 
+ * This is the one that should be used. After setting the channel format it
+ * will automatically create the needed meters and give them proper names.
  */
 class MetersPanel
   : public juce::Component
@@ -180,6 +183,13 @@ public:
    void setChannelNames (const std::vector<juce::String>& channelNames);
 
    /**
+    * @brief Set meter options defining appearance and functionality.
+    * 
+    * @param meterOptions The options to apply to the meters and label strip.
+   */
+   void setOptions (Options meterOptions);
+
+   /**
     * @brief Set the levels dividing the different regions of the meter.
     *
     * The meter has 3 regions. Normal, warning and peak. 
@@ -275,13 +285,6 @@ public:
     * @param font The font to use.
    */
    void setFont (const juce::Font& font) noexcept;
-
-   /**
-    * @brief Set meter options defining appearance and functionality.
-    * 
-    * @param meterOptions The options to apply to the meters and label strip.
-   */
-   void setOptions (Options meterOptions);
 
    /**
     * @brief Enable or disable the panel.

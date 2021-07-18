@@ -249,12 +249,13 @@ void MetersPanel::setChannelNames (const std::vector<juce::String>& channelNames
 #if SDTK_ENABLE_FADER
 
 //==============================================================================
+
 void MetersPanel::mouseExit (const juce::MouseEvent& /*event*/)
 {
    showFaders (false);
 }
-
 //==============================================================================
+
 void MetersPanel::mouseEnter (const juce::MouseEvent& /*event*/)
 {
    if (m_meters.isEmpty()) return;
@@ -266,8 +267,8 @@ void MetersPanel::mouseEnter (const juce::MouseEvent& /*event*/)
       m_labelStrip.setFaderActive (true);
    }
 }
-
 //==============================================================================
+
 void MetersPanel::faderChanged (MeterComponent* sourceMeter, float value)
 {
    // Master strip fader moves all channel faders relatively to each other...
@@ -308,8 +309,8 @@ void MetersPanel::faderChanged (MeterComponent* sourceMeter, float value)
 
    notifyListeners();
 }
-
 //==============================================================================
+
 void MetersPanel::getFaderValues (NotificationOptions notificationOption /*= NotificationOptions::notify*/)
 {
    if (m_meters.isEmpty()) return;
@@ -332,37 +333,37 @@ void MetersPanel::getFaderValues (NotificationOptions notificationOption /*= Not
 
    if (notificationOption == NotificationOptions::notify) notifyListeners();
 }
-
 //==============================================================================
+
 void MetersPanel::notifyListeners()
 {
    m_fadersListeners.call ([=] (FadersChangeListener& l) { l.fadersChanged (m_faderGains); });
 }
-
 //==============================================================================
+
 void MetersPanel::showFaders (bool mustShowFaders)
 {
    m_labelStrip.setFaderActive (mustShowFaders);
    for (auto meter: m_meters)
       meter->setFaderActive (mustShowFaders);
 }
-
 //==============================================================================
+
 bool MetersPanel::areAllMetersInactive()
 {
    for (auto meter: m_meters)
       if (meter->isActive()) return false;
    return true;
 }
-
 //==============================================================================
+
 void MetersPanel::toggleMute()
 {
    bool allChannelsInactive = areAllMetersInactive();
    muteAll (! allChannelsInactive);
 }
-
 //==============================================================================
+
 void MetersPanel::muteAll (bool mute /*= true */)
 {
    bool allChannelsInactive = areAllMetersInactive();
@@ -375,8 +376,8 @@ void MetersPanel::muteAll (bool mute /*= true */)
    }
    getFaderValues();
 }
-
 //==============================================================================
+
 void MetersPanel::resetFaders()
 {
    std::fill (m_faderGains.begin(), m_faderGains.end(), 1.0f);  // Set all fader gains to unity.
@@ -391,8 +392,8 @@ void MetersPanel::resetFaders()
    m_labelStrip.setFaderValue (1.0f);
    notifyListeners();
 }
-
 //==============================================================================
+
 void MetersPanel::setFadersEnabled (bool faderEnabled) noexcept
 {
    for (auto* meter: m_meters)
@@ -403,59 +404,6 @@ void MetersPanel::setFadersEnabled (bool faderEnabled) noexcept
 
 
 #endif /* SDTK_ENABLE_FADER */
-
-//==============================================================================
-void MetersPanel::setInputLevel (int channel, float value)
-{
-   if (auto* meter = getMeter (channel)) meter->setInputLevel (value);
-}
-
-//==============================================================================
-void MetersPanel::createMeters (const juce::AudioChannelSet& channelFormat, const std::vector<juce::String>& channelNames)
-{
-   // Create enough meters to match the channel format...
-   for (int channelIdx = 0; channelIdx < channelFormat.size(); ++channelIdx)
-   {
-      auto meter = std::make_unique<MeterComponent> (m_options, MeterPadding (0, kFaderRightPadding, 0, 0), Constants::kMetersPanelId, false,
-                                                     channelFormat.getTypeOfChannel (channelIdx),
-#if SDTK_ENABLE_FADER
-                                                     this
-#else
-                                                     nullptr
-#endif
-      );
-
-      meter->setFont (m_font);
-      meter->addMouseListener (this, true);
-
-      addChildComponent (meter.get());
-      m_meters.add (meter.release());
-
-      m_labelStrip.setActive (true);
-   }
-
-   setChannelNames (channelNames);
-}
-
-//==============================================================================
-void MetersPanel::deleteMeters()
-{
-#if SDTK_ENABLE_FADER
-   for (auto meter: m_meters)
-   {
-      meter->removeFaderListener (*this);
-      meter->removeMouseListener (this);
-   }
-#endif
-
-   m_meters.clear();
-}
-
-//==============================================================================
-MeterComponent* MetersPanel::getMeter (const int meterIndex) noexcept
-{
-   return (juce::isPositiveAndBelow (meterIndex, m_meters.size()) ? m_meters[meterIndex] : nullptr);
-}
 
 //==============================================================================
 void MetersPanel::setNumChannels (int numChannels, const std::vector<juce::String>& channelNames /*= {}*/)
@@ -497,20 +445,74 @@ void MetersPanel::setChannelFormat (const juce::AudioChannelSet& channelFormat, 
 }
 
 //==============================================================================
+
+void MetersPanel::setInputLevel (int channel, float value)
+{
+   if (auto* meter = getMeter (channel)) meter->setInputLevel (value);
+}
+//==============================================================================
+
+void MetersPanel::createMeters (const juce::AudioChannelSet& channelFormat, const std::vector<juce::String>& channelNames)
+{
+   // Create enough meters to match the channel format...
+   for (int channelIdx = 0; channelIdx < channelFormat.size(); ++channelIdx)
+   {
+      auto meter = std::make_unique<MeterComponent> (m_options, MeterPadding (0, kFaderRightPadding, 0, 0), Constants::kMetersPanelId, false,
+                                                     channelFormat.getTypeOfChannel (channelIdx),
+#if SDTK_ENABLE_FADER
+                                                     this
+#else
+                                                     nullptr
+#endif
+      );
+
+      meter->setFont (m_font);
+      meter->addMouseListener (this, true);
+
+      addChildComponent (meter.get());
+      m_meters.add (meter.release());
+
+      m_labelStrip.setActive (true);
+   }
+
+   setChannelNames (channelNames);
+}
+//==============================================================================
+
+void MetersPanel::deleteMeters()
+{
+#if SDTK_ENABLE_FADER
+   for (auto meter: m_meters)
+   {
+      meter->removeFaderListener (*this);
+      meter->removeMouseListener (this);
+   }
+#endif
+
+   m_meters.clear();
+}
+//==============================================================================
+
+MeterComponent* MetersPanel::getMeter (const int meterIndex) noexcept
+{
+   return (juce::isPositiveAndBelow (meterIndex, m_meters.size()) ? m_meters[meterIndex] : nullptr);
+}
+//==============================================================================
+
 void MetersPanel::resetMeters()
 {
    for (auto* meter: m_meters)
       meter->reset();
 }
-
 //==============================================================================
+
 void MetersPanel::resetPeakHold()
 {
    for (auto* meter: m_meters)
       meter->resetPeakHold();
 }
-
 //==============================================================================
+
 void MetersPanel::setMeterDecay (float decay_ms)
 {
    m_options.meterDecayTime_ms = decay_ms;
@@ -603,9 +605,8 @@ void MetersPanel::enableValue (bool valueEnabled)
 
    resized();
 }
-
-
 //==============================================================================
+
 void MetersPanel::setRegions (float warningRegion_db, float peakRegion_db)
 {
    m_options.warningRegion_db = warningRegion_db;
@@ -614,8 +615,8 @@ void MetersPanel::setRegions (float warningRegion_db, float peakRegion_db)
    for (auto* meter: m_meters)
       meter->setRegions (warningRegion_db, peakRegion_db);
 }
-
 //==============================================================================
+
 void MetersPanel::setColours()
 {
    if (isColourSpecified (MeterComponent::backgroundColourId))
