@@ -137,12 +137,12 @@ bool Fader::setValue( float value, NotificationOptions notificationOption /*= No
 }
 //==============================================================================
 
-void Fader::setValueFromPos( const int pos, NotificationOptions notificationOption /*= NotificationOptions::Notify*/ )
+void Fader::setValueFromPos (const int position, NotificationOptions notificationOption /*= NotificationOptions::Notify*/)
 {
    const auto height = static_cast<float>( m_bounds.getHeight() );
    if( height <= 0.0f ) return;
 
-   setValue( 1.0f - std::clamp( static_cast<float>( pos - m_bounds.getY() ) / height, 0.0f, 1.0f ), notificationOption );
+   setValue (1.0f - std::clamp (static_cast<float> (position - m_bounds.getY()) / height, 0.0f, 1.0f), notificationOption);
 }
 //==============================================================================
 

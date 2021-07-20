@@ -306,7 +306,7 @@ void MeterChannel::drawMeter (juce::Graphics& g)
 }
 //==============================================================================
 
-void MeterChannel::setDirty (bool isDirty = true) noexcept
+void MeterChannel::setDirty (bool isDirty /*= true*/) noexcept
 {
    m_dirtyRect = { 0, 0, 0, 0 };
    if (isDirty) m_dirtyRect = getLocalBounds();

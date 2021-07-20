@@ -44,7 +44,6 @@ namespace sd::SoundMeter
 class Level
 {
 public:
-   // clng-format off
 
    /**
     * @brief Constructor.

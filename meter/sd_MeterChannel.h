@@ -265,7 +265,7 @@ public:
    /**
     * @brief Check if a specified name will fit in a give width (in pixels).
     *
-    * This can be a more detailed, multiline description of the function,
+    * This can be a more detailed, multi-line description of the function,
     * and it's containing logic.
     *
     * @param name           The name to check the width of.

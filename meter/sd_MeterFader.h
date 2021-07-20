@@ -49,15 +49,12 @@ class MeterChannel;
 class Fader
 {
 public:
+   /**
+    * @brief Parameterized constructor
+    * @param parentMeter The parent meter object
+   */
    explicit Fader (MeterChannel* parentMeter) : m_parentMeter (parentMeter) {};
 
-   /**
-    * Draw the fader.
-    *
-    * @param[in,out] g   The juce graphics context to use.
-    * @param faderColour Fader colour to use.
-    */
-   void draw (juce::Graphics& g, const juce::Colour& faderColour);
 
    /**
     * @brief Show the fader briefly and fade out (unless overridden and shown longer).
@@ -80,6 +77,12 @@ public:
    */
    void setActive (bool setActive = true) noexcept;
 
+   /**
+    * @brief Check if the 'fader' overlay is enabled.
+    * 
+    * @return True, when the fader is enabled.
+    * @see setEnabled, isActive, setActive
+   */
    [[nodiscard]] bool isEnabled() const noexcept;
 
    /**
@@ -90,13 +93,27 @@ public:
    */
    void setEnabled (bool enabled = true) noexcept;
 
-   void                               setBounds (const juce::Rectangle<int>& bounds) noexcept;
+   /**
+    * @brief Set the fader bounds.
+    * 
+    * @param bounds Bounds to use for the fader.
+    * @see getBounds
+   */
+   void setBounds (const juce::Rectangle<int>& bounds) noexcept;
+
+   /**
+    * @brief Get the fader bounds.
+    * 
+    * @return Bounds used by the fader.
+    * @see setBounds
+   */
    [[nodiscard]] juce::Rectangle<int> getBounds() const noexcept;
 
    /**
     * @brief Get the value of the meter fader.
     *
     * @return The current fader value [0..1].
+    * @see setValueFromPos, setValue
     */
    [[nodiscard]] float getValue() const noexcept;
 
@@ -106,12 +123,35 @@ public:
     * @param value               The value [0..1] the fader needs to be set to.
     * @param notificationOption  Select whether to notify the listeners.
     * @return                    True, if the value actually changed.
+    * 
+    * @see setValueFromPos, getValue
     */
-   bool               setValue (float value, NotificationOptions notificationOption = NotificationOptions::notify);
-   void               setValueFromPos (int pos, NotificationOptions notificationOption = NotificationOptions::notify);
-   [[nodiscard]] int  getTimeSinceStartFade() const noexcept;
+   bool setValue (float value, NotificationOptions notificationOption = NotificationOptions::notify);
+
+   /**
+    * @brief Set fader value according to a supplied mouse position.
+    * 
+    * @param position           The mouse position (y coordinate) to use to calculate the fader value.
+    * @param notificationOption Select whether to notify the listeners.
+    * 
+    * @see setValue
+   */
+   void setValueFromPos (int position, NotificationOptions notificationOption = NotificationOptions::notify);
+
+   /**
+    * Check whether the fader is currently fading out.
+    *
+    * @return True, if the fader is currently fading out.
+    */
    [[nodiscard]] bool isFading() const noexcept { return m_isFading; }
-   void               notify();
+
+   /**
+    * Draw the fader.
+    *
+    * @param[in,out] g   The juce graphics context to use.
+    * @param faderColour Fader colour to use.
+    */
+   void draw (juce::Graphics& g, const juce::Colour& faderColour);
 
    /**
     * @brief Fader listener class.
@@ -120,10 +160,17 @@ public:
     */
    struct Listener
    {
-      virtual ~Listener()                                                = default;
+      virtual ~Listener() = default;
+
+      /**
+       * @brief Fader value has changed.
+       * 
+       * @param sourceMeter The meter whose fader has been changed.
+       * @param value       The new value of the fader.
+      */
       virtual void faderChanged (MeterChannel* sourceMeter, float value) = 0;
    };
-   
+
    /**
     * @brief Add a listener to any changes in the fader.
     * 
@@ -142,6 +189,12 @@ public:
    */
    void removeListener (Listener& listener);
 
+   /**
+    * @brief Notify any listener that the fader has changed.
+   */
+   void notify();
+
+
 private:
    std::atomic<float>           m_faderValue { 1.0f };  // Fader value (between 0..1).
    juce::ListenerList<Listener> m_faderListeners;
@@ -152,6 +205,8 @@ private:
    bool                         m_isFading    = false;
    int                          m_fadeStart   = 0;
    juce::Rectangle<int>         m_bounds {};
+
+   [[nodiscard]] int getTimeSinceStartFade() const noexcept;
 
    JUCE_LEAK_DETECTOR (Fader)
 };
