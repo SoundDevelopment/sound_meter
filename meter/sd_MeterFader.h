@@ -40,6 +40,11 @@ class MeterChannel;
 
 /**
  * @brief Class responsible for the fader.
+ * 
+ * The fader overlay displayed on top of the 'meter' part
+ * (in combination with the 'mute' buttons in the 'header' part)
+ * can be used by the user to control gain or any other
+ * parameter.
 */
 class Fader
 {
@@ -49,26 +54,54 @@ public:
    /**
     * Draw the fader.
     *
-    * @param g juce graphics context to draw into.
-    * @param faderColour colour to draw the fader in.
+    * @param[in,out] g   The juce graphics context to use.
+    * @param faderColour Fader colour to use.
     */
    void draw (juce::Graphics& g, const juce::Colour& faderColour);
 
    /**
     * @brief Show the fader briefly and fade out (unless overridden and shown longer).
     */
-   void flash();
-
-   [[nodiscard]] bool                 isActive() const noexcept;
-   void                               setActive (bool setActive = true) noexcept;
-   void                               setBounds (const juce::Rectangle<int>& bounds) noexcept;
-   [[nodiscard]] juce::Rectangle<int> getBounds() const noexcept;
-   [[nodiscard]] bool                 isEnabled() const noexcept;
-   void                               setEnabled (bool enabled = true) noexcept;
-   [[nodiscard]] float                getValue() const noexcept;
+   void flash() noexcept;
 
    /**
-    * Set fader value.
+    * @brief Check if the meter is active (un-muted).
+    * 
+    * @return True, if the meter is active (un-muted).
+    * @see setActive, setEnabled, isEnabled
+   */
+   [[nodiscard]] bool isActive() const noexcept;
+
+   /**
+    * @brief Activate (or de-activate) fader.
+    * 
+    * @param setActive When set to true, will activate the meter's fader.
+    * @see isActive, setEnabled, isEnabled
+   */
+   void setActive (bool setActive = true) noexcept;
+
+   [[nodiscard]] bool isEnabled() const noexcept;
+
+   /**
+    * @brief Enable the 'fader' overlay.
+    * 
+    * @param enabled True, when the fader needs to be enabled.
+    * @see isEnabled, isActive, setActive
+   */
+   void setEnabled (bool enabled = true) noexcept;
+
+   void                               setBounds (const juce::Rectangle<int>& bounds) noexcept;
+   [[nodiscard]] juce::Rectangle<int> getBounds() const noexcept;
+
+   /**
+    * @brief Get the value of the meter fader.
+    *
+    * @return The current fader value [0..1].
+    */
+   [[nodiscard]] float getValue() const noexcept;
+
+   /**
+    * @brief Set fader value.
     *
     * @param value               The value [0..1] the fader needs to be set to.
     * @param notificationOption  Select whether to notify the listeners.
@@ -87,17 +120,32 @@ public:
     */
    struct Listener
    {
-      virtual ~Listener()                                                  = default;
+      virtual ~Listener()                                                = default;
       virtual void faderChanged (MeterChannel* sourceMeter, float value) = 0;
    };
-
+   
+   /**
+    * @brief Add a listener to any changes in the fader.
+    * 
+    * @param listener The listener to add to the list.
+    * 
+    * @see removeListener
+   */
    void addListener (Listener& listener);
+
+   /**
+    * @brief Remove a listener to any changes in the fader.
+    * 
+    * @param listener The listener to remove from the list.
+    * 
+    * @see addListener
+   */
    void removeListener (Listener& listener);
 
 private:
    std::atomic<float>           m_faderValue { 1.0f };  // Fader value (between 0..1).
    juce::ListenerList<Listener> m_faderListeners;
-   SoundMeter::MeterChannel*  m_parentMeter = nullptr;
+   SoundMeter::MeterChannel*    m_parentMeter = nullptr;
    bool                         m_active      = false;
    bool                         m_enabled     = false;
    bool                         m_mouseOver   = false;

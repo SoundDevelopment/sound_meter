@@ -46,7 +46,7 @@ MeterChannel::MeterChannel()
 //==============================================================================
 
 MeterChannel::MeterChannel (Options meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip /*= false*/,
-                                ChannelType channelType /*= ChannelType::unknown*/, [[maybe_unused]] Fader::Listener* faderListener /*= nullptr*/)
+                            ChannelType channelType /*= ChannelType::unknown*/, [[maybe_unused]] Fader::Listener* faderListener /*= nullptr*/)
   : MeterChannel()
 {
    setName (channelName);
@@ -64,25 +64,27 @@ MeterChannel::MeterChannel (Options meterOptions, Padding padding, const juce::S
 }
 //==============================================================================
 
-void MeterChannel::reset()
+void MeterChannel::reset() noexcept
 {
    m_level.reset();
-   refresh (true);
+   setDirty();
 }
 
 
 #if SDTK_ENABLE_FADER
 
 //==============================================================================
-void MeterChannel::flashFader()
+
+void MeterChannel::flashFader() noexcept
 {
    m_fader.flash();
-   refresh (true);
+   addDirty (m_fader.getBounds());
 }
 
 #endif /* SDTK_ENABLE_FADER */
 
 //==============================================================================
+
 [[nodiscard]] juce::Colour MeterChannel::getColourFromLnf (int colourId, const juce::Colour& fallbackColour) const
 {
    if (isColourSpecified (colourId)) return findColour (colourId);
@@ -90,8 +92,8 @@ void MeterChannel::flashFader()
 
    return fallbackColour;
 }
-
 //==============================================================================
+
 [[nodiscard]] bool MeterChannel::autoSetMinimalMode (int proposedWidth, int proposedHeight)
 {
    bool minimalMode = ! nameFits ("Lfe", proposedWidth);
@@ -102,14 +104,14 @@ void MeterChannel::flashFader()
 
    return minimalMode;
 }
-
 //==============================================================================
+
 [[nodiscard]] juce::Rectangle<int> MeterChannel::getLabelStripBounds() const noexcept
 {
    return m_level.getMeterBounds().getUnion (m_header.getBounds());
 }
-
 //==============================================================================
+
 void MeterChannel::setMinimalMode (bool minimalMode) noexcept
 {
    if (minimalMode == m_minimalMode) return;
@@ -121,22 +123,22 @@ void MeterChannel::setMinimalMode (bool minimalMode) noexcept
    m_level.setValueVisible (! m_minimalMode);  // ... show peak value if it's not too narrow for ID and not in minimum mode.
    setDirty();
 }
-
 //==============================================================================
+
 void MeterChannel::lookAndFeelChanged()
 {
    setColours();
    setDirty();
 }
-
 //==============================================================================
+
 void MeterChannel::visibilityChanged()
 {
    setColours();
    setDirty();
 }
-
 //==============================================================================
+
 void MeterChannel::setColours() noexcept
 {
    m_backgroundColour     = getColourFromLnf (backgroundColourId, juce::Colours::black);
@@ -151,46 +153,46 @@ void MeterChannel::setColours() noexcept
    m_warningColour        = getColourFromLnf (warningColourId, juce::Colours::yellow);
    m_normalColour         = getColourFromLnf (normalColourId, juce::Colours::green);
 }
-
 //==============================================================================
+
 void MeterChannel::enableHeader (bool headerEnabled) noexcept
 {
    m_header.setEnabled (headerEnabled);
    if (headerEnabled) m_header.setVisible (true);
    addDirty (m_header.getBounds());
 }
-
 //==============================================================================
+
 void MeterChannel::showHeader (bool headerVisible) noexcept
 {
    m_header.setVisible (headerVisible);
    addDirty (m_header.getBounds());
 }
-
 //==============================================================================
+
 void MeterChannel::enableValue (bool valueEnabled /*= true*/) noexcept
 {
    m_level.enableValue (valueEnabled);
    if (valueEnabled) m_level.setValueVisible (true);
    addDirty (m_level.getValueBounds());
 }
-
 //==============================================================================
-void MeterChannel::showValue (bool showValue /*= true*/)
+
+void MeterChannel::showValue (bool showValue /*= true*/) noexcept
 {
    m_level.setValueVisible (showValue);
    setDirty();
 }
-
 //==============================================================================
-void MeterChannel::showTickMarks (bool showTickMarks /*= true*/)
+
+void MeterChannel::showTickMarks (bool showTickMarks /*= true*/) noexcept
 {
    m_level.setTickMarksVisible (showTickMarks);
    setDirty();
 }
-
 //==============================================================================
-void MeterChannel::showPeakHold (bool showPeakHold /*= true*/)
+
+void MeterChannel::showPeakHold (bool showPeakHold /*= true*/) noexcept
 {
    m_level.setPeakHoldVisible (showPeakHold);
    setDirty();
@@ -202,6 +204,7 @@ void MeterChannel::showPeakHold (bool showPeakHold /*= true*/)
 #pragma region Draw Methods
 
 //==============================================================================
+
 void MeterChannel::resized()
 {
    auto meterBounds = SoundMeter::Helpers::applyPadding (getLocalBounds(), m_padding);
@@ -225,8 +228,8 @@ void MeterChannel::resized()
 #endif
    m_level.setMeterBounds (meterBounds);
 }
-
 //==============================================================================
+
 void MeterChannel::paint (juce::Graphics& g)
 {
    if (getLocalBounds().isEmpty()) return;
@@ -272,8 +275,8 @@ void MeterChannel::paint (juce::Graphics& g)
 
    setDirty (false);
 }
-
 //==============================================================================
+
 void MeterChannel::drawMeter (juce::Graphics& g)
 {
    using namespace SoundMeter::Constants;
@@ -294,15 +297,22 @@ void MeterChannel::drawMeter (juce::Graphics& g)
    // Draw peak HOLD line...
    if (m_active) m_level.drawPeakHold (g, m_peakColour);
 }
-
 //==============================================================================
+
 [[nodiscard]] bool MeterChannel::isDirty (const juce::Rectangle<int>& rectToCheck /*= {}*/) const noexcept
 {
    if (rectToCheck.isEmpty()) return ! m_dirtyRect.isEmpty();
    return m_dirtyRect.intersects (rectToCheck);
 }
-
 //==============================================================================
+
+void MeterChannel::setDirty (bool isDirty = true) noexcept
+{
+   m_dirtyRect = { 0, 0, 0, 0 };
+   if (isDirty) m_dirtyRect = getLocalBounds();
+}
+//==============================================================================
+
 void MeterChannel::refresh (const bool forceRefresh)
 {
    if (m_active)
@@ -347,6 +357,7 @@ void MeterChannel::refresh (const bool forceRefresh)
 #pragma region Properties
 
 //==============================================================================
+
 void MeterChannel::setActive (bool isActive, [[maybe_unused]] NotificationOptions notify /*= NotificationOptions::dontNotify*/)
 {
    if (m_active == isActive) return;
@@ -359,21 +370,22 @@ void MeterChannel::setActive (bool isActive, [[maybe_unused]] NotificationOption
 
    setDirty();
 }
+//==============================================================================
 
 void MeterChannel::resetMouseOvers() noexcept
 {
    m_header.resetMouseOver();
    m_level.resetMouseOverValue();
 }
-
 //==============================================================================
+
 void MeterChannel::setFont (const juce::Font& font) noexcept
 {
    m_header.setFont (font.withHeight (Constants::kChannelNameFontHeight));
    setDirty();
 }
-
 //==============================================================================
+
 void MeterChannel::resetPeakHold() noexcept
 {
    m_level.resetPeakHoldLevel();
@@ -395,8 +407,8 @@ void MeterChannel::setOptions (Options meterOptions)
    setFaderEnabled (meterOptions.faderEnabled);
    setRefreshRate (static_cast<float> (meterOptions.refreshRate));
 }
-
 //==============================================================================
+
 void MeterChannel::setChannelName (const juce::String& channelName)
 {
    m_header.setName (channelName);
@@ -413,7 +425,7 @@ void MeterChannel::setRegions (float warningRegion_db, float peakRegion_db)
 
 #if SDTK_ENABLE_FADER
 
-void MeterChannel::setFaderActive (const bool faderActive /*= true */)
+void MeterChannel::setFaderActive (const bool faderActive /*= true */) noexcept
 {
    m_fader.setActive (faderActive);
 
@@ -424,7 +436,7 @@ void MeterChannel::setFaderActive (const bool faderActive /*= true */)
 }
 //==============================================================================
 
-void MeterChannel::setFaderValue (const float value, NotificationOptions notificationOption /*= NotificationOptions::DontNotify*/, const bool mustShowFader /*= true*/) noexcept
+void MeterChannel::setFaderValue (const float value, NotificationOptions notificationOption /*= NotificationOptions::DontNotify*/, const bool mustShowFader /*= true*/)
 {
    if (m_fader.setValue (value, notificationOption))
    {
@@ -433,9 +445,9 @@ void MeterChannel::setFaderValue (const float value, NotificationOptions notific
       addDirty (m_fader.getBounds());
    }
 }
-
 //==============================================================================
-void MeterChannel::setFaderEnabled (bool faderEnabled /*= true*/)
+
+void MeterChannel::setFaderEnabled (bool faderEnabled /*= true*/) noexcept
 {
    m_fader.setEnabled (faderEnabled);
    addDirty (m_fader.getBounds());
@@ -452,6 +464,7 @@ void MeterChannel::setFaderEnabled (bool faderEnabled /*= true*/)
 #if SDTK_ENABLE_FADER
 
 //==============================================================================
+
 void MeterChannel::mouseDown (const juce::MouseEvent& event)
 {
    // Left mouse button down and fader is active...
@@ -474,8 +487,8 @@ void MeterChannel::mouseDown (const juce::MouseEvent& event)
 }
 
 #endif /* SDTK_ENABLE_FADER */
-
 //==============================================================================
+
 void MeterChannel::mouseMove (const juce::MouseEvent& event)
 {
    // Check if the FADER is enabled...
@@ -522,8 +535,8 @@ void MeterChannel::mouseMove (const juce::MouseEvent& event)
       }
    }
 }
-
 //==============================================================================
+
 void MeterChannel::mouseExit (const juce::MouseEvent& /*event*/)
 {
    if (m_header.isMouseOver())
@@ -534,8 +547,8 @@ void MeterChannel::mouseExit (const juce::MouseEvent& /*event*/)
       addDirty (m_level.getMeterBounds());
    resetMouseOvers();
 }
-
 //==============================================================================
+
 void MeterChannel::mouseDoubleClick (const juce::MouseEvent& event)
 {
    if (event.mods == juce::ModifierKeys::leftButtonModifier)
@@ -553,6 +566,7 @@ void MeterChannel::mouseDoubleClick (const juce::MouseEvent& event)
 }
 #if SDTK_ENABLE_FADER
 //==============================================================================
+
 void MeterChannel::mouseDrag (const juce::MouseEvent& event)
 {
    // When left button down, the meter is active, the fader is active and the mouse is not over the 'info' area...
@@ -563,8 +577,8 @@ void MeterChannel::mouseDrag (const juce::MouseEvent& event)
       addDirty (m_fader.getBounds().getUnion (m_header.getBounds()));
    }
 }
-
 //==============================================================================
+
 void MeterChannel::mouseWheelMove (const juce::MouseEvent& /*event*/, const juce::MouseWheelDetails& wheel)
 {
    setFaderValue (std::clamp<float> (m_fader.getValue() + (wheel.deltaY / Constants::kFaderSensitivity), 0.0f, 1.0f), NotificationOptions::notify, false);

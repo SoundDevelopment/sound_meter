@@ -52,50 +52,11 @@ public:
    Level() = default;
 
    /**
-    * @brief                       Draws the meter.
-    * @param[in,out] g             The juce graphics context to use.
-    * @param         peakColour    Colour of the peak region of the meter. 
-    * @param         warningColour Colour of the warning region of the meter.
-    * @param         normalColour  Colour of the normal region of the meter.
-   */
-   void drawMeter (juce::Graphics& g, const juce::Colour& peakColour, const juce::Colour& warningColour, const juce::Colour& normalColour);
-
-   /**
-    * @brief Draw the 'meter' part in it's inactive (muted) state.
-    * @param[in,out] g   The juce graphics context to use.
-    * @param textColour  Colour of the text on the inactive meter.
-   */
-   void drawInactiveMeter (juce::Graphics& g, const juce::Colour& textColour) const;
-
-   /**
-    * @brief Draw the peak 'value'.
-    * @param[in,out] g        The juce graphics context to use.
-    * @param textValueColour  Colour of the text displaying the peak value.
-   */
-   void drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColour) const;
-
-   /**
-    * @brief Draw the peak hold indicator.
-    * @param[in,out] g        The juce graphics context to use.
-    * @param colour           The colour of the peak hold indicator.
-   */
-   void drawPeakHold (juce::Graphics& g, const juce::Colour& colour) const;
-
-   /**
-    * @brief Draw the tick-marks.
-    * These are the lines dividing the meters at certain dB levels.
-    * @param[in,out] g        The juce graphics context to use.
-    * @param tickColour       Colour of the tick marks.
-   */
-   void drawTickMarks (juce::Graphics& g, const juce::Colour& tickColour) const;
-
-   /**
-    * @brief Draw the value labels at the tick marks.
-    * These will be displayed if the meter is a labelStrip.
-    * @param[in,out] g        The juce graphics context to use.
-    * @param textColour       Colour of the label text.
-   */
-   void drawLabels (juce::Graphics& g, const juce::Colour& textColour) const;
+    * @brief Reset the meter (but not the peak hold).
+    *
+    * @see resetPeakHold
+    */
+   void reset() noexcept;
 
    /**
     * @brief Set the level of the meter.
@@ -106,7 +67,6 @@ public:
     * @see getInputLevel
    */
    inline void setInputLevel (float newLevel) noexcept;
-
 
    /**
     * @brief Get's the meter's input level.
@@ -149,13 +109,14 @@ public:
    [[nodiscard]] float getRefreshRate() const noexcept { return m_refreshRate_hz; }
 
    /**
-    * @brief Set the meter's refresh rate.
+    * @brief Sets the meter's refresh rate. 
     *
-    * @param refreshRate_hz Refresh rate (in Hz) to use to redraw the meter.
-    *
-    * @see getRefreshRate()
+    * Set this to optimize the meter's decay rate.
+    * 
+    * @param refreshRate_hz Refresh rate in Hz.
+    * @see setDecay, getDecay
     */
-   void setRefreshRate (float refreshRate_hz);
+   void setRefreshRate (float refreshRate_hz) noexcept;
 
    /**
     * @brief Set meter decay.
@@ -193,17 +154,28 @@ public:
     */
    [[nodiscard]] bool isPeakHoldVisible() const noexcept { return m_peakHoldVisible; }
 
-   void enableValue (bool valueEnabled) noexcept {  m_valueEnabled = valueEnabled; }
-
    /**
-    * @brief Show the peak value.
+    * @brief Enable the peak 'value' part of the meter.
     *
-    * The peak value will be shown below the meter (in db).
+    * When enabled (and made visible with showValue) the
+    * peak 'value' part will be shown below the meter (in dB).
     * It's the same level as the peak hold bar.
     *
-    * @param isVisible when set, shows the value level (in db) below the meter.
+    * @param valueEnabled When set true, the 'value' level (in dB) part below the meter will be enabled.
     * 
-    * @see isPeakValueVisible, resetPeakHoldLevel
+    * @see isPeakValueVisible, resetPeakHoldLevel, setValueVisible
+    */
+   void enableValue (bool valueEnabled) noexcept { m_valueEnabled = valueEnabled; }
+
+   /**
+    * @brief Show the peak 'value' part of the meter.
+    *
+    * The peak value will be shown below the meter (in dB).
+    * It's the same level as the peak hold bar.
+    *
+    * @param isVisible When set true, shows the 'value' level (in dB) part below the meter.
+    *
+    * @see isPeakValueVisible, resetPeakHoldLevel, enableValue
     */
    void setValueVisible (bool isVisible) noexcept { m_valueVisible = isVisible; }
 
@@ -259,42 +231,127 @@ public:
    int                 calculateLevelDrawn() noexcept;
 
    /**
-    * Set the levels dividing the different regions of the meter. 
+    * @brief Set the levels dividing the different regions of the meter. 
     *
     * The meter has 3 regions. Normal, warning and peak. 
     * The peak region level supplied need to be larger then the warning region level. 
     *
-    * @param warningRegion_db sets the level (in db) dividing the normal and warning regions of the meter.
-    * @param peakRegion_db sets the level (in db) dividing the warning and peak regions of the meter.
+    * @param warningRegion_db Sets the level (in db) dividing the normal and warning regions of the meter.
+    * @param peakRegion_db    Sets the level (in db) dividing the warning and peak regions of the meter.
     */
    void setRegions (const float warningRegion_db, const float peakRegion_db);
-   void reset() noexcept;
 
+   /**
+    * @brief Set the bounds of the 'value' part of the meter.
+    * 
+    * @param bounds The bounds to use for the 'value' part of the meter.
+    * 
+    * @see getValueBounds, setMeterBounds, getMeterBounds
+   */
    void setValueBounds (juce::Rectangle<int> bounds) noexcept { m_valueBounds = bounds; }
 
    /**
-    * Get the bounds of the 'value' part.
+    * @brief Get the bounds of the 'value' part of the meter.
     *
-    * @return the bounds of the value part.
+    * @return The bounds of the 'value' part of the meter.
+    * @see setMeterBounds, setValueBounds, getMeterBounds
     */
    [[nodiscard]] juce::Rectangle<int> getValueBounds() const noexcept { return m_valueBounds; }
-   void                               setMeterBounds (juce::Rectangle<int> bounds) noexcept { m_meterBounds = bounds; }
 
    /**
-    * Get the bounds of the 'meter' part.
+    * @brief Set the bounds of the 'meter' part of the meter.
+    * 
+    * @param bounds The bounds to use for the 'meter' part of the meter.
+    * @see getValueBounds, setValueBounds, getMeterBounds
+   */
+   void setMeterBounds (juce::Rectangle<int> bounds) noexcept { m_meterBounds = bounds; }
+
+   /**
+    * @brief Get the bounds of the 'meter' part.
     *
-    * @return the bounds of the meter.
+    * @return The bounds of the 'meter' part.
+    * @see getValueBounds, setValueBounds, setMeterBounds
     */
    [[nodiscard]] juce::Rectangle<int> getMeterBounds() const noexcept { return m_meterBounds; }
 
+   /**
+    * @brief Check if the mouse cursor is over the 'value' part of the meter.
+    * 
+    * @param y The y coordinate (relative to the meter bounds) to use to determine if the mouse if over the 'value' part of the meter.
+    * @return True, if the mouse cursor is over the 'value' part of the meter.
+   */
+   bool isMouseOverValue (const int y) noexcept;
 
-   bool isMouseOverValue (const int y) noexcept
-   {
-      m_mouseOverValue = (y >= m_valueBounds.getY() && ! m_valueBounds.isEmpty());
-      return m_mouseOverValue;
-   }
+   /**
+    * @brief Check if the mouse cursor is over the 'value' part of the meter.
+    * 
+    * @return True, if the mouse cursor is over the 'value' part of the meter.
+   */
    [[nodiscard]] bool isMouseOverValue() const noexcept { return m_mouseOverValue; }
-   void               resetMouseOverValue() noexcept { m_mouseOverValue = false; }
+
+   /**
+    * @brief Reset 'mouse over' status of the 'value' part of the meter.
+   */
+   void resetMouseOverValue() noexcept { m_mouseOverValue = false; }
+
+   /**
+    * @brief                       Draws the meter.
+    * @param[in,out] g             The juce graphics context to use.
+    * @param         peakColour    Colour of the peak region of the meter. 
+    * @param         warningColour Colour of the warning region of the meter.
+    * @param         normalColour  Colour of the normal region of the meter.
+    * 
+    * @see drawInactiveMeter, drawPeakValue, drawPeakHold, drawTickMarks, drawLabels
+   */
+   void drawMeter (juce::Graphics& g, const juce::Colour& peakColour, const juce::Colour& warningColour, const juce::Colour& normalColour);
+
+   /**
+    * @brief Draw the 'meter' part in it's inactive (muted) state.
+    * 
+    * @param[in,out] g   The juce graphics context to use.
+    * @param textColour  Colour of the text on the inactive meter.
+    * 
+    * @see drawMeter, drawTickMarks, drawPeakValue, drawPeakHold, drawLabels
+   */
+   void drawInactiveMeter (juce::Graphics& g, const juce::Colour& textColour) const;
+
+   /**
+    * @brief Draw the peak 'value'.
+    * @param[in,out] g        The juce graphics context to use.
+    * @param textValueColour  Colour of the text displaying the peak value.
+    * 
+    * @see drawMeter, drawInactiveMeter, drawInactiveMeter, drawPeakHold, drawTickMarks, drawLabels
+   */
+   void drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColour) const;
+
+   /**
+    * @brief Draw the peak hold indicator.
+    * @param[in,out] g        The juce graphics context to use.
+    * @param colour           The colour of the peak hold indicator.
+    * 
+    * @see drawMeter, drawInactiveMeter, drawInactiveMeter, drawPeakValue, drawTickMarks, drawLabels
+   */
+   void drawPeakHold (juce::Graphics& g, const juce::Colour& colour) const;
+
+   /**
+    * @brief Draw the tick-marks.
+    * These are the lines dividing the meters at certain dB levels.
+    * @param[in,out] g        The juce graphics context to use.
+    * @param tickColour       Colour of the tick marks.
+    * 
+    * @see drawMeter, drawInactiveMeter, drawInactiveMeter, drawPeakValue, drawPeakHold, drawLabels
+   */
+   void drawTickMarks (juce::Graphics& g, const juce::Colour& tickColour) const;
+
+   /**
+    * @brief Draw the value labels at the tick marks.
+    * These will be displayed if the meter is a labelStrip.
+    * @param[in,out] g        The juce graphics context to use.
+    * @param textColour       Colour of the label text.
+    * 
+    * @see drawMeter, drawInactiveMeter, drawInactiveMeter, drawPeakValue, drawPeakHold, drawTickMarks
+   */
+   void drawLabels (juce::Graphics& g, const juce::Colour& textColour) const;
 
    /**
     * @brief Tick-mark class.
@@ -318,27 +375,32 @@ public:
    };
 
    /**
-    * Set the level of the tick marks. 
+    * @brief Set the level of the tick marks. 
     *
     * A tick mark is a horizontal line, dividing the meter. 
     * This is also the place the label strip will put it's text values.
     *
     * @param ticks list of tick mark values (in amp).
+    * @see setTickMarksVisible
     */
    void setTickMarks (const std::vector<float>& ticks) noexcept;
 
    /**
-    * Show tick-marks (divider lines) on the meter.
+    * @brief Show tick-marks (divider lines) on the meter.
     *
-    * @param visible when set, shows the tick-marks. 
+    * A tick mark is a horizontal line, dividing the meter. 
+    * This is also the place the label strip will put it's text values.
+    *
+    * @param visible When set true, shows the tick-marks. 
+    * @see setTickMarks
     */
    void setTickMarksVisible (bool visible) noexcept { m_tickMarksVisible = visible; }
 
    /**
     * @brief Use gradients in stead of hard region boundaries.
-    * @param useGradients When set to true, uses smooth gradients. False gives hard region boundaries.=
+    * @param useGradients When set to true, uses smooth gradients. False gives hard region boundaries.
    */
-   void useGradients (bool useGradients) noexcept {  m_useGradients = useGradients; }
+   void useGradients (bool useGradients) noexcept { m_useGradients = useGradients; }
 
 private:
    juce::Rectangle<int> m_valueBounds;  // Bounds of the value area.
@@ -359,8 +421,8 @@ private:
 
    bool m_tickMarksVisible = true;
    bool m_peakHoldVisible  = true;
-   bool m_valueVisible = false;
-   bool m_valueEnabled = true;
+   bool m_valueVisible     = false;
+   bool m_valueEnabled     = true;
    bool m_mouseOverValue   = false;
    bool m_useGradients     = true;
 

@@ -34,21 +34,23 @@
 namespace sd::SoundMeter
 {
 
+//==============================================================================
 
-void Header::draw (juce::Graphics& g, bool meterActive, bool faderEnabled, const juce::Colour& mutedColour, const juce::Colour& mutedMouseOver,
+void Header::draw (juce::Graphics& g, bool meterActive, bool faderEnabled, const juce::Colour& muteColour, const juce::Colour& muteMouseOver,
                    const juce::Colour& textColour, const juce::Colour& inactiveColour)
 {
-   if (! isVisible() ) return;
+   if (! isVisible()) return;
    if (m_bounds.isEmpty()) return;
 
    // Draw channel names...
    juce::String headerText = getInfo();
 
-   if (m_mouseOver && faderEnabled)  // Draw 'button' for enabling/disabling channel.
+   // Draw 'button' for muting/de-activating channel...
+   if (m_mouseOver && faderEnabled)
    {
-      g.setColour (meterActive ? mutedColour : mutedMouseOver);
+      g.setColour (meterActive ? muteColour : muteMouseOver);
       g.fillRect (m_bounds);
-      g.setColour (mutedColour.contrasting (0.8f));  // NOLINT
+      g.setColour (muteColour.contrasting (0.8f));  // NOLINT
    }
    else
    {
@@ -63,11 +65,10 @@ void Header::draw (juce::Graphics& g, bool meterActive, bool faderEnabled, const
          g.setColour (inactiveColour.contrasting (0.8f));  // NOLINT
       }
    }
-   if (headerText.isNotEmpty() )
-      g.drawFittedText (headerText, m_bounds, juce::Justification::centred, 1);
+   if (headerText.isNotEmpty()) g.drawFittedText (headerText, m_bounds, juce::Justification::centred, 1);
 }
-
 //==============================================================================
+
 void Header::setType (const juce::AudioChannelSet::ChannelType& type)
 {
    m_type                 = type;
@@ -76,7 +77,7 @@ void Header::setType (const juce::AudioChannelSet::ChannelType& type)
 
    calculateInfoWidth();
 }
-
+//==============================================================================
 
 [[nodiscard]] const juce::AudioChannelSet::ChannelType& Header::getType() const noexcept
 {
@@ -84,6 +85,7 @@ void Header::setType (const juce::AudioChannelSet::ChannelType& type)
 }
 
 //==============================================================================
+
 void Header::setName (const juce::String name)
 {
    if (name.isEmpty()) return;
@@ -92,37 +94,37 @@ void Header::setName (const juce::String name)
 
    calculateInfoWidth();
 }
-
 //==============================================================================
+
 void Header::calculateInfoWidth()
 {
    m_nameWidth = m_font.getStringWidthFloat (m_name);
    m_typeWidth = m_font.getStringWidthFloat (m_typeDescription);
 }
-
 //==============================================================================
+
 [[nodiscard]] float Header::getNameWidth() const noexcept
 {
    return m_nameWidth;
 }
-
 //==============================================================================
+
 [[nodiscard]] float Header::getTypeWidth() const noexcept
 {
    return m_typeWidth;
 }
-
 //==============================================================================
+
 [[nodiscard]] juce::String Header::getName() const noexcept
 {
    return m_name;
 }
-
 //==============================================================================
+
 [[nodiscard]] juce::String Header::getInfo() const noexcept
 {
    // Check which type width to use. This meter's one or a refered meter...
-   const auto typeWidthToCompare = ( m_referredWidth > 0 ? m_referredWidth : m_typeWidth );
+   const auto typeWidthToCompare = (m_referredWidth > 0 ? m_referredWidth : m_typeWidth);
 
    // First check if the channel name fits and is not empty (preferred)...
    if (m_name.isNotEmpty() && m_nameWidth < m_bounds.getWidth())
@@ -132,36 +134,43 @@ void Header::calculateInfoWidth()
 
    return m_typeAbbrDecscription;  // ... otherwise use the abbreviated one.
 }
-
+//==============================================================================
 
 void Header::setBounds (const juce::Rectangle<int>& bounds) noexcept
 {
    m_bounds = bounds;
 }
-
+//==============================================================================
 
 [[nodiscard]] juce::Rectangle<int> Header::getBounds() const noexcept
 {
    return m_bounds;
 }
-
+//==============================================================================
 
 [[nodiscard]] const juce::Font& Header::getFont() const noexcept
 {
    return m_font;
 }
-
+//==============================================================================
 
 void Header::setFont (const juce::Font& font) noexcept
 {
    m_font = font;
    calculateInfoWidth();
 }
-
 //==============================================================================
-bool Header::infoFits (const juce::String& info, const int widthAvailable) const
+
+bool Header::textFits (const juce::String& text, const int widthAvailable) const
 {
-   return m_font.getStringWidthFloat (info) <= static_cast<float> (widthAvailable);
+   return m_font.getStringWidthFloat (text) <= static_cast<float> (widthAvailable);
+}
+//==============================================================================
+
+[[nodiscard]] bool Header::isMouseOver (const int y) noexcept
+{
+   m_mouseOver = (y < m_bounds.getHeight());
+   return m_mouseOver;
 }
 
 }  // namespace sd::SoundMeter
