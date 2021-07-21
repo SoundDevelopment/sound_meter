@@ -31,7 +31,10 @@
 */
 
 
-namespace sd::SoundMeter
+namespace sd
+{
+
+namespace SoundMeter
 {
 
 //==============================================================================
@@ -79,7 +82,7 @@ void Level::drawMeter (juce::Graphics& g, const juce::Colour& peakColour, const 
 {
    // Draw meter bar segments (normal, warning, peak)...
    const auto meterLevel = getMeterLevel();
-   m_levelDrawn_px = 0;
+   m_levelDrawn_px       = 0;
    drawMeterSegment (g, meterLevel, 0.0f, m_warningRegion, normalColour, warningColour);
    drawMeterSegment (g, meterLevel, m_warningRegion, m_peakRegion, warningColour, peakColour);
    drawMeterSegment (g, meterLevel, m_peakRegion, 1.0f, peakColour, peakColour.darker());
@@ -121,7 +124,7 @@ void Level::drawLabels (juce::Graphics& g, const juce::Colour& textColour) const
    if (! m_tickMarksVisible) return;
 
    g.setColour (textColour);
-   const float fontsize = std::clamp (m_meterBounds.getHeight() / 4.0f, 1.0f, 15.0f);  // Set font size proportionally. NOLINT
+   const float fontsize = juce::jlimit (1.0f, 15.0f, m_meterBounds.getHeight() / 4.0f);  // Set font size proportionally. NOLINT
    g.setFont (fontsize);
 
    for (const auto& tick: m_tickMarks)
@@ -151,9 +154,9 @@ void Level::drawMeterSegment (juce::Graphics& g, const float level, const float 
 
       if (m_useGradients)
       {
-         const auto        max            = m_meterBounds.getY() + static_cast<int> (m_meterBounds.getHeight() * (1.0f - stop));
-         const juce::Point gradientPoint1 = { 0.0f, static_cast<float> (bottom) };
-         const juce::Point gradientPoint2 = { 0.0f, static_cast<float> (max) };
+         const auto               max            = m_meterBounds.getY() + static_cast<int> (m_meterBounds.getHeight() * (1.0f - stop));
+         const juce::Point<float> gradientPoint1 = { 0.0f, static_cast<float> (bottom) };
+         const juce::Point<float> gradientPoint2 = { 0.0f, static_cast<float> (max) };
          g.setGradientFill (juce::ColourGradient (colour, gradientPoint1, nextColour, gradientPoint2, false));
       }
       else
@@ -176,7 +179,7 @@ void Level::setTickMarks (const std::vector<float>& ticks) noexcept
 [[nodiscard]] float Level::getInputLevel() noexcept
 {
    m_inputLevelRead.store (true);
-   return std::clamp (m_inputLevel.load(), -m_maxLevel, m_maxLevel);
+   return juce::jlimit (-m_maxLevel, m_maxLevel, m_inputLevel.load());
 }
 //==============================================================================
 
@@ -196,14 +199,17 @@ void Level::setMeterLevel (float newLevel) noexcept
 
 void Level::setRefreshRate (float refreshRate_hz) noexcept
 {
+   if ( refreshRate_hz <= 0.0f ) return;
+
    m_refreshRate_hz = refreshRate_hz;
+   m_refreshPeriod_ms = ( 1.0f / m_refreshRate_hz ) * 1000.0f;
    calculateDecayCoeff();
 }
 //==============================================================================
 
 void Level::setDecay (float decay_ms) noexcept
 {
-   m_decay_ms = std::clamp (decay_ms, Constants::kMinDecay_ms, Constants::kMaxDecay_ms);
+   m_decay_ms = juce::jlimit (Constants::kMinDecay_ms, Constants::kMaxDecay_ms, decay_ms);
    calculateDecayCoeff();
 }
 //==============================================================================
@@ -236,13 +242,18 @@ void Level::reset() noexcept
 
 [[nodiscard]] float Level::getDecayedLevel (const float callbackLevel)
 {
-   if (m_refreshRate_hz <= 0.0f) return callbackLevel;
-
    // Measure time passed...
    const auto currentTime = juce::Time::getMillisecondCounter();
    const auto timePassed  = juce::Time::getMillisecondCounter() - m_previousRefreshTime;
+
+   // A new frame is not needed yet, return the current value...
+   if ( timePassed < m_refreshPeriod_ms ) return m_meterLevel; 
+
    m_previousRefreshTime  = currentTime;
-   if (timePassed > m_decay_ms) return callbackLevel;  // The signal has fully decayed.
+
+   // More time has passed then the meter decay. The meter has fully decayed...
+   if (timePassed > m_decay_ms) return callbackLevel; 
+
    if (m_meterLevel == callbackLevel) return callbackLevel;
 
    // Convert that to refreshed frames...
@@ -252,8 +263,7 @@ void Level::reset() noexcept
    for (int frame = 0; frame < numberOfFramePassed; ++frame)
       level = callbackLevel + (m_decayCoeff * (level - callbackLevel));
 
-   if (std::abs (level - callbackLevel) < kMinMeter_db) 
-      level = callbackLevel;
+   if (std::abs (level - callbackLevel) < kMinMeter_db) level = callbackLevel;
 
    return level;
 }
@@ -272,4 +282,5 @@ bool Level::isMouseOverValue (const int y) noexcept
    return m_mouseOverValue;
 }
 
-}  // namespace sd::SoundMeter
+}  // namespace SoundMeter
+}  // namespace sd

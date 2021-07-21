@@ -37,7 +37,10 @@
 /**
  * @brief Namespace containing all concerning the sound_meter module.
 */
-namespace sd::SoundMeter
+namespace sd
+{
+
+namespace SoundMeter
 {
 
 /**
@@ -56,7 +59,7 @@ class MetersComponent
 public:
    static constexpr auto kLabelStripLeftPadding = 5;  ///< Padding (in pixels) on the left side of the label strip (which can double as a master fader).
    static constexpr auto kFaderRightPadding     = 1;  ///< Padding (in pixels) on the right side of the channel faders.
-   
+
    /**
     * @brief Constructor
    */
@@ -78,7 +81,7 @@ public:
     * @param channelFormat The channel format to use to initialise the panel.
    */
    explicit MetersComponent (const juce::AudioChannelSet& channelFormat);
-   
+
    /**
     * @brief Constructor with meter options and which accepts a channel format.
     * 
@@ -440,12 +443,13 @@ private:
    void                             createMeters            ( const juce::AudioChannelSet& channelFormat, const std::vector<juce::String>& channelNames );
    void                             deleteMeters            ();
    [[nodiscard]] MeterChannel*      getMeterChannel         ( const int meterIndex ) noexcept;
-      
+
 
    // clang-format on
    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MetersComponent)
 };
 
-}  // namespace sd::SoundMeter
+}  // namespace SoundMeter
+}  // namespace sd
 
 #endif /* SD_SOUND_METERS_PANEL_H */

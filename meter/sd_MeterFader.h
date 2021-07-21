@@ -33,7 +33,9 @@
 #ifndef SD_SOUND_METER_FADER_H
 #define SD_SOUND_METER_FADER_H
 
-namespace sd::SoundMeter
+namespace sd
+{
+namespace SoundMeter
 {
 
 class MeterChannel;
@@ -211,6 +213,8 @@ private:
    JUCE_LEAK_DETECTOR (Fader)
 };
 
-}  // namespace sd::SoundMeter
+}  // namespace SoundMeter
+
+}  // namespace sd
 
 #endif /* SD_SOUND_METER_FADER_H */

@@ -35,7 +35,9 @@
 #define SD_SOUND_METER_METERCHANNEL_H
 
 
-namespace sd::SoundMeter
+namespace sd
+{
+namespace SoundMeter
 {
 
 /**
@@ -68,7 +70,7 @@ public:
     * @param faderListener A listener to any changes in the fader.
    */
    MeterChannel (Options meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip = false,
-                 ChannelType channelType = ChannelType::unknown, [[maybe_unused]] Fader::Listener* faderListener = nullptr);
+                 ChannelType channelType = ChannelType::unknown, Fader::Listener* faderListener = nullptr);
 
    /**
     * @brief Reset the meter (but not the peak hold).
@@ -130,7 +132,7 @@ public:
     * @see setActive
     */
    [[nodiscard]] bool isActive() const noexcept { return m_active; }
-   
+
    /**
     * @brief Set meter decay.
     *
@@ -328,7 +330,7 @@ public:
     * @see showTickMarks
     */
    void setTickMarks (const std::vector<float>& ticks) noexcept { m_level.setTickMarks (ticks); }
-   
+
    /**
     * @brief Set the padding of the meter. 
     *
@@ -552,6 +554,6 @@ private:
    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MeterChannel)
 };
 
-}  // namespace sd::SoundMeter
-
+}  // namespace SoundMeter
+}  // namespace sd
 #endif /* SD_SOUND_METER_METERCHANNEL_H */

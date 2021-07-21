@@ -31,7 +31,9 @@
 */
 
 
-namespace sd::SoundMeter
+namespace sd
+{
+namespace SoundMeter
 {
 
 #pragma region Misc Methods
@@ -46,7 +48,7 @@ MeterChannel::MeterChannel()
 //==============================================================================
 
 MeterChannel::MeterChannel (Options meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip /*= false*/,
-                            ChannelType channelType /*= ChannelType::unknown*/, [[maybe_unused]] Fader::Listener* faderListener /*= nullptr*/)
+                            ChannelType channelType /*= ChannelType::unknown*/, Fader::Listener* faderListener /*= nullptr*/)
   : MeterChannel()
 {
    setName (channelName);
@@ -60,6 +62,8 @@ MeterChannel::MeterChannel (Options meterOptions, Padding padding, const juce::S
 
 #if SDTK_ENABLE_FADER
    if (faderListener) addFaderListener (*faderListener);
+#else
+   juce::ignoreUnused (faderListener)
 #endif
 }
 //==============================================================================
@@ -358,7 +362,7 @@ void MeterChannel::refresh (const bool forceRefresh)
 
 //==============================================================================
 
-void MeterChannel::setActive (bool isActive, [[maybe_unused]] NotificationOptions notify /*= NotificationOptions::dontNotify*/)
+void MeterChannel::setActive (bool isActive, NotificationOptions notify /*= NotificationOptions::dontNotify*/)
 {
    if (m_active == isActive) return;
    reset();
@@ -366,6 +370,8 @@ void MeterChannel::setActive (bool isActive, [[maybe_unused]] NotificationOption
 
 #if SDTK_ENABLE_FADER
    if (notify == NotificationOptions::notify) m_fader.notify();
+#else
+   juce::ignoreUnused (notify);
 #endif
 
    setDirty();
@@ -586,11 +592,12 @@ void MeterChannel::mouseDrag (const juce::MouseEvent& event)
 
 void MeterChannel::mouseWheelMove (const juce::MouseEvent& /*event*/, const juce::MouseWheelDetails& wheel)
 {
-   setFaderValue (std::clamp<float> (m_fader.getValue() + (wheel.deltaY / Constants::kFaderSensitivity), 0.0f, 1.0f), NotificationOptions::notify, false);
+   setFaderValue (juce::jlimit (0.0f, 1.0f, m_fader.getValue() + (wheel.deltaY / Constants::kFaderSensitivity)), NotificationOptions::notify, false);
 }
 
 #endif /* SDTK_ENABLE_FADER */
 
 #pragma endregion
 
-}  // namespace sd::SoundMeter
+}  // namespace SoundMeter
+}  // namespace sd

@@ -35,7 +35,9 @@
 #define SD_SOUND_METER_HELPERS_H
 
 
-namespace sd::SoundMeter
+namespace sd
+{
+namespace SoundMeter
 {
 
 
@@ -130,7 +132,9 @@ namespace Helpers
 
 }  // namespace Helpers
 
-}  // namespace sd::SoundMeter
+}  // namespace SoundMeter
+
+}  // namespace sd
 
 
 #endif /* SD_SOUND_METER_HELPERS_H */

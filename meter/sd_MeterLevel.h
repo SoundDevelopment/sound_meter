@@ -34,7 +34,9 @@
 #define SD_SOUND_METER_LEVEL_H
 
 
-namespace sd::SoundMeter
+namespace sd
+{
+namespace SoundMeter
 {
 
 /**
@@ -427,6 +429,7 @@ private:
    float m_decay_ms            = Constants::kDefaultDecay_ms;
    float m_decayCoeff          = 0.0f;
    float m_refreshRate_hz      = 25.0f;  // Meter refresh rate in Hz. NOLINT
+   float m_refreshPeriod_ms    = ( 1.0f / m_refreshRate_hz ) * 1000.0f;
    int   m_previousRefreshTime = 0;
 
    const float kMin99Db     = juce::Decibels::decibelsToGain (-99.0f);
@@ -441,6 +444,7 @@ private:
    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Level)
 };
 
-}  // namespace sd::SoundMeter
+}  // namespace SoundMeter
+}  // namespace sd
 
 #endif /* SD_SOUND_METER_LEVEL_H */

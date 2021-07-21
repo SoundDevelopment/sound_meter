@@ -31,7 +31,10 @@
 */
 
 
-namespace sd::SoundMeter
+namespace sd
+{
+
+namespace SoundMeter
 {
 
 //==============================================================================
@@ -173,4 +176,5 @@ bool Header::textFits (const juce::String& text, const int widthAvailable) const
    return m_mouseOver;
 }
 
-}  // namespace sd::SoundMeter
+}  // namespace SoundMeter
+}  // namespace sd

@@ -31,7 +31,11 @@
 */
 
 
-namespace sd::SoundMeter::Helpers
+namespace sd
+{
+namespace SoundMeter
+{
+namespace Helpers
 {
 
 //==============================================================================
@@ -45,4 +49,6 @@ namespace sd::SoundMeter::Helpers
    return result;
 }
 
-}  // namespace sd::SoundMeter::Helpers
+}  // namespace Helpers
+}  // namespace SoundMeter
+}  // namespace sd

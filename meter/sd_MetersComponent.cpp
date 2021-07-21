@@ -30,7 +30,10 @@
     ==============================================================================
 */
 
-namespace sd::SoundMeter
+namespace sd
+{
+
+namespace SoundMeter
 {
 
 MetersComponent::MetersComponent() : MetersComponent (Options()) { }
@@ -166,7 +169,7 @@ void MetersComponent::resized()
    auto labelStripWidth = m_useLabelStrip ? kLabelWidth : 0;
 
    // Calculate meter width from available width taking into account the extra width needed when showing the master strip...
-   auto meterWidth = std::clamp ((panelWidth - labelStripWidth) / numOfMeters, kMinWidth, kMaxWidth);
+   auto meterWidth = juce::jlimit (kMinWidth, kMaxWidth, (panelWidth - labelStripWidth) / numOfMeters);
 
    bool minModeEnabled = m_meterChannels[0]->autoSetMinimalMode (meterWidth, panelHeight);
 
@@ -174,7 +177,7 @@ void MetersComponent::resized()
    if (minModeEnabled) labelStripWidth = 0;
 
    // Re-calculate actual width (taking into account the min. mode)...
-   if (m_useLabelStrip) meterWidth = std::clamp ((panelWidth - labelStripWidth) / numOfMeters, kMinWidth, kMaxWidth);
+   if (m_useLabelStrip) meterWidth = juce::jlimit (kMinWidth, kMaxWidth, (panelWidth - labelStripWidth) / numOfMeters);
 
    // Position all meters and adapt them to the current size...
    for (auto meterChannel: m_meterChannels)
@@ -390,7 +393,7 @@ void MetersComponent::resetFaders()
       meterChannel->setFaderValue (1.0f);
       meterChannel->flashFader();
    }
-   m_labelStrip.setActive( true );
+   m_labelStrip.setActive (true);
    m_labelStrip.setFaderValue (1.0f);
    m_labelStrip.flashFader();
    notifyListeners();
@@ -461,11 +464,11 @@ void MetersComponent::createMeters (const juce::AudioChannelSet& channelFormat, 
    for (int channelIdx = 0; channelIdx < channelFormat.size(); ++channelIdx)
    {
       auto meterChannel = std::make_unique<MeterChannel> (m_options, Padding (0, kFaderRightPadding, 0, 0), Constants::kMetersPanelId, false,
-                                                   channelFormat.getTypeOfChannel (channelIdx),
+                                                          channelFormat.getTypeOfChannel (channelIdx),
 #if SDTK_ENABLE_FADER
-                                                   this
+                                                          this
 #else
-                                                   nullptr
+                                                          nullptr
 #endif
       );
 
@@ -628,4 +631,5 @@ void MetersComponent::setColours()
       m_backgroundColour = getLookAndFeel().findColour (MeterChannel::backgroundColourId);
 }
 
-}  // namespace sd::SoundMeter
+}  // namespace SoundMeter
+}  // namespace sd
