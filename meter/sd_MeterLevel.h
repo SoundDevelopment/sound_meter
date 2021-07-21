@@ -44,7 +44,6 @@ namespace sd::SoundMeter
 class Level
 {
 public:
-
    /**
     * @brief Constructor.
    */
@@ -430,12 +429,13 @@ private:
    float m_refreshRate_hz      = 25.0f;  // Meter refresh rate in Hz. NOLINT
    int   m_previousRefreshTime = 0;
 
-   const float kMin99Db = juce::Decibels::decibelsToGain (-99.0f);
+   const float kMin99Db     = juce::Decibels::decibelsToGain (-99.0f);
+   const float kMinMeter_db = juce::Decibels::decibelsToGain (-65.0f);
 
    //==============================================================================
    [[nodiscard]] float getDecayedLevel (const float callbackLevel);
    void                calculateDecayCoeff() noexcept;
-   void drawMeterSegment (juce::Graphics& g, float level, float start, float stop, const juce::Colour& colour, const juce::Colour& nextColour) const;
+   void                drawMeterSegment (juce::Graphics& g, float level, float start, float stop, const juce::Colour& colour, const juce::Colour& nextColour);
 
    // clang-format on
    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Level)

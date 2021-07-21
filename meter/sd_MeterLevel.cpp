@@ -78,11 +78,11 @@ void Level::drawPeakHold (juce::Graphics& g, const juce::Colour& peakHoldColour)
 void Level::drawMeter (juce::Graphics& g, const juce::Colour& peakColour, const juce::Colour& warningColour, const juce::Colour& normalColour)
 {
    // Draw meter bar segments (normal, warning, peak)...
-   const auto levelDrawn = getMeterLevel();
-   calculateLevelDrawn();
-   drawMeterSegment (g, levelDrawn, 0.0f, m_warningRegion, normalColour, warningColour);
-   drawMeterSegment (g, levelDrawn, m_warningRegion, m_peakRegion, warningColour, peakColour);
-   drawMeterSegment (g, levelDrawn, m_peakRegion, 1.0f, peakColour, peakColour.darker());
+   const auto meterLevel = getMeterLevel();
+   m_levelDrawn_px = 0;
+   drawMeterSegment (g, meterLevel, 0.0f, m_warningRegion, normalColour, warningColour);
+   drawMeterSegment (g, meterLevel, m_warningRegion, m_peakRegion, warningColour, peakColour);
+   drawMeterSegment (g, meterLevel, m_peakRegion, 1.0f, peakColour, peakColour.darker());
 }
 //==============================================================================
 
@@ -135,7 +135,7 @@ void Level::drawLabels (juce::Graphics& g, const juce::Colour& textColour) const
 }
 //==============================================================================
 
-void Level::drawMeterSegment (juce::Graphics& g, const float level, const float start, const float stop, const juce::Colour& colour, const juce::Colour& nextColour) const
+void Level::drawMeterSegment (juce::Graphics& g, const float level, const float start, const float stop, const juce::Colour& colour, const juce::Colour& nextColour)
 {
    const float segmentLevel = std::min (level, stop);
 
@@ -145,6 +145,9 @@ void Level::drawMeterSegment (juce::Graphics& g, const float level, const float 
 
       const auto top    = m_meterBounds.getY() + static_cast<int> (m_meterBounds.getHeight() * (1.0f - segmentLevel));
       const auto bottom = static_cast<int> (m_meterBounds.getY() + std::round ((1.0f - start) * m_meterBounds.getHeight()));
+
+      // Store the actual drawn level. To check later if it needs to redrawn or not...
+      if (segmentLevel < stop) m_levelDrawn_px = bottom - top;
 
       if (m_useGradients)
       {
@@ -239,16 +242,18 @@ void Level::reset() noexcept
    const auto currentTime = juce::Time::getMillisecondCounter();
    const auto timePassed  = juce::Time::getMillisecondCounter() - m_previousRefreshTime;
    m_previousRefreshTime  = currentTime;
-
    if (timePassed > m_decay_ms) return callbackLevel;  // The signal has fully decayed.
+   if (m_meterLevel == callbackLevel) return callbackLevel;
 
    // Convert that to refreshed frames...
    auto numberOfFramePassed = static_cast<int> (std::round ((timePassed * m_refreshRate_hz) / 1000.0f));
-   auto level               = m_meterLevel;
+
+   auto level = m_meterLevel;
    for (int frame = 0; frame < numberOfFramePassed; ++frame)
       level = callbackLevel + (m_decayCoeff * (level - callbackLevel));
 
-   if (level < 0.0001f) return 0.0f;
+   if (std::abs (level - callbackLevel) < kMinMeter_db) 
+      level = callbackLevel;
 
    return level;
 }

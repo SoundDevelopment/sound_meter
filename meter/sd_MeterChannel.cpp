@@ -325,11 +325,11 @@ void MeterChannel::refresh (const bool forceRefresh)
       // Check if the value part needs to be redrawn....
       if (callbackLevel > m_level.getPeakHoldLevel() && m_level.isPeakValueVisible()) addDirty (m_level.getValueBounds());
 
+      m_level.setMeterLevel (callbackLevel);
+
       // Only calculate level when it has changed (and not on label strips)...
       if (! m_isLabelStrip && level_px != m_level.getLevelDrawn())
       {
-         m_level.setMeterLevel (callbackLevel);
-
          if (! isDirty (m_level.getMeterBounds()))
          {
             // Check if there is a different level then currently displayed...
