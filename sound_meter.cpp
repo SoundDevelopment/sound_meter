@@ -31,6 +31,7 @@
 */
 
 // TODO: - LnF methods.
+// TODO: - Fix meter decay.
 
 
 #ifdef SOUND_METER_HEADER_H

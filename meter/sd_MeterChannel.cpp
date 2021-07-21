@@ -404,8 +404,13 @@ void MeterChannel::setOptions (Options meterOptions)
    useGradients (meterOptions.useGradient);
    enableHeader (meterOptions.headerEnabled);
    enableValue (meterOptions.valueEnabled);
-   setFaderEnabled (meterOptions.faderEnabled);
    setRefreshRate (static_cast<float> (meterOptions.refreshRate));
+
+   m_level.setPeakHoldVisible (meterOptions.showPeakHoldIndicator);
+
+#if SDTK_ENABLE_FADER
+   setFaderEnabled (meterOptions.faderEnabled);
+#endif
 }
 //==============================================================================
 
