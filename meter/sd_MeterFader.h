@@ -64,36 +64,36 @@ public:
    void flash() noexcept;
 
    /**
-    * @brief Check if the meter is active (un-muted).
+    * @brief Check if the fader is visible.
     * 
-    * @return True, if the meter is active (un-muted).
-    * @see setActive, setEnabled, isEnabled
+    * @return True, if the meter is visible, otherwise the fader is hidden.
+    * @see setVisible, setEnabled, isEnabled
    */
-   [[nodiscard]] bool isActive() const noexcept;
+   [[nodiscard]] bool isVisible() const noexcept;
 
    /**
-    * @brief Activate (or de-activate) fader.
+    * @brief Show or hide the fader.
     * 
-    * @param setActive When set to true, will activate the meter's fader.
-    * @see isActive, setEnabled, isEnabled
+    * @param setVisible When set to true, show the fader. Otherwise hide it.
+    * @see isVisible, setEnabled, isEnabled
    */
-   void setActive (bool setActive = true) noexcept;
+   void setVisible (bool showFader = true) noexcept;
 
    /**
     * @brief Check if the 'fader' overlay is enabled.
     * 
     * @return True, when the fader is enabled.
-    * @see setEnabled, isActive, setActive
+    * @see setEnabled, isVisible, setVisible
    */
    [[nodiscard]] bool isEnabled() const noexcept;
 
    /**
-    * @brief Enable the 'fader' overlay.
+    * @brief Enable or disable the 'fader' overlay.
     * 
     * @param enabled True, when the fader needs to be enabled.
     * @see isEnabled, isActive, setActive
    */
-   void setEnabled (bool enabled = true) noexcept;
+   void enable (bool enabled = true) noexcept;
 
    /**
     * @brief Set the fader bounds.
@@ -201,7 +201,7 @@ private:
    std::atomic<float>           m_faderValue { 1.0f };  // Fader value (between 0..1).
    juce::ListenerList<Listener> m_faderListeners;
    SoundMeter::MeterChannel*    m_parentMeter = nullptr;
-   bool                         m_active      = false;
+   bool                         m_visible     = false;
    bool                         m_enabled     = false;
    bool                         m_mouseOver   = false;
    bool                         m_isFading    = false;

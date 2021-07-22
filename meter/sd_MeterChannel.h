@@ -397,25 +397,25 @@ public:
 #if SDTK_ENABLE_FADER
 
    /**
-    * @brief Activate (or de-activate) fader.
+    * @brief Show or hide the fader.
     * 
     * The fader overlay display on top of the 'meter' part
     * (in combination with the 'mute' buttons in the 'header' part)
     * can be used by the user to control gain or any other
     * parameter.
     * 
-    * @param faderActive When set to true, will activate the meter's fader.
-    * @see isFaderActive, setFaderEnabled
+    * @param faderVisible When set to true, show the fader. Otherwise hide it.
+    * @see isFaderVisible, setFaderEnabled
    */
-   void setFaderActive (bool faderActive = true) noexcept;
+   void showFader (bool faderVisible = true) noexcept;
 
    /**
-    * @brief Check if the meter is active (un-muted).
+    * @brief Check if the meter is visible or hidden.
     * 
-    * @return True, if the meter is active (un-muted).
-    * @see setFaderActive, setFaderEnabled
+    * @return True, if the meter is visible.
+    * @see showFader, setFaderEnabled
    */
-   [[nodiscard]] bool isFaderActive() const noexcept { return m_fader.isActive(); }
+   [[nodiscard]] bool isFaderVisible() const noexcept { return m_fader.isVisible(); }
 
    /**
     * @brief Enable the 'fader' overlay.
@@ -426,9 +426,9 @@ public:
     * parameter.
     * 
     * @param faderEnabled True, when the fader needs to be enabled.
-    * @see isFaderActive, setFaderActive
+    * @see isFaderVisible, showFader
    */
-   void setFaderEnabled (bool faderEnabled = true) noexcept;
+   void enableFader (bool faderEnabled = true) noexcept;
 
    /**
     * @brief Show the fader briefly and fade out (unless overridden and shown longer).

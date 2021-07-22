@@ -46,7 +46,7 @@ BEGIN_JUCE_MODULE_DECLARATION
     description:        Resize-able peak meter juce module, with an (optional) fader and accompanying container panel (mixer).
     website:            https://www.sounddevelopment.nl
     license:            MIT   
-    minimumCppStandard: 17
+    minimumCppStandard: 14
     dependencies:       juce_audio_basics, juce_gui_basics, juce_events, juce_graphics
 END_JUCE_MODULE_DECLARATION
 

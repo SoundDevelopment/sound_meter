@@ -42,33 +42,34 @@ void Fader::flash() noexcept
    if (! m_enabled) return;
 
    m_fadeStart = static_cast<int> (juce::Time::getMillisecondCounter());
+   m_isFading  = true;
 }
 //==============================================================================
 
-[[nodiscard]] bool Fader::isActive() const noexcept
+[[nodiscard]] bool Fader::isVisible() const noexcept
 {
-   return m_active && m_enabled;
+   return m_visible && m_enabled;
 }
 //==============================================================================
 
-void Fader::setActive (bool setActive /*= true*/) noexcept
+void Fader::setVisible (bool showFader /*= true*/) noexcept
 {
    if (! m_enabled) return;
 
-   // If fader needs to be DE-ACTIVATED...
-   if (! setActive)
+   // If fader needs to be HIDDEN...
+   if (! showFader)
    {
-      // If it was activated, FADE it out...
-      if (m_active) m_fadeStart = static_cast<int> (juce::Time::getMillisecondCounter());
+      // If it was visible, FADE it out...
+      if (m_visible) m_fadeStart = static_cast<int> (juce::Time::getMillisecondCounter());
 
-      // DE-ACTIVATE fader...
-      m_active = false;
+      // Hide fader...
+      m_visible = false;
    }
-   // ... if fader needs to be ACTIVATED...
+   // ... if fader needs to be SHOWN...
    else
    {
-      // ACTIVATE fader...
-      m_active    = true;
+      // Show fader...
+      m_visible   = true;
       m_fadeStart = 0;
    }
 }
@@ -95,9 +96,13 @@ void Fader::setBounds (const juce::Rectangle<int>& bounds) noexcept
    if (! m_enabled) return;
 
    const auto timeSinceStartFade = getTimeSinceStartFade();
-   if (! m_active && timeSinceStartFade >= kFaderFadeTime_ms) return;
+
+   // Return if the fader was already invisible and a new fade has not been started...
+   if (! m_visible && timeSinceStartFade >= kFaderFadeTime_ms) return;
 
    auto alpha = Constants::kFaderAlphaMax;
+
+   // If it's fading, calculate it's alpha...
    if (timeSinceStartFade < kFaderFadeTime_ms)
    {
       const float fadePortion = 2.0f;
@@ -106,9 +111,13 @@ void Fader::setBounds (const juce::Rectangle<int>& bounds) noexcept
       m_isFading = alpha > 0.0f;
    }
 
-   g.setColour (faderColour.withAlpha (alpha));
-   auto faderRect = m_bounds;
-   g.fillRect (faderRect.removeFromBottom (m_bounds.proportionOfHeight (getValue())));
+   // If the fader is not fully transparent, draw it...
+   if (alpha > 0.0f)
+   {
+      g.setColour (faderColour.withAlpha (alpha));
+      auto faderRect = m_bounds;
+      g.fillRect (faderRect.removeFromBottom (m_bounds.proportionOfHeight (getValue())));
+   }
 }
 //==============================================================================
 
@@ -118,7 +127,7 @@ void Fader::setBounds (const juce::Rectangle<int>& bounds) noexcept
 }
 //==============================================================================
 
-void Fader::setEnabled (bool enabled /*= true*/) noexcept
+void Fader::enable (bool enabled /*= true*/) noexcept
 {
    m_enabled = enabled;
 }

@@ -415,7 +415,7 @@ void MeterChannel::setOptions (Options meterOptions)
    m_level.setPeakHoldVisible (meterOptions.showPeakHoldIndicator);
 
 #if SDTK_ENABLE_FADER
-   setFaderEnabled (meterOptions.faderEnabled);
+   enableFader (meterOptions.faderEnabled);
 #endif
 }
 //==============================================================================
@@ -436,12 +436,12 @@ void MeterChannel::setRegions (float warningRegion_db, float peakRegion_db)
 
 #if SDTK_ENABLE_FADER
 
-void MeterChannel::setFaderActive (const bool faderActive /*= true */) noexcept
+void MeterChannel::showFader (const bool faderVisible /*= true */) noexcept
 {
-   m_fader.setActive (faderActive);
+   m_fader.setVisible (faderVisible);
 
    // If slider needs to be DE-ACTIVATED...
-   if (! faderActive || ! m_fader.isEnabled()) resetMouseOvers();
+   if (! faderVisible || ! m_fader.isEnabled()) resetMouseOvers();
 
    addDirty (m_fader.getBounds());
 }
@@ -451,16 +451,16 @@ void MeterChannel::setFaderValue (const float value, NotificationOptions notific
 {
    if (m_fader.setValue (value, notificationOption))
    {
-      if (mustShowFader && ! m_fader.isActive()) flashFader();
+      if (mustShowFader && ! m_fader.isVisible()) flashFader();
 
       addDirty (m_fader.getBounds());
    }
 }
 //==============================================================================
 
-void MeterChannel::setFaderEnabled (bool faderEnabled /*= true*/) noexcept
+void MeterChannel::enableFader (bool faderEnabled /*= true*/) noexcept
 {
-   m_fader.setEnabled (faderEnabled);
+   m_fader.enable (faderEnabled);
    addDirty (m_fader.getBounds());
 }
 
@@ -482,7 +482,7 @@ void MeterChannel::mouseDown (const juce::MouseEvent& event)
    if (event.mods == juce::ModifierKeys::leftButtonModifier && m_fader.isEnabled())
    {
       // Clicked on the METER part...
-      if (! m_header.isMouseOver (event.y) && ! m_level.isMouseOverValue (event.y) && m_fader.isActive())
+      if (! m_header.isMouseOver (event.y) && ! m_level.isMouseOverValue (event.y) && m_fader.isVisible())
       {
          if (! isActive()) setActive (true);  // Activate if it was de-activated.
          m_fader.setValueFromPos (event.y);   // Set the fader level at the value clicked.
@@ -533,7 +533,7 @@ void MeterChannel::mouseMove (const juce::MouseEvent& event)
    {
 
 #if SDTK_ENABLE_FADER
-      if (m_fader.isActive())
+      if (m_fader.isVisible())
       {
          setMouseCursor (juce::MouseCursor::PointingHandCursor);
          setTooltip (m_isLabelStrip ? "Drag to move master fader." : "Drag to move fader.");
@@ -581,7 +581,7 @@ void MeterChannel::mouseDoubleClick (const juce::MouseEvent& event)
 void MeterChannel::mouseDrag (const juce::MouseEvent& event)
 {
    // When left button down, the meter is active, the fader is active and the mouse is not over the 'info' area...
-   if (event.mods == juce::ModifierKeys::leftButtonModifier && isActive() && m_fader.isActive() && ! m_header.isMouseOver (event.y)
+   if (event.mods == juce::ModifierKeys::leftButtonModifier && isActive() && m_fader.isVisible() && ! m_header.isMouseOver (event.y)
        && ! m_level.isMouseOverValue (event.y))
    {
       m_fader.setValueFromPos (event.y);

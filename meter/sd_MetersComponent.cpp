@@ -49,7 +49,7 @@ MetersComponent::MetersComponent (Options meterOptions)
 #endif
 {
 #if SDTK_ENABLE_FADER
-   m_labelStrip.setFaderActive (m_options.faderEnabled);
+   m_labelStrip.enableFader (m_options.faderEnabled);
    m_labelStrip.addMouseListener (this, true);
 #endif
 
@@ -93,7 +93,7 @@ void MetersComponent::reset()
 #if SDTK_ENABLE_FADER
    m_faderGains.clear();
    m_faderGainsBuffer.clear();
-   m_labelStrip.setFaderActive (false);
+   m_labelStrip.showFader (false);
 #endif
 
    m_labelStrip.showTickMarks (false);
@@ -186,7 +186,7 @@ void MetersComponent::resized()
       meterChannel->setBounds (panelBounds.removeFromLeft (meterWidth));  // ... set it's width to m_meterWidth
 
 #if SDTK_ENABLE_FADER
-      if (minModeEnabled) meterChannel->setFaderActive (false);  // ... do not show the gain fader if it's too narrow.
+      if (minModeEnabled) meterChannel->showFader (false);  // ... do not show the gain fader if it's too narrow.
 #endif
    }
 
@@ -266,8 +266,8 @@ void MetersComponent::mouseEnter (const juce::MouseEvent& /*event*/)
    if (! m_meterChannels[0]->isMinimalModeActive())
    {
       for (auto meterChannel: m_meterChannels)
-         meterChannel->setFaderActive (true);
-      m_labelStrip.setFaderActive (true);
+         meterChannel->showFader (true);
+      m_labelStrip.showFader (true);
    }
 }
 //==============================================================================
@@ -346,9 +346,9 @@ void MetersComponent::notifyListeners()
 
 void MetersComponent::showFaders (bool mustShowFaders)
 {
-   m_labelStrip.setFaderActive (mustShowFaders);
+   m_labelStrip.showFader (mustShowFaders);
    for (auto meterChannel: m_meterChannels)
-      meterChannel->setFaderActive (mustShowFaders);
+      meterChannel->showFader (mustShowFaders);
 }
 //==============================================================================
 
@@ -403,8 +403,8 @@ void MetersComponent::resetFaders()
 void MetersComponent::setFadersEnabled (bool faderEnabled) noexcept
 {
    for (auto* meterChannel: m_meterChannels)
-      meterChannel->setFaderEnabled (faderEnabled);
-   m_labelStrip.setFaderEnabled (faderEnabled);
+      meterChannel->enableFader (faderEnabled);
+   m_labelStrip.enableFader (faderEnabled);
    m_options.faderEnabled = faderEnabled;
 }
 
