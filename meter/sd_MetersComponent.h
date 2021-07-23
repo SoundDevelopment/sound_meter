@@ -99,6 +99,8 @@ public:
     * @brief Refresh (redraw) the meters panel.
     * 
     * @param forceRefresh When set to true, always redraw the meters panel (not only if it's dirty/changed).
+    * 
+    * @see setRefreshRate
     */
    void refresh (bool forceRefresh = false);
 
@@ -210,9 +212,9 @@ public:
     * 
     * @param decay The time it takes the meter to decay (in ms).
     * 
-    * @see setPanelRefreshRate
+    * @see setRefreshRate
    */
-   void setMeterDecay (float decay_ms);
+   void setDecay (float decay_ms);
 
    /**
     * @brief Set the refresh (redraw) rate of the meters.
@@ -224,9 +226,9 @@ public:
     * 
     * @param refreshRate The refresh rate (in Hz).
     * 
-    * @see setMeterDecay, refresh, setInternalTiming
+    * @see setDecay, refresh, setInternalTiming
    */
-   void setPanelRefreshRate (int refreshRate) noexcept;
+   void setRefreshRate (float refreshRate) noexcept;
 
    /**
     * @brief Set the timing option to use (internal/external).

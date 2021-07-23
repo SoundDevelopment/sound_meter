@@ -320,7 +320,6 @@ public:
     */
    void showTickMarks (bool showTickMarks) noexcept;
 
-
    /**
     * @brief Enable tick-marks (divider lines) on the meter.
     *
@@ -353,7 +352,7 @@ public:
     * @param ticks list of tick mark values (in amp).
     * @see showTickMarks, showTickMarksOnTop, enableTickMarks
     */
-   void setTickMarks (const std::vector<float>& ticks) noexcept { m_level.setTickMarks (ticks); }
+   void setTickMarks (const std::vector<float>& ticks) noexcept;
 
    /**
     * @brief Set the padding of the meter. 
@@ -418,7 +417,7 @@ public:
     * 
     * @param useGradients When set to true, uses smooth gradients. False gives hard region boundaries.
    */
-   void useGradients (bool useGradients) noexcept { m_level.useGradients (useGradients); }
+   void useGradients (bool useGradients) noexcept;
 
 #if SDTK_ENABLE_FADER
 

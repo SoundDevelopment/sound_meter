@@ -31,6 +31,7 @@
 */
 
 // TODO: - LnF methods.
+// TODO: - Make minimal mode optional.
 
 
 #ifdef SOUND_METER_HEADER_H

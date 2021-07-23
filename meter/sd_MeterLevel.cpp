@@ -61,7 +61,7 @@ void Level::drawPeakHold (juce::Graphics& g, const juce::Colour& peakHoldColour)
 {
    using namespace Constants;
 
-   if (! m_peakHoldVisible) return;
+   if (! m_options.showPeakHoldIndicator) return;
 
    // Calculate peak hold y coordinate...
    const int y = m_meterBounds.getY() + static_cast<int> (m_meterBounds.getHeight() * (1.0f - m_peakHoldLevel));
@@ -79,9 +79,9 @@ void Level::drawMeter (juce::Graphics& g, const juce::Colour& peakColour, const 
    // Draw meter bar segments (normal, warning, peak)...
    const auto meterLevel = getMeterLevel();
    m_levelDrawn_px       = 0;
-   drawMeterSegment (g, meterLevel, 0.0f, m_warningRegion, normalColour, warningColour);
-   drawMeterSegment (g, meterLevel, m_warningRegion, m_peakRegion, warningColour, peakColour);
-   drawMeterSegment (g, meterLevel, m_peakRegion, 1.0f, peakColour, peakColour.darker());
+   drawMeterSegment (g, meterLevel, 0.0f, m_options.warningRegion_db, normalColour, warningColour);
+   drawMeterSegment (g, meterLevel, m_options.warningRegion_db, m_options.peakRegion_db, warningColour, peakColour);
+   drawMeterSegment (g, meterLevel, m_options.peakRegion_db, 1.0f, peakColour, peakColour.darker());
 }
 //==============================================================================
 
@@ -102,7 +102,7 @@ void Level::drawInactiveMeter (juce::Graphics& g, const juce::Colour& textColour
 
 void Level::drawTickMarks (juce::Graphics& g, const juce::Colour& tickColour) const
 {
-   if (! m_tickMarksVisible || ! m_tickMarksEnabled) return;
+   if (! m_tickMarksVisible || ! m_options.tickMarksEnabled) return;
 
    g.setColour (tickColour);
 
@@ -148,7 +148,7 @@ void Level::drawMeterSegment (juce::Graphics& g, const float level, const float 
       // Store the actual drawn level. To check later if it needs to redrawn or not...
       if (segmentLevel < stop) m_levelDrawn_px = bottom - top;
 
-      if (m_useGradients)
+      if (m_options.useGradient)
       {
          const auto               max            = m_meterBounds.getY() + static_cast<int> (m_meterBounds.getHeight() * (1.0f - stop));
          const juce::Point<float> gradientPoint1 = { 0.0f, static_cast<float> (bottom) };
@@ -197,33 +197,26 @@ void Level::setRefreshRate (float refreshRate_hz) noexcept
 {
    if (refreshRate_hz <= 0.0f) return;
 
-   m_refreshRate_hz   = refreshRate_hz;
-   m_refreshPeriod_ms = (1.0f / m_refreshRate_hz) * 1000.0f;
+   m_options.refreshRate = refreshRate_hz;
+   m_refreshPeriod_ms    = (1.0f / refreshRate_hz) * 1000.0f;
    calculateDecayCoeff();
 }
 //==============================================================================
 
 void Level::setDecay (float decay_ms) noexcept
 {
-   m_decay_ms = juce::jlimit (Constants::kMinDecay_ms, Constants::kMaxDecay_ms, decay_ms);
+   m_options.decayTime_ms = juce::jlimit (Constants::kMinDecay_ms, Constants::kMaxDecay_ms, decay_ms);
    calculateDecayCoeff();
-}
-//==============================================================================
-
-int Level::calculateLevelDrawn() noexcept
-{
-   m_levelDrawn_px = static_cast<int> (m_meterLevel * m_meterBounds.getHeight());
-   return m_levelDrawn_px;
 }
 //==============================================================================
 
 void Level::setRegions (const float warningRegion_db, const float peakRegion_db)
 {
-   jassert (m_peakRegion > m_warningRegion);  // NOLINT
-   if (m_peakRegion <= m_warningRegion) return;
+   jassert (m_options.peakRegion_db > m_options.warningRegion_db);  // NOLINT
+   if (m_options.peakRegion_db <= m_options.warningRegion_db) return;
 
-   m_warningRegion = juce::Decibels::decibelsToGain (warningRegion_db);
-   m_peakRegion    = juce::Decibels::decibelsToGain (peakRegion_db);
+   m_options.warningRegion_db = juce::Decibels::decibelsToGain (warningRegion_db);
+   m_options.peakRegion_db    = juce::Decibels::decibelsToGain (peakRegion_db);
 }
 //==============================================================================
 
@@ -248,12 +241,12 @@ void Level::reset() noexcept
    m_previousRefreshTime = currentTime;
 
    // More time has passed then the meter decay. The meter has fully decayed...
-   if (timePassed > m_decay_ms) return callbackLevel;
+   if (timePassed > m_options.decayTime_ms) return callbackLevel;
 
    if (m_meterLevel == callbackLevel) return callbackLevel;
 
    // Convert that to refreshed frames...
-   auto numberOfFramePassed = static_cast<int> (std::round ((timePassed * m_refreshRate_hz) / 1000.0f));
+   auto numberOfFramePassed = static_cast<int> (std::round ((timePassed * m_options.refreshRate) / 1000.0f));
 
    auto level = m_meterLevel;
    for (int frame = 0; frame < numberOfFramePassed; ++frame)
@@ -268,7 +261,7 @@ void Level::reset() noexcept
 void Level::calculateDecayCoeff() noexcept
 {
    // Rises to 99% of in value over duration of time constant.
-   m_decayCoeff = std::pow (0.01f, (1000.0f / (m_decay_ms * m_refreshRate_hz)));  // NOLINT
+   m_decayCoeff = std::pow (0.01f, (1000.0f / (m_options.decayTime_ms * m_options.refreshRate)));  // NOLINT
 }
 //==============================================================================
 

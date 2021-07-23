@@ -66,7 +66,7 @@ MeterChannel::MeterChannel (Options meterOptions, Padding padding, const juce::S
    juce::ignoreUnused (faderListener);
 #endif
 
-   setPaintingIsUnclipped( true );
+   setPaintingIsUnclipped (true);
 }
 //==============================================================================
 
@@ -112,6 +112,13 @@ void MeterChannel::flashFader() noexcept
 }
 //==============================================================================
 
+void MeterChannel::useGradients (bool useGradients) noexcept
+{
+   m_level.useGradients (useGradients);
+   addDirty (m_level.getMeterBounds());
+}
+//==============================================================================
+
 [[nodiscard]] juce::Rectangle<int> MeterChannel::getLabelStripBounds() const noexcept
 {
    return m_level.getMeterBounds().getUnion (m_header.getBounds());
@@ -123,9 +130,9 @@ void MeterChannel::setMinimalMode (bool minimalMode) noexcept
    if (minimalMode == m_minimalMode) return;
 
    m_minimalMode = minimalMode;
-   showTickMarks (! m_minimalMode);            // ... show tick marks if it's not too narrow for ID and not in minimum mode.
-   showHeader (! m_minimalMode);               // ... show channel ID if it's not too narrow for ID and not in minimum mode.
-   showTickMarks (! m_minimalMode);            // ... show tick marks if it's not too narrow for ID and not in minimum mode.
+   showTickMarks (! m_minimalMode);      // ... show tick marks if it's not too narrow for ID and not in minimum mode.
+   showHeader (! m_minimalMode);         // ... show channel ID if it's not too narrow for ID and not in minimum mode.
+   showTickMarks (! m_minimalMode);      // ... show tick marks if it's not too narrow for ID and not in minimum mode.
    m_level.showValue (! m_minimalMode);  // ... show peak value if it's not too narrow for ID and not in minimum mode.
    setDirty();
 }
@@ -194,9 +201,15 @@ void MeterChannel::showValue (bool showValue /*= true*/) noexcept
 void MeterChannel::showTickMarksOnTop (bool showTickMarksOnTop) noexcept
 {
    m_tickMarksOnTop = showTickMarksOnTop;
-   setDirty();
+   addDirty (m_level.getMeterBounds());
 }
+//==============================================================================
 
+void MeterChannel::setTickMarks (const std::vector<float>& ticks) noexcept
+{
+   m_level.setTickMarks (ticks);
+   addDirty (m_level.getMeterBounds());
+}
 //==============================================================================
 
 void MeterChannel::showTickMarks (bool showTickMarks) noexcept
@@ -216,7 +229,7 @@ void MeterChannel::enableTickMarks (bool enabled) noexcept
 
 void MeterChannel::showPeakHold (bool showPeakHold /*= true*/) noexcept
 {
-   m_level.setPeakHoldVisible (showPeakHold);
+   m_level.showPeakHold (showPeakHold);
    setDirty();
 }
 
@@ -257,8 +270,8 @@ void MeterChannel::paint (juce::Graphics& g)
    if (getLocalBounds().isEmpty()) return;
 
    // Draw BACKGROUND ...
-   g.setColour (m_active ? m_backgroundColour : m_inactiveColour);
-   g.fillRect (getLocalBounds());
+   g.setColour (m_backgroundColour);
+   // g.fillRect (getLocalBounds());
 
    g.setFont (m_header.getFont());
 
@@ -306,9 +319,8 @@ void MeterChannel::drawMeter (juce::Graphics& g)
    m_level.drawPeakValue (g, m_textValueColour);
 
    // Draw meter BACKGROUND...
- //  g.setColour (m_active ? m_backgroundColour : m_inactiveColour);
- //  g.fillRect (m_level.getMeterBounds());
-   
+   g.setColour (m_active ? m_backgroundColour : m_inactiveColour);
+   g.fillRect (m_level.getMeterBounds());
 
    // Draw TICK-marks below the level...
    if (! m_tickMarksOnTop) m_level.drawTickMarks (g, m_tickColour);
@@ -424,21 +436,17 @@ void MeterChannel::setOptions (Options meterOptions)
 {
    setVisible (meterOptions.enabled);
    setEnabled (meterOptions.enabled);
-   setRegions (meterOptions.warningRegion_db, meterOptions.peakRegion_db);
-   enableTickMarks (meterOptions.tickMarksEnabled);
-   setTickMarks (meterOptions.tickMarks);
-   showTickMarksOnTop (meterOptions.tickMarksOnTop);
-   setDecay (meterOptions.decayTime_ms);
-   useGradients (meterOptions.useGradient);
-   enableHeader (meterOptions.headerEnabled);
-   enableValue (meterOptions.valueEnabled);
-   setRefreshRate (static_cast<float> (meterOptions.refreshRate));
 
-   m_level.setPeakHoldVisible (meterOptions.showPeakHoldIndicator);
+   m_level.setOptions (meterOptions);
+
+   showTickMarksOnTop (meterOptions.tickMarksOnTop);
+   enableHeader (meterOptions.headerEnabled);
 
 #if SDTK_ENABLE_FADER
    enableFader (meterOptions.faderEnabled);
 #endif
+
+   setDirty();
 }
 //==============================================================================
 
@@ -452,7 +460,7 @@ void MeterChannel::setChannelName (const juce::String& channelName)
 void MeterChannel::setRegions (float warningRegion_db, float peakRegion_db)
 {
    m_level.setRegions (warningRegion_db, peakRegion_db);
-   refresh (true);
+   setDirty (true);
 }
 //==============================================================================
 

@@ -60,8 +60,10 @@ public:
 
    /**
     * @brief Set the level of the meter.
+    * 
     * Here the level is actually set from the audio engine.
-    * Very likely called from the audio thread!
+    * Beware: very likely called from the audio thread!
+    * 
     * @param newLevel The peak level from the audio engine (in amp).
     * 
     * @see getInputLevel
@@ -89,15 +91,47 @@ public:
    void setMeterLevel (float newLevel) noexcept;
 
    /**
-    * @brief Get the actual meter's level.
+    * @brief Get the actual meter's level (including ballistics).
     * 
     * Get the decayed meter level.
     * Instant attack, but decayed release.
-    * @returnl The actual meter's level with ballistics.
+    * 
+    * @return The actual meter's level with ballistics.
     * 
     * @see setMeterLevel, setDecay
    */
    [[nodiscard]] float getMeterLevel() const noexcept { return m_meterLevel; }
+
+   /**
+    * @brief Get the level actually drawn on screen.
+    *
+    * This will return the level in pixels actually drawn
+    * and is used to determine if the meter is dirty (needs refresh).
+    *
+    * @return The level actually drawn on screen (in pixels).
+    */
+   [[nodiscard]] int getLevelDrawn() const noexcept { return m_levelDrawn_px; }
+
+   /**
+    * @brief Set the meter's options.
+    *
+    * The options determine the appearance and functionality of the meter.
+    *
+    * @param meterOptions Meter options to use.
+    */
+   void setOptions (Options meterOptions)
+   {
+      setDecay (meterOptions.decayTime_ms);
+      setRegions (meterOptions.warningRegion_db, meterOptions.peakRegion_db);
+      setTickMarks (meterOptions.tickMarks);
+      enableTickMarks (meterOptions.tickMarksEnabled);
+      setDecay (meterOptions.decayTime_ms);
+      useGradients (meterOptions.useGradient);
+      setRefreshRate (meterOptions.refreshRate);
+      showPeakHold (meterOptions.showPeakHoldIndicator);
+
+      m_options = meterOptions;
+   }
 
    /**
     * @brief Get the meter's refresh (redraw) rate.
@@ -106,7 +140,7 @@ public:
     *
     * @see setRefreshRate
     */
-   [[nodiscard]] float getRefreshRate() const noexcept { return m_refreshRate_hz; }
+   [[nodiscard]] float getRefreshRate() const noexcept { return m_options.refreshRate; }
 
    /**
     * @brief Sets the meter's refresh rate. 
@@ -134,7 +168,7 @@ public:
     * 
     * @see setDecay
     */
-   [[nodiscard]] float getDecay() const noexcept { return m_decay_ms; }
+   [[nodiscard]] float getDecay() const noexcept { return m_options.decayTime_ms; }
 
    /**
     * @brief Set's the visibility of the peak hold indicator.
@@ -143,16 +177,27 @@ public:
     * 
     * @see isPeakHoldVisible, resetPeakHoldLevel
    */
-   void setPeakHoldVisible (bool isVisible) noexcept { m_peakHoldVisible = isVisible; }
+   void showPeakHold (bool isVisible) noexcept { m_options.showPeakHoldIndicator = isVisible; }
+
+   /**
+    * @brief Set the levels dividing the different regions of the meter. 
+    *
+    * The meter has 3 regions. Normal, warning and peak. 
+    * The peak region level supplied need to be larger then the warning region level. 
+    *
+    * @param warningRegion_db Sets the level (in db) dividing the normal and warning regions of the meter.
+    * @param peakRegion_db    Sets the level (in db) dividing the warning and peak regions of the meter.
+    */
+   void setRegions (const float warningRegion_db, const float peakRegion_db);
 
    /**
     * @brief Check if the peak hold indicator is visible.
     *
     * @return True if the peak hold indicator is visible.
     *
-    * @see setPeakHoldVisible, resetPeakHoldLevel
+    * @see showPeakHold, resetPeakHoldLevel
     */
-   [[nodiscard]] bool isPeakHoldVisible() const noexcept { return m_peakHoldVisible; }
+   [[nodiscard]] bool isPeakHoldVisible() const noexcept { return m_options.showPeakHoldIndicator; }
 
    /**
     * @brief Enable the peak 'value' part of the meter.
@@ -165,7 +210,7 @@ public:
     * 
     * @see isPeakValueVisible, resetPeakHoldLevel, setValueVisible
     */
-   void enableValue (bool valueEnabled) noexcept { m_valueEnabled = valueEnabled; }
+   void enableValue (bool valueEnabled) noexcept { m_options.valueEnabled = valueEnabled; }
 
    /**
     * @brief Show the peak 'value' part of the meter.
@@ -189,14 +234,14 @@ public:
     *
     * @see showValue, resetPeakHoldLevel
     */
-   [[nodiscard]] bool isPeakValueVisible() const noexcept { return m_valueVisible && m_valueEnabled; }
+   [[nodiscard]] bool isPeakValueVisible() const noexcept { return m_valueVisible && m_options.valueEnabled; }
 
    /**
     * @brief Reset the peak hold level.
     * 
     * Set's the peak hold level to 0.
     * 
-    * @see getPeakHoldLevel, isPeakValueVisible, setPeakValueVisible, setPeakHoldVisible, isPeakHoldVisible
+    * @see getPeakHoldLevel, isPeakValueVisible, setPeakValueVisible, showPeakHold, showValue, isPeakHoldVisible
    */
    void resetPeakHoldLevel() noexcept { m_peakHoldLevel = 0.0f; }
 
@@ -209,37 +254,6 @@ public:
     * @see resetPeakHoldLevel, isPeakValueVisible, setPeakValueVisible, setPeakHoldVisible, isPeakHoldVisible
    */
    [[nodiscard]] float getPeakHoldLevel() const noexcept { return m_peakHoldLevel; }
-
-   /**
-    * @brief Return the maximum level of the meter.
-    *
-    * @return The maximum level of the meter (in amp).
-    */
-   [[nodiscard]] float getMaxLevel() const noexcept { return m_maxLevel; }
-
-   /**
-    * Get the level actually drawn on screen.
-    *
-    * This will return the level in pixels actually drawn
-    * and is used to determine if the meter is dirty (needs refresh).
-    *
-    * @return The level actually drawn on screen (in pixels).
-    */
-   [[nodiscard]] int   getLevelDrawn() const noexcept { return m_levelDrawn_px; }
-   [[nodiscard]] float getWarningRegion() const noexcept { return m_warningRegion; }
-   [[nodiscard]] float getPeakRegion() const noexcept { return m_peakRegion; }
-   int                 calculateLevelDrawn() noexcept;
-
-   /**
-    * @brief Set the levels dividing the different regions of the meter. 
-    *
-    * The meter has 3 regions. Normal, warning and peak. 
-    * The peak region level supplied need to be larger then the warning region level. 
-    *
-    * @param warningRegion_db Sets the level (in db) dividing the normal and warning regions of the meter.
-    * @param peakRegion_db    Sets the level (in db) dividing the warning and peak regions of the meter.
-    */
-   void setRegions (const float warningRegion_db, const float peakRegion_db);
 
    /**
     * @brief Set the bounds of the 'value' part of the meter.
@@ -407,47 +421,37 @@ public:
     * @param enabled When set true, the tick-marks are enabled. 
     * @see setTickMarks, showTickMarks
     */
-   void enableTickMarks (bool enabled) noexcept { m_tickMarksEnabled = enabled; }
+   void enableTickMarks (bool enabled) noexcept { m_options.tickMarksEnabled = enabled; }
 
    /**
     * @brief Use gradients in stead of hard region boundaries.
     * @param useGradients When set to true, uses smooth gradients. False gives hard region boundaries.
    */
-   void useGradients (bool useGradients) noexcept { m_useGradients = useGradients; }
+   void useGradients (bool useGradients) noexcept { m_options.useGradient = useGradients; }
 
 private:
+   Options m_options;
+
+   std::atomic<float> m_inputLevel { 0.0f };  // Audio peak level.
+   std::atomic<bool>  m_inputLevelRead { false };
+   float              m_peakHoldLevel = 0.0f;
+   float              m_meterLevel    = 0.0f;  // Current meter level.
+   int                m_levelDrawn_px = 0;
+
    juce::Rectangle<int> m_valueBounds;  // Bounds of the value area.
    juce::Rectangle<int> m_meterBounds;  // Bounds of the meter area.
 
    std::vector<Tick> m_tickMarks {};  // List of user definable tick marks (in db).
 
-   std::atomic<float> m_inputLevel { 0.0f };  // Audio peak level.
-   float              m_peakHoldLevel = 0.0f;
-   float              m_meterLevel    = 0.0f;  // Current meter level.
-   int                m_levelDrawn_px = 0;
-   const float        m_maxLevel      = juce::Decibels::decibelsToGain (Constants::kMaxLevel_db);  // Maximum meter level.
-
-   std::atomic<bool> m_inputLevelRead { false };
-
-   float m_warningRegion = juce::Decibels::decibelsToGain (-10.0f);  // Meter warning region. NOLINT
-   float m_peakRegion    = juce::Decibels::decibelsToGain (-3.0f);   // Meter peak region. NOLINT
-
-   bool m_tickMarksVisible = true;
-   bool m_tickMarksEnabled = true;
-   bool m_peakHoldVisible  = true;
-   bool m_valueVisible     = false;
-   bool m_valueEnabled     = true;
-   bool m_mouseOverValue   = false;
-   bool m_useGradients     = true;
-
-   float m_decay_ms            = Constants::kDefaultDecay_ms;
-   float m_decayCoeff          = 0.0f;
-   float m_refreshRate_hz      = 25.0f;  // Meter refresh rate in Hz. NOLINT
-   float m_refreshPeriod_ms    = ( 1.0f / m_refreshRate_hz ) * 1000.0f;
-   int   m_previousRefreshTime = 0;
-
-   const float kMin99Db     = juce::Decibels::decibelsToGain (-99.0f);
-   const float kMinMeter_db = juce::Decibels::decibelsToGain (-65.0f);
+   bool        m_tickMarksVisible    = true;
+   bool        m_valueVisible        = false;
+   bool        m_mouseOverValue      = false;
+   float       m_decayCoeff          = 0.0f;
+   float       m_refreshPeriod_ms    = (1.0f / m_options.refreshRate) * 1000.0f;
+   int         m_previousRefreshTime = 0;
+   const float kMin99Db              = juce::Decibels::decibelsToGain (-99.0f);
+   const float kMinMeter_db          = juce::Decibels::decibelsToGain (-65.0f);
+   const float m_maxLevel            = juce::Decibels::decibelsToGain (Constants::kMaxLevel_db);  // Maximum meter level.
 
    //==============================================================================
    [[nodiscard]] float getDecayedLevel (const float callbackLevel);

@@ -57,7 +57,7 @@ MetersComponent::MetersComponent (Options meterOptions)
 
    setName (Constants::kMetersPanelId);
 
-   startTimerHz (m_options.refreshRate);
+   startTimerHz (static_cast<int> (std::round (m_options.refreshRate)));
 }
 //==============================================================================
 
@@ -109,7 +109,7 @@ void MetersComponent::refresh (const bool forceRefresh /*= false*/)
 }
 //==============================================================================
 
-void MetersComponent::setPanelRefreshRate (int refreshRate_hz) noexcept
+void MetersComponent::setRefreshRate (float refreshRate_hz) noexcept
 {
    m_options.refreshRate = refreshRate_hz;
 
@@ -120,7 +120,7 @@ void MetersComponent::setPanelRefreshRate (int refreshRate_hz) noexcept
    if (m_useInternalTimer)
    {
       stopTimer();
-      startTimerHz (refreshRate_hz);
+      startTimerHz (static_cast<int> (std::round (refreshRate_hz)));
    }
 }
 //==============================================================================
@@ -131,13 +131,13 @@ void MetersComponent::useInternalTiming (bool useInternalTiming) noexcept
 
    stopTimer();
 
-   if (useInternalTiming) startTimerHz (m_options.refreshRate);
+   if (useInternalTiming) startTimerHz (static_cast<int> (std::round (m_options.refreshRate)));
 }
 //==============================================================================
 
 void MetersComponent::paint (juce::Graphics& g)
 {
-   g.fillAll( m_backgroundColour );
+   g.fillAll (m_backgroundColour);
 
    if (! m_options.enabled)
    {
@@ -516,7 +516,7 @@ void MetersComponent::resetPeakHold()
 }
 //==============================================================================
 
-void MetersComponent::setMeterDecay (float decay_ms)
+void MetersComponent::setDecay (float decay_ms)
 {
    m_options.decayTime_ms = decay_ms;
    for (auto* meterChannel: m_meterChannels)

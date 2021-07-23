@@ -102,7 +102,7 @@ struct Options
    float              warningRegion_db      = Constants::kWarningLevel_db;  ///< Boundary level from normal to warning.
    float              peakRegion_db         = Constants::kPeakLevel_db;     ///< Boundary level from warning to peak.
    float              decayTime_ms          = Constants::kDefaultDecay_ms;  ///< Meter decay in milliseconds.
-   int                refreshRate           = 24;                           ///< Meter refresh rate when using internal timing.
+   float              refreshRate           = 24.0f;                        ///< Meter refresh rate when using internal timing.
    bool               tickMarksEnabled      = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
    bool               tickMarksOnTop = false;  ///< Show the tick-marks below the level or above the level (level might obscure the tickmarks if loud enough).
    std::vector<float> tickMarks      = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };  ///< Tick-mark position in db.
