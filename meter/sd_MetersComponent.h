@@ -430,7 +430,6 @@ private:
    std::vector<float>               m_faderGainsBuffer;
    std::vector<float>               m_faderGains;  
    
-   void                             timerCallback           () override { refresh(); }
    void                             notifyListeners         ();                                          // Notify the listeners the faders have been moved.
    void                             mouseEnter              (const juce::MouseEvent& event) override;
    void                             mouseExit               (const juce::MouseEvent& event) override;
@@ -439,6 +438,7 @@ private:
 #endif
 
    // Private methods...
+   void                             timerCallback           () override { refresh(); }
    void                             setColours              ();
    void                             createMeters            ( const juce::AudioChannelSet& channelFormat, const std::vector<juce::String>& channelNames );
    void                             deleteMeters            ();

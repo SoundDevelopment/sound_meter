@@ -55,8 +55,6 @@ MetersComponent::MetersComponent (Options meterOptions)
 
    addAndMakeVisible (m_labelStrip);
 
-   setPaintingIsUnclipped (true);
-
    setName (Constants::kMetersPanelId);
 
    startTimerHz (m_options.refreshRate);
@@ -139,8 +137,7 @@ void MetersComponent::useInternalTiming (bool useInternalTiming) noexcept
 
 void MetersComponent::paint (juce::Graphics& g)
 {
-   g.setColour (m_backgroundColour);
-   g.fillRect (getLocalBounds());
+   g.fillAll( m_backgroundColour );
 
    if (! m_options.enabled)
    {
@@ -521,7 +518,7 @@ void MetersComponent::resetPeakHold()
 
 void MetersComponent::setMeterDecay (float decay_ms)
 {
-   m_options.meterDecayTime_ms = decay_ms;
+   m_options.decayTime_ms = decay_ms;
    for (auto* meterChannel: m_meterChannels)
       meterChannel->setDecay (decay_ms);
 }
@@ -564,7 +561,7 @@ void MetersComponent::setEnabled (bool enabled /*= true*/)
 
 void MetersComponent::showTickMarks (bool showTickMarks)
 {
-   m_options.showTickMarks = showTickMarks;
+   m_options.tickMarksEnabled = showTickMarks;
    for (auto* meterChannel: m_meterChannels)
       meterChannel->showTickMarks (showTickMarks);
    m_labelStrip.showTickMarks (showTickMarks);

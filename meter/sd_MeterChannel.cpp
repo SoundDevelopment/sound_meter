@@ -63,8 +63,10 @@ MeterChannel::MeterChannel (Options meterOptions, Padding padding, const juce::S
 #if SDTK_ENABLE_FADER
    if (faderListener) addFaderListener (*faderListener);
 #else
-   juce::ignoreUnused (faderListener)
+   juce::ignoreUnused (faderListener);
 #endif
+
+   setPaintingIsUnclipped( true );
 }
 //==============================================================================
 
@@ -124,7 +126,7 @@ void MeterChannel::setMinimalMode (bool minimalMode) noexcept
    showTickMarks (! m_minimalMode);            // ... show tick marks if it's not too narrow for ID and not in minimum mode.
    showHeader (! m_minimalMode);               // ... show channel ID if it's not too narrow for ID and not in minimum mode.
    showTickMarks (! m_minimalMode);            // ... show tick marks if it's not too narrow for ID and not in minimum mode.
-   m_level.setValueVisible (! m_minimalMode);  // ... show peak value if it's not too narrow for ID and not in minimum mode.
+   m_level.showValue (! m_minimalMode);  // ... show peak value if it's not too narrow for ID and not in minimum mode.
    setDirty();
 }
 //==============================================================================
@@ -145,17 +147,17 @@ void MeterChannel::visibilityChanged()
 
 void MeterChannel::setColours() noexcept
 {
-   m_backgroundColour     = getColourFromLnf (backgroundColourId, juce::Colours::black);
-   m_inactiveColour       = getColourFromLnf (inactiveColourId, juce::Colours::red);
-   m_textColour           = getColourFromLnf (textColourId, juce::Colours::white);
-   m_textValueColour      = getColourFromLnf (textValueColourId, juce::Colours::white);
-   m_mutedColour          = getColourFromLnf (mutedColourId, juce::Colours::red);
-   m_mutedMouseOverColour = getColourFromLnf (mutedMouseOverColourId, juce::Colours::blue);
-   m_faderColour          = getColourFromLnf (faderColourId, juce::Colours::yellow.withAlpha (Constants::kFaderAlphaMax));
-   m_tickColour           = getColourFromLnf (tickMarkColourId, juce::Colours::white);
-   m_peakColour           = getColourFromLnf (peakColourId, juce::Colours::red);
-   m_warningColour        = getColourFromLnf (warningColourId, juce::Colours::yellow);
-   m_normalColour         = getColourFromLnf (normalColourId, juce::Colours::green);
+   m_backgroundColour    = getColourFromLnf (backgroundColourId, juce::Colours::black);
+   m_inactiveColour      = getColourFromLnf (inactiveColourId, juce::Colours::grey);
+   m_textColour          = getColourFromLnf (textColourId, juce::Colours::white.darker (0.6f));
+   m_textValueColour     = getColourFromLnf (textValueColourId, juce::Colours::white.darker (0.6f));
+   m_tickColour          = getColourFromLnf (tickMarkColourId, juce::Colours::white.darker (0.3f).withAlpha (0.5f));
+   m_muteColour          = getColourFromLnf (mutedColourId, juce::Colours::red);
+   m_muteMouseOverColour = getColourFromLnf (mutedMouseOverColourId, juce::Colours::black);
+   m_faderColour         = getColourFromLnf (faderColourId, juce::Colours::blue.withAlpha (Constants::kFaderAlphaMax));
+   m_peakColour          = getColourFromLnf (peakColourId, juce::Colours::red);
+   m_warningColour       = getColourFromLnf (warningColourId, juce::Colours::yellow);
+   m_normalColour        = getColourFromLnf (normalColourId, juce::Colours::darkolivegreen);
 }
 //==============================================================================
 
@@ -177,23 +179,39 @@ void MeterChannel::showHeader (bool headerVisible) noexcept
 void MeterChannel::enableValue (bool valueEnabled /*= true*/) noexcept
 {
    m_level.enableValue (valueEnabled);
-   if (valueEnabled) m_level.setValueVisible (true);
+   if (valueEnabled) m_level.showValue (true);
    addDirty (m_level.getValueBounds());
 }
 //==============================================================================
 
 void MeterChannel::showValue (bool showValue /*= true*/) noexcept
 {
-   m_level.setValueVisible (showValue);
+   m_level.showValue (showValue);
    setDirty();
 }
 //==============================================================================
 
-void MeterChannel::showTickMarks (bool showTickMarks /*= true*/) noexcept
+void MeterChannel::showTickMarksOnTop (bool showTickMarksOnTop) noexcept
 {
-   m_level.setTickMarksVisible (showTickMarks);
+   m_tickMarksOnTop = showTickMarksOnTop;
    setDirty();
 }
+
+//==============================================================================
+
+void MeterChannel::showTickMarks (bool showTickMarks) noexcept
+{
+   m_level.showTickMarks (showTickMarks);
+   setDirty();
+}
+//==============================================================================
+
+void MeterChannel::enableTickMarks (bool enabled) noexcept
+{
+   m_level.enableTickMarks (enabled);
+   setDirty();
+}
+
 //==============================================================================
 
 void MeterChannel::showPeakHold (bool showPeakHold /*= true*/) noexcept
@@ -239,20 +257,19 @@ void MeterChannel::paint (juce::Graphics& g)
    if (getLocalBounds().isEmpty()) return;
 
    // Draw BACKGROUND ...
-   g.setColour (m_backgroundColour);
+   g.setColour (m_active ? m_backgroundColour : m_inactiveColour);
    g.fillRect (getLocalBounds());
 
    g.setFont (m_header.getFont());
 
    // Draw channel HEADER...
-
    bool faderEnabled = false;
 
 #if SDTK_ENABLE_FADER
    faderEnabled = m_fader.isEnabled();
 #endif
 
-   m_header.draw (g, isActive(), faderEnabled, m_mutedColour, m_mutedMouseOverColour, m_textColour, m_inactiveColour);
+   m_header.draw (g, isActive(), faderEnabled, m_muteColour, m_muteMouseOverColour, m_textColour, m_inactiveColour);
 
    // Draw the LABEL STRIP ...
    if (m_isLabelStrip)
@@ -289,14 +306,18 @@ void MeterChannel::drawMeter (juce::Graphics& g)
    m_level.drawPeakValue (g, m_textValueColour);
 
    // Draw meter BACKGROUND...
-   g.setColour (m_active ? m_backgroundColour : m_inactiveColour);
-   g.fillRect (m_level.getMeterBounds());
+ //  g.setColour (m_active ? m_backgroundColour : m_inactiveColour);
+ //  g.fillRect (m_level.getMeterBounds());
+   
 
-   // Draw TICK-marks...
-   m_level.drawTickMarks (g, m_tickColour);
+   // Draw TICK-marks below the level...
+   if (! m_tickMarksOnTop) m_level.drawTickMarks (g, m_tickColour);
 
    // Draw meter BAR SEGMENTS (normal, warning, peak)...
    m_active ? m_level.drawMeter (g, m_peakColour, m_warningColour, m_normalColour) : m_level.drawInactiveMeter (g, m_textColour.darker (0.7f));
+
+   // Draw TICK-marks on top of the level...
+   if (m_tickMarksOnTop) m_level.drawTickMarks (g, m_tickColour);
 
    // Draw peak HOLD line...
    if (m_active) m_level.drawPeakHold (g, m_peakColour);
@@ -404,9 +425,10 @@ void MeterChannel::setOptions (Options meterOptions)
    setVisible (meterOptions.enabled);
    setEnabled (meterOptions.enabled);
    setRegions (meterOptions.warningRegion_db, meterOptions.peakRegion_db);
+   enableTickMarks (meterOptions.tickMarksEnabled);
    setTickMarks (meterOptions.tickMarks);
-   showTickMarks (meterOptions.showTickMarks);
-   setDecay (meterOptions.meterDecayTime_ms);
+   showTickMarksOnTop (meterOptions.tickMarksOnTop);
+   setDecay (meterOptions.decayTime_ms);
    useGradients (meterOptions.useGradient);
    enableHeader (meterOptions.headerEnabled);
    enableValue (meterOptions.valueEnabled);

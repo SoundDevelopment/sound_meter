@@ -94,17 +94,18 @@ struct Padding
 struct Options
 {
    bool               enabled               = true;
-   bool               headerEnabled         = true;                         ///< Enable the 'header' part of the meter.
-   bool               valueEnabled          = true;                         ///< Enable the 'value' part of the meter.
-   bool               faderEnabled          = true;                         ///< Enable the fader (overlayed over the meter).
-   bool               useGradient           = true;                         ///< Use gradients to fill the meter or hard region boundaries.
-   bool               showTickMarks         = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
-   bool               showPeakHoldIndicator = true;                         ///< Show the peak hold indicator (a line that marks the highest level up to now).
+   bool               headerEnabled         = true;  ///< Enable the 'header' part of the meter.
+   bool               valueEnabled          = true;  ///< Enable the 'value' part of the meter.
+   bool               faderEnabled          = true;  ///< Enable the fader (overlayed over the meter). Only works if fader have been enabled in the module.
+   bool               useGradient           = true;  ///< Use gradients to fill the meter or hard region boundaries. At the cost of CPU though.
+   bool               showPeakHoldIndicator = true;  ///< Show the peak hold indicator (a line that marks the highest level up to now).
    float              warningRegion_db      = Constants::kWarningLevel_db;  ///< Boundary level from normal to warning.
    float              peakRegion_db         = Constants::kPeakLevel_db;     ///< Boundary level from warning to peak.
-   float              meterDecayTime_ms     = Constants::kDefaultDecay_ms;  ///< Meter decay in milliseconds.
+   float              decayTime_ms          = Constants::kDefaultDecay_ms;  ///< Meter decay in milliseconds.
    int                refreshRate           = 24;                           ///< Meter refresh rate when using internal timing.
-   std::vector<float> tickMarks             = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };  ///< Tick-mark position in db.
+   bool               tickMarksEnabled      = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
+   bool               tickMarksOnTop = false;  ///< Show the tick-marks below the level or above the level (level might obscure the tickmarks if loud enough).
+   std::vector<float> tickMarks      = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };  ///< Tick-mark position in db.
 };
 
 /**

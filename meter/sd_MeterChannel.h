@@ -316,9 +316,33 @@ public:
     * This is also the place the label strip will put it's text values.
     *
     * @param showTickMarks When set true, shows the tick-marks. 
-    * @see setTickMarks
+    * @see setTickMarks, enableTickMarks, showTickMarksOnTop
     */
-   void showTickMarks (bool showTickMarks = true) noexcept;
+   void showTickMarks (bool showTickMarks) noexcept;
+
+
+   /**
+    * @brief Enable tick-marks (divider lines) on the meter.
+    *
+    * A tick mark is a horizontal line, dividing the meter. 
+    * This is also the place the label strip will put it's text values.
+    * 
+    * The tick-marks will be shown when they are enable and visible.
+    *
+    * @param enabled When set true, the tick-marks are enabled. 
+    * @see showTickMarks, setTickMarks, showTickMarksOnTop
+    */
+   void enableTickMarks (bool enabled) noexcept;
+
+   /**
+    * @brief Show the tick-marks on top of the level or below it.
+    * 
+    * When below the level, the tick-marks will be obscured if the 
+    * level is loud enough.
+    * 
+    * @param showTickMarksOnTop Show the tick-marks on top of the level.
+   */
+   void showTickMarksOnTop (bool showTickMarksOnTop) noexcept;
 
    /**
     * @brief Set the level of the tick marks. 
@@ -327,7 +351,7 @@ public:
     * This is also the place the label strip will put it's text values.
     *
     * @param ticks list of tick mark values (in amp).
-    * @see showTickMarks
+    * @see showTickMarks, showTickMarksOnTop, enableTickMarks
     */
    void setTickMarks (const std::vector<float>& ticks) noexcept { m_level.setTickMarks (ticks); }
 
@@ -389,6 +413,8 @@ public:
 
    /**
     * @brief Use gradients in stead of hard region boundaries.
+    * 
+    * Beware that this will come with a CPU cost.
     * 
     * @param useGradients When set to true, uses smooth gradients. False gives hard region boundaries.
    */
@@ -506,32 +532,34 @@ public:
    };
 
 private:
-   Header m_header;  ///< 'Header' part of the meter with info relating to the meter (name, channel type, info rect, index in a sequence of multiple meters).
-   Level  m_level;   ///< 'Meter' part of the meter. Actually displaying the level.
+   Header  m_header;   ///< 'Header' part of the meter with info relating to the meter (name, channel type, info rect, index in a sequence of multiple meters).
+   Level   m_level;    ///< 'Meter' part of the meter. Actually displaying the level.
+   Options m_options;  ///< 'Meter' options.
 
 #if SDTK_ENABLE_FADER
    Fader m_fader;
 #endif /* SDTK_ENABLE_FADER */
 
-   bool                 m_active       = true;
-   bool                 m_isLabelStrip = false;
-   bool                 m_minimalMode  = false;
+   bool                 m_active         = true;
+   bool                 m_isLabelStrip   = false;
+   bool                 m_minimalMode    = false;
+   bool                 m_tickMarksOnTop = false;
    juce::Rectangle<int> m_dirtyRect {};
 
    Padding m_padding { 0, 0, 0, 0 };  ///< Space between meter and component's edge.
 
    // Cached colours...
-   juce::Colour m_mutedColour          = juce::Colours::red;
-   juce::Colour m_mutedMouseOverColour = juce::Colours::blue;
-   juce::Colour m_textColour           = juce::Colours::white;
-   juce::Colour m_textValueColour      = juce::Colours::white;
-   juce::Colour m_inactiveColour       = juce::Colours::red;
-   juce::Colour m_faderColour          = juce::Colours::yellow.withAlpha (Constants::kFaderAlphaMax);
-   juce::Colour m_backgroundColour     = juce::Colours::black;
-   juce::Colour m_tickColour           = juce::Colours::white;
-   juce::Colour m_peakColour           = juce::Colours::red;
-   juce::Colour m_warningColour        = juce::Colours::yellow;
-   juce::Colour m_normalColour         = juce::Colours::green;
+   juce::Colour m_backgroundColour    = juce::Colours::black;
+   juce::Colour m_inactiveColour      = juce::Colours::grey;
+   juce::Colour m_textColour          = juce::Colours::white.darker (0.6f);
+   juce::Colour m_textValueColour     = juce::Colours::white.darker (0.6f);
+   juce::Colour m_tickColour          = juce::Colours::white.darker (0.3f).withAlpha (0.5f);
+   juce::Colour m_muteColour          = juce::Colours::red;
+   juce::Colour m_muteMouseOverColour = juce::Colours::black;
+   juce::Colour m_faderColour         = juce::Colours::blue.withAlpha (Constants::kFaderAlphaMax);
+   juce::Colour m_peakColour          = juce::Colours::red;
+   juce::Colour m_warningColour       = juce::Colours::yellow;
+   juce::Colour m_normalColour        = juce::Colours::darkolivegreen;
 
    void                       setDirty (bool isDirty = true) noexcept;
    [[nodiscard]] bool         isDirty (const juce::Rectangle<int>& rectToCheck = {}) const noexcept;

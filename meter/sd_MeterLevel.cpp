@@ -51,12 +51,8 @@ void Level::drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColou
       const float peak_db   = juce::Decibels::gainToDecibels (peak);
       const int   precision = peak_db <= -10.0f ? 1 : 2;  // Set precision depending on peak value. NOLINT
 
-      // Assemble value string...
-      std::stringstream peakValue;
-      peakValue << std::fixed << std::setprecision (precision) << peak_db;
-
       g.setColour (textValueColour);
-      g.drawFittedText (peakValue.str(), m_valueBounds, juce::Justification::centred, 1);
+      g.drawFittedText (juce::String (peak_db, precision), m_valueBounds, juce::Justification::centred, 1);
    }
 }
 //==============================================================================
@@ -106,7 +102,7 @@ void Level::drawInactiveMeter (juce::Graphics& g, const juce::Colour& textColour
 
 void Level::drawTickMarks (juce::Graphics& g, const juce::Colour& tickColour) const
 {
-   if (! m_tickMarksVisible) return;
+   if (! m_tickMarksVisible || ! m_tickMarksEnabled) return;
 
    g.setColour (tickColour);
 
@@ -199,10 +195,10 @@ void Level::setMeterLevel (float newLevel) noexcept
 
 void Level::setRefreshRate (float refreshRate_hz) noexcept
 {
-   if ( refreshRate_hz <= 0.0f ) return;
+   if (refreshRate_hz <= 0.0f) return;
 
-   m_refreshRate_hz = refreshRate_hz;
-   m_refreshPeriod_ms = ( 1.0f / m_refreshRate_hz ) * 1000.0f;
+   m_refreshRate_hz   = refreshRate_hz;
+   m_refreshPeriod_ms = (1.0f / m_refreshRate_hz) * 1000.0f;
    calculateDecayCoeff();
 }
 //==============================================================================
@@ -247,12 +243,12 @@ void Level::reset() noexcept
    const auto timePassed  = juce::Time::getMillisecondCounter() - m_previousRefreshTime;
 
    // A new frame is not needed yet, return the current value...
-   if ( timePassed < m_refreshPeriod_ms ) return m_meterLevel; 
+   if (timePassed < m_refreshPeriod_ms) return m_meterLevel;
 
-   m_previousRefreshTime  = currentTime;
+   m_previousRefreshTime = currentTime;
 
    // More time has passed then the meter decay. The meter has fully decayed...
-   if (timePassed > m_decay_ms) return callbackLevel; 
+   if (timePassed > m_decay_ms) return callbackLevel;
 
    if (m_meterLevel == callbackLevel) return callbackLevel;
 

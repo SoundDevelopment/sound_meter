@@ -177,7 +177,7 @@ public:
     *
     * @see isPeakValueVisible, resetPeakHoldLevel, enableValue
     */
-   void setValueVisible (bool isVisible) noexcept { m_valueVisible = isVisible; }
+   void showValue (bool isVisible) noexcept { m_valueVisible = isVisible; }
 
    /**
     * @brief Check if the peak 'value' part is visible.
@@ -187,7 +187,7 @@ public:
     * 
     * @return True, if the peak hold 'value' part is visible.
     *
-    * @see setPeakValueVisible, resetPeakHoldLevel
+    * @see showValue, resetPeakHoldLevel
     */
    [[nodiscard]] bool isPeakValueVisible() const noexcept { return m_valueVisible && m_valueEnabled; }
 
@@ -381,7 +381,7 @@ public:
     * This is also the place the label strip will put it's text values.
     *
     * @param ticks list of tick mark values (in amp).
-    * @see setTickMarksVisible
+    * @see setTickMarksVisible, enableTickMarks
     */
    void setTickMarks (const std::vector<float>& ticks) noexcept;
 
@@ -392,9 +392,22 @@ public:
     * This is also the place the label strip will put it's text values.
     *
     * @param visible When set true, shows the tick-marks. 
-    * @see setTickMarks
+    * @see setTickMarks, enableTickMarks
     */
-   void setTickMarksVisible (bool visible) noexcept { m_tickMarksVisible = visible; }
+   void showTickMarks (bool visible) noexcept { m_tickMarksVisible = visible; }
+
+   /**
+    * @brief Enable tick-marks (divider lines) on the meter.
+    *
+    * A tick mark is a horizontal line, dividing the meter. 
+    * This is also the place the label strip will put it's text values.
+    * 
+    * The tick-marks will be shown when they are enable and visible.
+    *
+    * @param enabled When set true, the tick-marks are enabled. 
+    * @see setTickMarks, showTickMarks
+    */
+   void enableTickMarks (bool enabled) noexcept { m_tickMarksEnabled = enabled; }
 
    /**
     * @brief Use gradients in stead of hard region boundaries.
@@ -420,6 +433,7 @@ private:
    float m_peakRegion    = juce::Decibels::decibelsToGain (-3.0f);   // Meter peak region. NOLINT
 
    bool m_tickMarksVisible = true;
+   bool m_tickMarksEnabled = true;
    bool m_peakHoldVisible  = true;
    bool m_valueVisible     = false;
    bool m_valueEnabled     = true;
