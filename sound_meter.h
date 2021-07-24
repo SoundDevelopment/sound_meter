@@ -52,6 +52,11 @@ END_JUCE_MODULE_DECLARATION
 
 #endif
 
+@defgroup sound_meter
+ 
+ This juce module contains a MetersComponent to easily display
+ peak levels on your gui.
+
 *******************************************************************************/
 
 #ifndef SOUND_METER_HEADER_H

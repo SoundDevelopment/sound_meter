@@ -438,6 +438,9 @@ private:
    float              m_meterLevel    = 0.0f;  // Current meter level.
    int                m_levelDrawn_px = 0;
 
+   float m_warningRegion = 0.0f;
+   float m_peakRegion    = 0.0f;
+
    juce::Rectangle<int> m_valueBounds;  // Bounds of the value area.
    juce::Rectangle<int> m_meterBounds;  // Bounds of the meter area.
 

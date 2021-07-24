@@ -79,9 +79,9 @@ void Level::drawMeter (juce::Graphics& g, const juce::Colour& peakColour, const 
    // Draw meter bar segments (normal, warning, peak)...
    const auto meterLevel = getMeterLevel();
    m_levelDrawn_px       = 0;
-   drawMeterSegment (g, meterLevel, 0.0f, m_options.warningRegion_db, normalColour, warningColour);
-   drawMeterSegment (g, meterLevel, m_options.warningRegion_db, m_options.peakRegion_db, warningColour, peakColour);
-   drawMeterSegment (g, meterLevel, m_options.peakRegion_db, 1.0f, peakColour, peakColour.darker());
+   drawMeterSegment (g, meterLevel, 0.0f, m_warningRegion, normalColour, warningColour);
+   drawMeterSegment (g, meterLevel, m_warningRegion, m_peakRegion, warningColour, peakColour);
+   drawMeterSegment (g, meterLevel, m_peakRegion, 1.0f, peakColour, peakColour.darker());
 }
 //==============================================================================
 
@@ -212,11 +212,11 @@ void Level::setDecay (float decay_ms) noexcept
 
 void Level::setRegions (const float warningRegion_db, const float peakRegion_db)
 {
-   jassert (m_options.peakRegion_db > m_options.warningRegion_db);  // NOLINT
-   if (m_options.peakRegion_db <= m_options.warningRegion_db) return;
+   jassert (peakRegion_db > warningRegion_db);  // NOLINT
+   if (peakRegion_db <= warningRegion_db) return;
 
-   m_options.warningRegion_db = juce::Decibels::decibelsToGain (warningRegion_db);
-   m_options.peakRegion_db    = juce::Decibels::decibelsToGain (peakRegion_db);
+   m_warningRegion = juce::Decibels::decibelsToGain (warningRegion_db);
+   m_peakRegion    = juce::Decibels::decibelsToGain (peakRegion_db);
 }
 //==============================================================================
 

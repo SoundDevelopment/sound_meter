@@ -269,20 +269,14 @@ void MeterChannel::paint (juce::Graphics& g)
 {
    if (getLocalBounds().isEmpty()) return;
 
-   // Draw BACKGROUND ...
-   g.setColour (m_backgroundColour);
-   // g.fillRect (getLocalBounds());
-
    g.setFont (m_header.getFont());
 
-   // Draw channel HEADER...
-   bool faderEnabled = false;
-
+   // Draw the 'HEADER' part of the meter...
 #if SDTK_ENABLE_FADER
-   faderEnabled = m_fader.isEnabled();
+   m_header.draw (g, isActive(), m_fader.isEnabled(), m_muteColour, m_muteMouseOverColour, m_textColour, m_inactiveColour);
+#else
+   m_header.draw (g, isActive(), false, m_muteColour, m_muteMouseOverColour, m_textColour, m_inactiveColour);
 #endif
-
-   m_header.draw (g, isActive(), faderEnabled, m_muteColour, m_muteMouseOverColour, m_textColour, m_inactiveColour);
 
    // Draw the LABEL STRIP ...
    if (m_isLabelStrip)
@@ -315,9 +309,6 @@ void MeterChannel::drawMeter (juce::Graphics& g)
 {
    using namespace SoundMeter::Constants;
 
-   // Draw peak level VALUE...
-   m_level.drawPeakValue (g, m_textValueColour);
-
    // Draw meter BACKGROUND...
    g.setColour (m_active ? m_backgroundColour : m_inactiveColour);
    g.fillRect (m_level.getMeterBounds());
@@ -330,6 +321,9 @@ void MeterChannel::drawMeter (juce::Graphics& g)
 
    // Draw TICK-marks on top of the level...
    if (m_tickMarksOnTop) m_level.drawTickMarks (g, m_tickColour);
+
+   // Draw peak hold level VALUE...
+   m_level.drawPeakValue (g, m_textValueColour);
 
    // Draw peak HOLD line...
    if (m_active) m_level.drawPeakHold (g, m_peakColour);
