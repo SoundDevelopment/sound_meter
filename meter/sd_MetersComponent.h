@@ -57,7 +57,6 @@ class MetersComponent
 #endif
 {
 public:
-
    /**
     * @brief Constructor
    */
@@ -251,15 +250,11 @@ public:
    void useGradients (bool useGradients) noexcept;
 
    /**
-    * @brief Use a label strip next to the meters.
+    * @brief Set the position of the label-strip relative to the meters.
     * 
-    * This label strip displays the level of the tick-marks in decibels.
-    * When faders are enabled, this also functions as a master fader
-    * for the other faders.
-    * 
-    * @param useLabelStrip When set to true, this will display a label strip on the right side of the meters.
+    * @param labelStripPosition The position of the label-strip relative to the meters.
    */
-   void useLabelStrip (bool useLabelStrip);
+   void setLabelStripPosition (LabelStripPosition labelStripPosition);
 
    /**
     * @brief Enable the 'header' part above the meters.
@@ -420,11 +415,11 @@ private:
    using                            MetersType              = juce::OwnedArray<MeterChannel>;  
    MetersType                       m_meterChannels;   
    MeterChannel                     m_labelStrip;
+   LabelStripPosition               m_labelStripPosition    = LabelStripPosition::right;
    
    juce::AudioChannelSet            m_channelFormat         = juce::AudioChannelSet::stereo();
    
    bool                             m_useInternalTimer      = true; 
-   bool                             m_useLabelStrip         = true;
    juce::Font                       m_font;  
    int                              m_autoSizedPanelWidth   = 0;                                       
 

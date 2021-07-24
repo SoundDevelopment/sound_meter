@@ -120,6 +120,16 @@ enum class NotificationOptions
 };
 
 /**
+ * @brief Position of the label strip.
+*/
+enum class LabelStripPosition
+{
+   left,   ///< Left of the meters.
+   right,  ///< Right of the meters.
+   none  ///< No label strip will be shown.
+};
+
+/**
  * @brief Various meter helper functions.
 */
 namespace Helpers

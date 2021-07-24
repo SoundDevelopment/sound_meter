@@ -163,7 +163,7 @@ void MetersComponent::resized()
    const auto panelWidth  = panelBounds.getWidth();
 
    // By default show the MASTER strip.
-   auto labelStripWidth = m_useLabelStrip ? kDefaultHeaderLabelWidth : 0;
+   auto labelStripWidth = (m_labelStripPosition != LabelStripPosition::none ? kDefaultHeaderLabelWidth : 0);
 
    // Calculate meter width from available width taking into account the extra width needed when showing the master strip...
    auto meterWidth = juce::jlimit (kMinWidth, kMaxWidth, (panelWidth - labelStripWidth) / numOfMeters);
@@ -174,13 +174,16 @@ void MetersComponent::resized()
    if (minModeEnabled) labelStripWidth = 0;
 
    // Re-calculate actual width (taking into account the min. mode)...
-   if (m_useLabelStrip) meterWidth = juce::jlimit (kMinWidth, kMaxWidth, (panelWidth - labelStripWidth) / numOfMeters);
+   if (m_labelStripPosition != LabelStripPosition::none) meterWidth = juce::jlimit (kMinWidth, kMaxWidth, (panelWidth - labelStripWidth) / numOfMeters);
 
    // Position all meters and adapt them to the current size...
    for (auto meterChannel: m_meterChannels)
    {
       meterChannel->setMinimalMode (minModeEnabled);
-      meterChannel->setBounds (panelBounds.removeFromLeft (meterWidth));  // ... set it's width to m_meterWidth
+      if (m_labelStripPosition == LabelStripPosition::right)
+         meterChannel->setBounds (panelBounds.removeFromLeft (meterWidth));  // ... set it's width to m_meterWidth
+      else  
+         meterChannel->setBounds (panelBounds.removeFromRight (meterWidth));  // ... set it's width to m_meterWidth
 
 #if SDTK_ENABLE_FADER
       if (minModeEnabled) meterChannel->showFader (false);  // ... do not show the gain fader if it's too narrow.
@@ -196,7 +199,10 @@ void MetersComponent::resized()
    {
       // Use the dimensions of the 'meter' part combined with the 'value' part...
       auto labelStripBounds = m_meterChannels[0]->getLabelStripBounds();
-      m_labelStrip.setBounds (panelBounds.removeFromRight (labelStripWidth).withY (labelStripBounds.getY()).withHeight (labelStripBounds.getHeight()));
+      if (m_labelStripPosition == LabelStripPosition::right)
+         m_labelStrip.setBounds (panelBounds.removeFromRight (labelStripWidth).withY (labelStripBounds.getY()).withHeight (labelStripBounds.getHeight()));
+      else if (m_labelStripPosition == LabelStripPosition::left)
+         m_labelStrip.setBounds (panelBounds.removeFromLeft (labelStripWidth).withY (labelStripBounds.getY()).withHeight (labelStripBounds.getHeight()));
       m_labelStrip.showTickMarks (true);
    }
 }
@@ -576,9 +582,9 @@ void MetersComponent::useGradients (bool useGradients) noexcept
 }
 //==============================================================================
 
-void MetersComponent::useLabelStrip (bool useLabelStrip)
+void MetersComponent::setLabelStripPosition (LabelStripPosition labelStripPosition)
 {
-   m_useLabelStrip = useLabelStrip;
+   m_labelStripPosition = labelStripPosition;
    resized();
 }
 //==============================================================================
