@@ -37,7 +37,7 @@ In the constructor you could specify a channel format with [setChannelFormat()](
 ```
 m_meters.setChannelFormat (juce::AudioChannelSet::stereo());
 ```
-and configure it's options. For example (for all meter options, see documentation):
+and configure it's options. For example (for all meter options, see [documentation](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/structsd_1_1_sound_meter_1_1_options.html)):
 ```
 sd::SoundMeter::Options meterOptions;
 meterOptions.faderEnabled     = true;
