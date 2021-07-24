@@ -98,9 +98,11 @@ public:
    /**
     * @brief Refresh (redraw) the meters panel.
     * 
+    * This can be called manually or internally (see useInternalTiming).
+    * 
     * @param forceRefresh When set to true, always redraw the meters panel (not only if it's dirty/changed).
     * 
-    * @see setRefreshRate
+    * @see setRefreshRate, useInternalTiming
     */
    void refresh (bool forceRefresh = false);
 
@@ -193,30 +195,7 @@ public:
    */
    void setOptions (Options meterOptions);
 
-   /**
-    * @brief Set the levels dividing the different regions of the meter.
-    *
-    * The meter has 3 regions. Normal, warning and peak. 
-    * The peak region level supplied need to be larger then the warning region level. 
-    *
-    * @param warningRegion_db The level (in dB) dividing the normal and warning regions of the meter.
-    * @param peakRegion_db    The level (in dB) dividing the warning and peak regions of the meter.
-    */
-   void setRegions (float warningRegion_db, float peakRegion_db);
-
-   /**
-    * @brief Set meter decay rate.
-    * 
-    * Set's the meter's decay rate in milliseconds.
-    * The meter's attack is instant.
-    * 
-    * @param decay The time it takes the meter to decay (in ms).
-    * 
-    * @see setRefreshRate
-   */
-   void setDecay (float decay_ms);
-
-   /**
+    /**
     * @brief Set the refresh (redraw) rate of the meters.
     * 
     * Also used for meter ballistics.
@@ -242,6 +221,29 @@ public:
     * @see refresh, setPanelRefreshRate
    */
    void useInternalTiming (bool useInternalTiming) noexcept;
+
+   /**
+    * @brief Set the levels dividing the different regions of the meter.
+    *
+    * The meter has 3 regions. Normal, warning and peak. 
+    * The peak region level supplied need to be larger then the warning region level. 
+    *
+    * @param warningRegion_db The level (in dB) dividing the normal and warning regions of the meter.
+    * @param peakRegion_db    The level (in dB) dividing the warning and peak regions of the meter.
+    */
+   void setRegions (float warningRegion_db, float peakRegion_db);
+
+   /**
+    * @brief Set meter decay rate.
+    * 
+    * Set's the meter's decay rate in milliseconds.
+    * The meter's attack is instant.
+    * 
+    * @param decay The time it takes the meter to decay (in ms).
+    * 
+    * @see setRefreshRate
+   */
+   void setDecay (float decay_ms);
 
    /**
     * @brief Use gradients in stead of hard region boundaries.

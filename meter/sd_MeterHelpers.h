@@ -46,23 +46,23 @@ namespace SoundMeter
 */
 namespace Constants
 {
-static constexpr auto kMinWidth               = 2;
-static constexpr auto kMaxWidth               = 500;
-static constexpr auto kLabelWidth             = 30;
-static constexpr auto kLabelStripTextPadding  = 2;
-static constexpr auto kMaxLevel_db            = 0.0f;     ///< Max meter level in db.
-static constexpr auto kMinDecay_ms            = 100.0f;   ///< Min. meter decay speed in milliseconds.
-static constexpr auto kMaxDecay_ms            = 2000.0f;  ///< Max. meter decay speed in milliseconds.
-static constexpr auto kDefaultDecay_ms        = 1000.0f;  ///< Default meter decay speed in milliseconds.
-static constexpr auto kPeakHoldHeight         = 2;        ///< Height of the peak hold strip in pixels.
-static constexpr auto kTickMarkHeight         = 2;        ///< Height of a tick mark in pixels.
-static constexpr auto kFaderFadeTime_ms       = 2500;     ///< Slider fade out time in milliseconds. Must be positive and > 0.
-static constexpr auto kFaderSensitivity       = 10.0f;    ///< Must be a positive value > 0.
-static constexpr auto kFaderAlphaMax          = 0.3f;
-static constexpr auto kChannelNameHeight      = 30;  ///< Height of the channel names in pixels.
-static constexpr auto kChannelNameFontHeight  = 12.0f;
-static constexpr auto kWarningLevel_db        = -9.0f;
-static constexpr auto kPeakLevel_db           = -3.0f;
+static constexpr auto kMinWidth                = 2;        ///< Minimum meter width (in pixels).
+static constexpr auto kMaxWidth                = 500;      ///< Maximum meter width (in pixels).
+static constexpr auto kPeakHoldHeight          = 2;        ///< Height of the peak hold strip (in pixels).
+static constexpr auto kDefaultHeaderHeight     = 30;       ///< Default height of the 'header' part (in pixels).
+static constexpr auto kDefaultHeaderLabelWidth = 30;       ///< Default 'header' label width (in pixels).
+static constexpr auto kDefaultHeaderFontHeight = 12.0f;    ///< Default height of the font used in the 'header' part (in pixels).
+static constexpr auto kLabelStripTextPadding   = 2;        ///< Padding around the text in a label strip (in pixels).
+static constexpr auto kMaxLevel_db             = 0.0f;     ///< Maximum meter level (in db).
+static constexpr auto kMinDecay_ms             = 100.0f;   ///< Minimum meter decay speed (in milliseconds).
+static constexpr auto kMaxDecay_ms             = 4000.0f;  ///< Maximum meter decay speed (in milliseconds).
+static constexpr auto kDefaultDecay_ms         = 1000.0f;  ///< Default meter decay speed (in milliseconds).
+static constexpr auto kTickMarkHeight          = 2;        ///< Height of a tick mark (in pixels).
+static constexpr auto kFaderFadeTime_ms        = 2500;     ///< Fader fade out time (in milliseconds).
+static constexpr auto kFaderSensitivity        = 10.0f;    ///< Fader sensitivity value. Must be a positive value > 0.
+static constexpr auto kFaderAlphaMax           = 0.3f;     ///< Maximum transparency (alpha) of the fader overlay.
+static constexpr auto kWarningLevel_db         = -9.0f;    ///< Dividing level between 'normal' and 'warning' regions (in decibels).
+static constexpr auto kPeakLevel_db            = -3.0f;    ///< Dividing level between 'warning' and 'peak' regions (in decibels).
 static constexpr auto kMinModeHeightThreshold = 150;  ///< Meter minimum mode height threshold in pixels (min. mod is just the meter. not value, ticks or fader).
 static constexpr auto kMinModeWidthThreshold  = 15;   ///< Meter minimum mode width threshold in pixels (min. mod is just the meter. not value, ticks or fader).
 static constexpr auto kMetersPanelId          = "meters_panel";  ///< ID (name) of all components in the meters panel.

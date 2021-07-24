@@ -248,14 +248,14 @@ void MeterChannel::resized()
    m_header.setBounds (m_header.getBounds().withHeight (0));          // Set header height to a default of 0.
 
    // channel IDs.
-   if (m_header.isVisible()) m_header.setBounds (meterBounds.removeFromTop (Constants::kChannelNameHeight));
+   if (m_header.isVisible()) m_header.setBounds (meterBounds.removeFromTop (Constants::kDefaultHeaderHeight));
 
    // Resize channel name and value...
    if (! m_isLabelStrip)  // Label strips do not have channel names or peak values.
    {
       // Draw peak value.
       const bool wideEnoughForValue = m_header.getFont().getStringWidth ("-99.99") <= meterBounds.getWidth();
-      if (m_level.isPeakValueVisible() && wideEnoughForValue) m_level.setValueBounds (meterBounds.removeFromBottom (Constants::kChannelNameHeight));
+      if (m_level.isPeakValueVisible() && wideEnoughForValue) m_level.setValueBounds (meterBounds.removeFromBottom (Constants::kDefaultHeaderHeight));
    }
 
 #if SDTK_ENABLE_FADER
@@ -414,7 +414,7 @@ void MeterChannel::resetMouseOvers() noexcept
 
 void MeterChannel::setFont (const juce::Font& font) noexcept
 {
-   m_header.setFont (font.withHeight (Constants::kChannelNameFontHeight));
+   m_header.setFont (font.withHeight (Constants::kDefaultHeaderFontHeight));
    setDirty();
 }
 //==============================================================================

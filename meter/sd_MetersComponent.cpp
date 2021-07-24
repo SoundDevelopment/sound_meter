@@ -163,7 +163,7 @@ void MetersComponent::resized()
    const auto panelWidth  = panelBounds.getWidth();
 
    // By default show the MASTER strip.
-   auto labelStripWidth = m_useLabelStrip ? kLabelWidth : 0;
+   auto labelStripWidth = m_useLabelStrip ? kDefaultHeaderLabelWidth : 0;
 
    // Calculate meter width from available width taking into account the extra width needed when showing the master strip...
    auto meterWidth = juce::jlimit (kMinWidth, kMaxWidth, (panelWidth - labelStripWidth) / numOfMeters);
@@ -242,7 +242,7 @@ void MetersComponent::setChannelNames (const std::vector<juce::String>& channelN
    // This is the width at which all channel names can be displayed.
    m_autoSizedPanelWidth = static_cast<int> (defaultMeterWidth * static_cast<float> (numMeters));  // Min. width needed for channel names.
    m_autoSizedPanelWidth += numMeters * (2 * kFaderRightPadding);                                  // Add the padding that is on the right side of the channels.
-   m_autoSizedPanelWidth += kLabelWidth + kLabelStripLeftPadding;                                  // Add master fader width (incl. padding).
+   m_autoSizedPanelWidth += kDefaultHeaderLabelWidth + kLabelStripLeftPadding;                                  // Add master fader width (incl. padding).
 }
 //==============================================================================
 

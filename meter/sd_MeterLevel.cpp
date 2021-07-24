@@ -46,7 +46,7 @@ void Level::drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColou
 
    // Draw PEAK value...
    const auto peak = getPeakHoldLevel();
-   if (m_valueBounds.getHeight() == Constants::kChannelNameHeight && peak > kMin99Db)  // If active, present and enough space is available.
+   if (m_valueBounds.getHeight() == Constants::kDefaultHeaderHeight && peak > kMin99Db)  // If active, present and enough space is available.
    {
       const float peak_db   = juce::Decibels::gainToDecibels (peak);
       const int   precision = peak_db <= -10.0f ? 1 : 2;  // Set precision depending on peak value. NOLINT
