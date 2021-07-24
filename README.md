@@ -1,7 +1,7 @@
 # Sound Meter
 [Juce](https://juce.com/) peak meter module with optional fader overlay.<br>
-<img align="right" src="https://www.sounddevelopment.nl/sd/resources/images/sound_meter/sound_meter.gif">
-*by Marcel Huibers | Sound Development 2021*
+<img align="right" src="https://www.sounddevelopment.nl/sd/resources/images/sound_meter/sound_meter_demo.gif">
+*by Marcel Huibers | [Sound Development](https://www.sounddevelopment.nl) 2021 | Published under the [MIT License](https://en.wikipedia.org/wiki/MIT_License)*
 
 
 Features:
@@ -10,10 +10,10 @@ Features:
 - Normal, warning and peak zones, with configurable colours.
 - Tick-marks (dividing lines on the meter) at user specified levels.
 - Peak indicator and optional peak value readout.
+- Optional label strip next to the meters (which can double as master fader).
 - Optional header identifying the meter's name (set by user) or channel type.
 - Adaptive. Will show header, value, tick-marks only when there is space available.
 - Optional fader and mute button (in the header).
-- Optional master-fader controlling relative fader value of all meters.
 
 You can find the API documentation [here](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/)...
 <br>
@@ -67,3 +67,8 @@ The recommended way to get the levels from the audio processor is to let the edi
 Preferably it would poll atomic values in the audio processor for thread safety.
 
 A fully working example demonstrating this can be found [here](https://github.com/SoundDevelopment/sound_meter-example)...
+
+<br><br>
+
+-----
+*Sound Development 2021*
