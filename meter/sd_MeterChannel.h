@@ -66,7 +66,7 @@ public:
     * @param padding       Padding to use (space between meter and the edge of the component).
     * @param channelName   The channel name (set by the user).
     * @param isLabelStrip  When set to true, this meter will function as a label strip (with markers for levels at the tick-marks).
-    * @param channelType   The channel type (left, right, centre, etc...).
+    * @param channelType   The channel type (left, right, center, etc...).
     * @param faderListener A listener to any changes in the fader.
    */
    MeterChannel (Options meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip = false,
@@ -116,7 +116,7 @@ public:
    void setOptions (Options meterOptions);
 
    /**
-    * @brief Activate or de-activate (mute) the meter.
+    * @brief Activate or deactivate (mute) the meter.
     *
     * @param isActive When set to true, the meter is active.
     * @param notify   Determine whether to notify all listeners or not.
@@ -125,9 +125,9 @@ public:
    void setActive (bool isActive, NotificationOptions notify = NotificationOptions::dontNotify);
 
    /**
-    * @brief Check if the meter is active (un-muted).
+    * @brief Check if the meter is active (unmuted).
     *
-    * @return True, if the meter is active (un-muted).
+    * @return True, if the meter is active (unmuted).
     *
     * @see setActive
     */
@@ -375,7 +375,7 @@ public:
     * @brief Set the meter in 'minimal' mode.
     * 
     * In minimal mode, the meter is in it's cleanest state possible.
-    * This means no header, no tickmarks, no value, no faders and no indicator.
+    * This means no header, no tick-marks, no value, no faders and no indicator.
     * 
     * @param minimalMode When set to true, 'minimal' mode will be enabled.
     * @see isMinimalModeActive, autoSetMinimalMode
@@ -386,7 +386,7 @@ public:
     * @brief Check if the meter is in 'minimal' mode.
     * 
     * In minimal mode, the meter is in it's cleanest state possible.
-    * This means no header, no tickmarks, no value, no faders and no indicator.
+    * This means no header, no tick-marks, no value, no faders and no indicator.
     * 
     * @return True, if the meter is in 'minimal' mode.
     * @see setMinimalMode, autoSetMinimalMode
@@ -400,7 +400,7 @@ public:
     * to the meter being in 'minimal' mode. Then apply that mode.
     * 
     * In minimal mode, the meter is in it's cleanest state possible.
-    * This means no header, no tickmarks, no value, no faders and no indicator.
+    * This means no header, no tick-marks, no value, no faders and no indicator.
     * 
     * @param proposedWidth  The width use to determine if the meter would be in 'minimal' mode.
     * @param proposedHeight The height use to determine if the meter would be in 'minimal' mode.

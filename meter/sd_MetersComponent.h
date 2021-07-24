@@ -57,8 +57,6 @@ class MetersComponent
 #endif
 {
 public:
-   static constexpr auto kLabelStripLeftPadding = 5;  ///< Padding (in pixels) on the left side of the label strip (which can double as a master fader).
-   static constexpr auto kFaderRightPadding     = 1;  ///< Padding (in pixels) on the right side of the channel faders.
 
    /**
     * @brief Constructor
@@ -195,7 +193,7 @@ public:
    */
    void setOptions (Options meterOptions);
 
-    /**
+   /**
     * @brief Set the refresh (redraw) rate of the meters.
     * 
     * Also used for meter ballistics.
@@ -246,7 +244,8 @@ public:
    void setDecay (float decay_ms);
 
    /**
-    * @brief Use gradients in stead of hard region boundaries.
+    * @brief Use gradients instead of hard region boundaries.
+    * 
     * @param useGradients When set to true, uses smooth gradients. False gives hard region boundaries.=
    */
    void useGradients (bool useGradients) noexcept;
@@ -376,8 +375,13 @@ public:
 	*/
    struct FadersChangeListener
    {
-      virtual ~FadersChangeListener()                            = default;
-      virtual void fadersChanged (std::vector<float> faderGains) = 0;
+      virtual ~FadersChangeListener() = default;
+
+      /**
+       * @brief This virtual function gets called when a fader has changed.
+       * @param faderValues All fader values.
+      */
+      virtual void fadersChanged (std::vector<float> faderValues) = 0;
    };
 
    /**

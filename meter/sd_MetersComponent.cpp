@@ -41,7 +41,7 @@ MetersComponent::MetersComponent() : MetersComponent (Options()) { }
 
 MetersComponent::MetersComponent (Options meterOptions)
   : m_options (meterOptions),
-    m_labelStrip (meterOptions, Padding (kLabelStripLeftPadding, 0, 0, 0), Constants::kMetersPanelId, true, juce::AudioChannelSet::ChannelType::unknown,
+    m_labelStrip (meterOptions, Padding (Constants::kLabelStripLeftPadding, 0, 0, 0), Constants::kMetersPanelId, true, juce::AudioChannelSet::ChannelType::unknown,
 #if SDTK_ENABLE_FADER
                   this)
 #else
@@ -242,7 +242,7 @@ void MetersComponent::setChannelNames (const std::vector<juce::String>& channelN
    // This is the width at which all channel names can be displayed.
    m_autoSizedPanelWidth = static_cast<int> (defaultMeterWidth * static_cast<float> (numMeters));  // Min. width needed for channel names.
    m_autoSizedPanelWidth += numMeters * (2 * kFaderRightPadding);                                  // Add the padding that is on the right side of the channels.
-   m_autoSizedPanelWidth += kDefaultHeaderLabelWidth + kLabelStripLeftPadding;                                  // Add master fader width (incl. padding).
+   m_autoSizedPanelWidth += kDefaultHeaderLabelWidth + kLabelStripLeftPadding;                     // Add master fader width (incl. padding).
 }
 //==============================================================================
 
@@ -460,7 +460,7 @@ void MetersComponent::createMeters (const juce::AudioChannelSet& channelFormat, 
    // Create enough meters to match the channel format...
    for (int channelIdx = 0; channelIdx < channelFormat.size(); ++channelIdx)
    {
-      auto meterChannel = std::make_unique<MeterChannel> (m_options, Padding (0, kFaderRightPadding, 0, 0), Constants::kMetersPanelId, false,
+      auto meterChannel = std::make_unique<MeterChannel> (m_options, Padding (0, Constants::kFaderRightPadding, 0, 0), Constants::kMetersPanelId, false,
                                                           channelFormat.getTypeOfChannel (channelIdx),
 #if SDTK_ENABLE_FADER
                                                           this

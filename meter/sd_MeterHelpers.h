@@ -53,6 +53,8 @@ static constexpr auto kDefaultHeaderHeight     = 30;       ///< Default height o
 static constexpr auto kDefaultHeaderLabelWidth = 30;       ///< Default 'header' label width (in pixels).
 static constexpr auto kDefaultHeaderFontHeight = 12.0f;    ///< Default height of the font used in the 'header' part (in pixels).
 static constexpr auto kLabelStripTextPadding   = 2;        ///< Padding around the text in a label strip (in pixels).
+static constexpr auto kLabelStripLeftPadding   = 5;        ///< Padding (in pixels) on the left side of the label strip (which can double as a master fader).
+static constexpr auto kFaderRightPadding       = 1;        ///< Padding (in pixels) on the right side of the channel faders.
 static constexpr auto kMaxLevel_db             = 0.0f;     ///< Maximum meter level (in db).
 static constexpr auto kMinDecay_ms             = 100.0f;   ///< Minimum meter decay speed (in milliseconds).
 static constexpr auto kMaxDecay_ms             = 4000.0f;  ///< Maximum meter decay speed (in milliseconds).
@@ -93,18 +95,18 @@ struct Padding
 */
 struct Options
 {
-   bool               enabled               = true;
+   bool               enabled               = true;  ///< Enable the meter.
    bool               headerEnabled         = true;  ///< Enable the 'header' part of the meter.
    bool               valueEnabled          = true;  ///< Enable the 'value' part of the meter.
    bool               faderEnabled          = true;  ///< Enable the fader (overlayed over the meter). Only works if fader have been enabled in the module.
-   bool               useGradient           = true;  ///< Use gradients to fill the meter or hard region boundaries. At the cost of CPU though.
+   bool               useGradient           = true;  ///< Use gradients to fill the meter or hard region boundaries.
    bool               showPeakHoldIndicator = true;  ///< Show the peak hold indicator (a line that marks the highest level up to now).
    float              warningRegion_db      = Constants::kWarningLevel_db;  ///< Boundary level from normal to warning.
    float              peakRegion_db         = Constants::kPeakLevel_db;     ///< Boundary level from warning to peak.
    float              decayTime_ms          = Constants::kDefaultDecay_ms;  ///< Meter decay in milliseconds.
    float              refreshRate           = 24.0f;                        ///< Meter refresh rate when using internal timing.
    bool               tickMarksEnabled      = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
-   bool               tickMarksOnTop = false;  ///< Show the tick-marks below the level or above the level (level might obscure the tickmarks if loud enough).
+   bool               tickMarksOnTop = false;  ///< Show the tick-marks below the level or above the level (level might obscure the tick-marks if loud enough).
    std::vector<float> tickMarks      = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };  ///< Tick-mark position in db.
 };
 
@@ -113,8 +115,8 @@ struct Options
 */
 enum class NotificationOptions
 {
-   notify,
-   dontNotify
+   notify,     ///< Notify any listeners.
+   dontNotify  ///< Do not notify any listeners.
 };
 
 /**

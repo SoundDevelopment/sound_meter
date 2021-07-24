@@ -51,12 +51,12 @@ class MeterChannel;
 class Fader
 {
 public:
+
    /**
     * @brief Parameterized constructor
     * @param parentMeter The parent meter object
    */
    explicit Fader (MeterChannel* parentMeter) : m_parentMeter (parentMeter) {};
-
 
    /**
     * @brief Show the fader briefly and fade out (unless overridden and shown longer).
