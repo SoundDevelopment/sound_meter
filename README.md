@@ -10,10 +10,10 @@ Features:
 - Normal, warning and peak zones, with configurable colours.
 - Tick-marks (dividing lines on the meter) at user specified levels.
 - Peak indicator and optional peak value readout.
+- Optional label strip next to the meters (which can double as master fader).
 - Optional header identifying the meter's name (set by user) or channel type.
 - Adaptive. Will show header, value, tick-marks only when there is space available.
 - Optional fader and mute button (in the header).
-- Optional master-fader controlling relative fader value of all meters.
 
 You can find the API documentation [here](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/)...
 <br>
