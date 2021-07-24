@@ -15,11 +15,14 @@ Features:
 - Optional fader and mute button (in the header).
 - Optional master-fader controlling relative fader value of all meters.
 
+You can find the API documentation [here](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/)...\
+An example project, demonstrating sound_meter can be found [here](https://github.com/SoundDevelopment/sound_meter-example)...
+
 # Usage
 
 All classes are in the namespace `sd::SoundMeter` to avoid collisions. You can either prefix each symbol, or import the namespace. 
 
-### `MetersComponent`
+### MetersComponent
 
 The MetersComponent class creates and controls the meters. 
 This would live in your editor.h. 
@@ -42,3 +45,25 @@ meterOptions.peakRegion_db    = -3.0f;
 meterOptions.warningRegion_db = -12.0f;
 m_meters.setOptions (meterOptions);
 ```
+Finally (still in the constructor) we add the component and make it visible:
+```
+addAndMakeVisible (m_meters);
+```
+<br>
+
+In the `resized()` method, you set the bounds (left, right, width, height) of the meters:
+```
+m_meters.setBounds (getLocalBounds());
+```
+
+### Getting the levels
+
+Basically everything is set up now.\
+All left to do now is to supply the meter with the level with the method:
+`setInputLevel (int channel, float value);`
+
+The recommended way to get the levels from the audio processor is to let the editor poll the audio processor (with a timer for instance).
+Preferably it would poll atomic values in the audio processor for thread safety.
+
+A fully working example demonstrating this can be found here:
+[Sound Meter Example Project](https://github.com/SoundDevelopment/sound_meter-example)
