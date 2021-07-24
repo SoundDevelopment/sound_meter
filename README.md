@@ -15,7 +15,8 @@ Features:
 - Optional fader and mute button (in the header).
 - Optional master-fader controlling relative fader value of all meters.
 
-You can find the API documentation [here](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/)...\
+You can find the API documentation [here](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/)...
+<br>
 An example project, demonstrating sound_meter can be found [here](https://github.com/SoundDevelopment/sound_meter-example)...
 
 # Usage
@@ -24,7 +25,7 @@ All classes are in the namespace `sd::SoundMeter` to avoid collisions. You can e
 
 ### MetersComponent
 
-The MetersComponent class creates and controls the meters. 
+The [MetersComponent](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/classsd_1_1_sound_meter_1_1_meters_component.html) class creates and controls the meters. 
 This would live in your editor.h. 
 ```
 private:
@@ -32,7 +33,7 @@ private:
 ```
 <br>
 
-In the constructor you could specify a channel format with `setChannelFormat()`:
+In the constructor you could specify a channel format with [setChannelFormat()](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/classsd_1_1_sound_meter_1_1_meters_component.html#aea27fda8af5ec463436186e8fb3afd20) :
 ```
 m_meters.setChannelFormat (juce::AudioChannelSet::stereo());
 ```
@@ -58,12 +59,11 @@ m_meters.setBounds (getLocalBounds());
 
 ### Getting the levels
 
-Basically everything is set up now.\
+Basically everything is set up now.<br>
 All left to do now is to supply the meter with the level with the method:
 `setInputLevel (int channel, float value);`
 
 The recommended way to get the levels from the audio processor is to let the editor poll the audio processor (with a timer for instance).
 Preferably it would poll atomic values in the audio processor for thread safety.
 
-A fully working example demonstrating this can be found here:
-[Sound Meter Example Project](https://github.com/SoundDevelopment/sound_meter-example)
+A fully working example demonstrating this can be found [here](https://github.com/SoundDevelopment/sound_meter-example)...
