@@ -1,7 +1,7 @@
 # Sound Meter
 [Juce](https://juce.com/) peak meter module with optional fader overlay.<br>
 <img align="right" src="https://www.sounddevelopment.nl/sd/resources/images/sound_meter/sound_meter.gif">
-*by Marcel Huibers | Sound Development 2021 | Published under the [MIT License](https://en.wikipedia.org/wiki/MIT_License)*
+*by Marcel Huibers | [Sound Development](https://www.sounddevelopment.nl) 2021 | Published under the [MIT License](https://en.wikipedia.org/wiki/MIT_License)*
 
 
 Features:
