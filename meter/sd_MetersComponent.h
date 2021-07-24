@@ -414,13 +414,14 @@ public:
 
 private:
    // clang-format off
-
+   
+   Options                          m_options               {};
+   
    using                            MetersType              = juce::OwnedArray<MeterChannel>;  
    MetersType                       m_meterChannels;   
    MeterChannel                     m_labelStrip;
    
    juce::AudioChannelSet            m_channelFormat         = juce::AudioChannelSet::stereo();
-   Options                          m_options               {};
    
    bool                             m_useInternalTimer      = true; 
    bool                             m_useLabelStrip         = true;

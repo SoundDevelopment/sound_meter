@@ -87,7 +87,7 @@ void Fader::setBounds (const juce::Rectangle<int>& bounds) noexcept
 }
 //==============================================================================
 
-[[nodiscard]] void Fader::draw (juce::Graphics& g, const juce::Colour& faderColour)
+void Fader::draw (juce::Graphics& g, const juce::Colour& faderColour)
 {
    using namespace Constants;
 
