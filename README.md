@@ -67,3 +67,8 @@ The recommended way to get the levels from the audio processor is to let the edi
 Preferably it would poll atomic values in the audio processor for thread safety.
 
 A fully working example demonstrating this can be found [here](https://github.com/SoundDevelopment/sound_meter-example)...
+
+<br><br>
+
+-----
+*Sound Development 2021*
