@@ -76,20 +76,14 @@ void Level::drawPeakHold (juce::Graphics& g, const juce::Colour& peakHoldColour)
 
 void Level::drawMeter (juce::Graphics& g, const juce::Colour& peakColour, const juce::Colour& warningColour, const juce::Colour& normalColour)
 {
-   // Draw meter bar segments (normal, warning, peak)...
-   const auto meterLevel = getMeterLevel();
-   m_levelDrawn_px       = 0;
-   drawMeterSegment (g, meterLevel, 0.0f, m_warningSegmentLevel, normalColour, warningColour);
-   drawMeterSegment (g, meterLevel, m_warningSegmentLevel, m_peakSegmentLevel, warningColour, peakColour);
-   drawMeterSegment (g, meterLevel, m_peakSegmentLevel, 1.0f, peakColour, peakColour.darker());
-   auto bufferDrawn = m_levelDrawn_px;
-   m_levelDrawn_px  = 0;
-   if (auto levelDrawn = m_normalSegment.drawMeterSegment (g, normalColour, warningColour, m_options.useGradient))
-      m_levelDrawn_px = m_meterBounds.getHeight() - levelDrawn;
-   if (auto levelDrawn = m_warningSegment.drawMeterSegment (g, warningColour, peakColour, m_options.useGradient))
-      m_levelDrawn_px = m_meterBounds.getHeight() - levelDrawn;
-   if (auto levelDrawn = m_peakSegment.drawMeterSegment (g, peakColour, peakColour.darker(), m_options.useGradient))
-      m_levelDrawn_px = m_meterBounds.getHeight() - levelDrawn;
+   m_levelDrawn_px = 0;
+
+   if (auto levelDrawn = m_normalSegment.draw (g, normalColour, warningColour, m_options.useGradient)) m_levelDrawn_px = levelDrawn;
+   if (auto levelDrawn = m_warningSegment.draw (g, warningColour, peakColour, m_options.useGradient)) m_levelDrawn_px = levelDrawn;
+   if (auto levelDrawn = m_peakSegment.draw (g, peakColour, peakColour.darker(), m_options.useGradient)) m_levelDrawn_px = levelDrawn;
+
+   const auto levelTest = static_cast<int> (std::round (getMeterLevel() * getMeterBounds().getHeight()));
+   jassert (m_levelDrawn_px == levelTest);
 }
 //==============================================================================
 
@@ -196,18 +190,27 @@ inline void Level::setInputLevel (float newLevel) noexcept
 
 void Level::setMeterLevel (float newLevel) noexcept
 {
-   auto previousLevel = m_meterLevel;
-
    m_meterLevel    = (newLevel > m_meterLevel ? newLevel : getDecayedLevel (newLevel));
    m_peakHoldLevel = std::max<float> (m_peakHoldLevel, newLevel);
-
-   // Determine which segment is dirty...
-   auto previousLevel_px = static_cast<int> (std::round (m_meterLevel * getMeterBounds().getHeight()));
-   auto warningLevel_px  = static_cast<int> (std::round (m_warningSegmentLevel * getMeterBounds().getHeight()));
 
    m_normalSegment.setLevel (m_meterLevel);
    m_warningSegment.setLevel (m_meterLevel);
    m_peakSegment.setLevel (m_meterLevel);
+}
+//==============================================================================
+
+void Level::setOptions (Options meterOptions)
+{
+   setDecay (meterOptions.decayTime_ms);
+   defineSegments (meterOptions.warningRegion_db, meterOptions.peakRegion_db);
+   setTickMarks (meterOptions.tickMarks);
+   enableTickMarks (meterOptions.tickMarksEnabled);
+   setDecay (meterOptions.decayTime_ms);
+   useGradients (meterOptions.useGradient);
+   setRefreshRate (meterOptions.refreshRate);
+   showPeakHold (meterOptions.showPeakHoldIndicator);
+
+   m_options = meterOptions;
 }
 //==============================================================================
 

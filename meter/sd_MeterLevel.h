@@ -119,19 +119,7 @@ public:
     *
     * @param meterOptions Meter options to use.
     */
-   void setOptions (Options meterOptions)
-   {
-      setDecay (meterOptions.decayTime_ms);
-      defineSegments (meterOptions.warningRegion_db, meterOptions.peakRegion_db);
-      setTickMarks (meterOptions.tickMarks);
-      enableTickMarks (meterOptions.tickMarksEnabled);
-      setDecay (meterOptions.decayTime_ms);
-      useGradients (meterOptions.useGradient);
-      setRefreshRate (meterOptions.refreshRate);
-      showPeakHold (meterOptions.showPeakHoldIndicator);
-
-      m_options = meterOptions;
-   }
+   void setOptions (Options meterOptions);
 
    /**
     * @brief Get the meter's refresh (redraw) rate.
@@ -432,39 +420,26 @@ public:
    class Segment
    {
    public:
-      int drawMeterSegment (juce::Graphics& g, const juce::Colour& colour, const juce::Colour& nextColour, bool useGradient)
+      int draw (juce::Graphics& g, const juce::Colour& colour, const juce::Colour& nextColour, bool useGradient)
       {
          if (m_segmentBounds.isEmpty()) return 0;
 
-         auto level_px  = static_cast<int> ((m_currentLevel - m_startLevel) * m_levelMultiplier);
-         auto levelRect = m_segmentBounds.withTop (m_segmentBounds.getBottom() - level_px);
+         float level_px  = (m_currentLevel - m_startLevel) * m_levelMultiplier;
+         auto  levelRect = m_segmentBounds.withTop (m_segmentBounds.getBottom() - level_px);
 
          int levelDrawn_px = 0;
-         if (level_px > 0 && level_px < m_segmentBounds.getHeight()) levelDrawn_px = level_px;
+         if (level_px > 0 && level_px <= m_segmentBounds.getHeight()) levelDrawn_px = static_cast<int> (std::round (m_meterBounds.getHeight() * m_currentLevel));
 
-         //const float segmentLevel = std::min (level, stop);
-
-         //if (segmentLevel > start)  // A part of the segment needs to be filled...
-         //{
-         //   juce::Rectangle<int> segmentRect {};
-
-         //   const auto top    = m_meterBounds.getY() + static_cast<int> (std::round (m_meterBounds.getHeight() * (1.0f - segmentLevel)));
-         //   const auto bottom = static_cast<int> (m_meterBounds.getY() + std::round ((1.0f - start) * m_meterBounds.getHeight()));
-
-         //   // Store the actual drawn level. To check later if it needs to redrawn or not...
-         //   if (segmentLevel < stop) m_levelDrawn_px = bottom - top;
-
-         //if (useGradient)
-         //{
-         //   const auto               max            = m_meterBounds.getY() + static_cast<int> (m_meterBounds.getHeight() * (1.0f - stop));
-         //   const juce::Point<float> gradientPoint1 = { 0.0f, static_cast<float> (bottom) };
-         //   const juce::Point<float> gradientPoint2 = { 0.0f, static_cast<float> (max) };
-         //   g.setGradientFill (juce::ColourGradient (colour, gradientPoint1, nextColour, gradientPoint2, false));
-         //}
-         //else
-         //{
-         g.setColour (colour);
-         //      }
+         if (useGradient)
+         {
+            const juce::Point<float> gradientPoint1 = { 0.0f, m_segmentBounds.getBottom() };
+            const juce::Point<float> gradientPoint2 = { 0.0f, m_segmentBounds.getY() };
+            g.setGradientFill (juce::ColourGradient (colour, gradientPoint1, nextColour, gradientPoint2, false));
+         }
+         else
+         {
+            g.setColour (colour.withAlpha (0.5f));
+         }
          // g.fillRect (segmentRect.withLeft (m_meterBounds.getX()).withWidth (m_meterBounds.getWidth()).withTop (top).withBottom (bottom));
          g.fillRect (levelRect);
          //}
@@ -476,9 +451,7 @@ public:
       {
          if (m_segmentBounds.isEmpty()) return;
 
-         auto previousLevel = m_currentLevel;
-         m_currentLevel     = juce::jlimit (m_startLevel, m_stopLevel, level);
-         auto level_px      = static_cast<int> ((level - m_startLevel) / m_segmentBounds.getHeight());
+         m_currentLevel = juce::jlimit (m_startLevel, m_stopLevel, level);
       }
 
       void setRange (float newStartLevel, float newStopLevel)
@@ -505,16 +478,16 @@ public:
          calculateSegment();
       }
 
-      [[nodiscard]] juce::Rectangle<int> getSegmentBounds() const noexcept { return m_segmentBounds; }
+      [[nodiscard]] juce::Rectangle<int> getSegmentBounds() const noexcept { return m_segmentBounds.toNearestInt(); }
 
    private:
-      float                m_startLevel   = 0.0f;
-      float                m_stopLevel    = 1.0f;
-      float                m_currentLevel = 0.0f;
-      int                  m_levelDrawn   = 0;
-      juce::Rectangle<int> m_meterBounds {};
-      juce::Rectangle<int> m_segmentBounds {};
-      float                m_levelMultiplier = 0.0f;
+      float                  m_startLevel   = 0.0f;
+      float                  m_stopLevel    = 1.0f;
+      float                  m_currentLevel = 0.0f;
+      int                    m_levelDrawn   = 0;
+      juce::Rectangle<int>   m_meterBounds {};
+      juce::Rectangle<float> m_segmentBounds {};
+      float                  m_levelMultiplier = 0.0f;
 
 
       void calculateSegment()
@@ -522,7 +495,7 @@ public:
          if (m_meterBounds.isEmpty()) return;
 
          // Calculate segment bounds...
-         m_segmentBounds = m_meterBounds.getProportion<float> ({ 0.0f, 1.0f - m_stopLevel, 1.0f, m_stopLevel - m_startLevel });
+         m_segmentBounds = m_meterBounds.toFloat().getProportion<float> ({ 0.0f, 1.0f - m_stopLevel, 1.0f, m_stopLevel - m_startLevel });
 
          // Calculate level multiplier to optimize level drawing...
          m_levelMultiplier = m_segmentBounds.getHeight() / (m_stopLevel - m_startLevel);
