@@ -79,9 +79,17 @@ void Level::drawMeter (juce::Graphics& g, const juce::Colour& peakColour, const 
    // Draw meter bar segments (normal, warning, peak)...
    const auto meterLevel = getMeterLevel();
    m_levelDrawn_px       = 0;
-   drawMeterSegment (g, meterLevel, 0.0f, m_warningRegion, normalColour, warningColour);
-   drawMeterSegment (g, meterLevel, m_warningRegion, m_peakRegion, warningColour, peakColour);
-   drawMeterSegment (g, meterLevel, m_peakRegion, 1.0f, peakColour, peakColour.darker());
+   drawMeterSegment (g, meterLevel, 0.0f, m_warningSegmentLevel, normalColour, warningColour);
+   drawMeterSegment (g, meterLevel, m_warningSegmentLevel, m_peakSegmentLevel, warningColour, peakColour);
+   drawMeterSegment (g, meterLevel, m_peakSegmentLevel, 1.0f, peakColour, peakColour.darker());
+   auto bufferDrawn = m_levelDrawn_px;
+   m_levelDrawn_px  = 0;
+   if (auto levelDrawn = m_normalSegment.drawMeterSegment (g, normalColour, warningColour, m_options.useGradient))
+      m_levelDrawn_px = m_meterBounds.getHeight() - levelDrawn;
+   if (auto levelDrawn = m_warningSegment.drawMeterSegment (g, warningColour, peakColour, m_options.useGradient))
+      m_levelDrawn_px = m_meterBounds.getHeight() - levelDrawn;
+   if (auto levelDrawn = m_peakSegment.drawMeterSegment (g, peakColour, peakColour.darker(), m_options.useGradient))
+      m_levelDrawn_px = m_meterBounds.getHeight() - levelDrawn;
 }
 //==============================================================================
 
@@ -142,7 +150,7 @@ void Level::drawMeterSegment (juce::Graphics& g, const float level, const float 
    {
       juce::Rectangle<int> segmentRect {};
 
-      const auto top    = m_meterBounds.getY() + static_cast<int> (m_meterBounds.getHeight() * (1.0f - segmentLevel));
+      const auto top    = m_meterBounds.getY() + static_cast<int> (std::round (m_meterBounds.getHeight() * (1.0f - segmentLevel)));
       const auto bottom = static_cast<int> (m_meterBounds.getY() + std::round ((1.0f - start) * m_meterBounds.getHeight()));
 
       // Store the actual drawn level. To check later if it needs to redrawn or not...
@@ -188,8 +196,18 @@ inline void Level::setInputLevel (float newLevel) noexcept
 
 void Level::setMeterLevel (float newLevel) noexcept
 {
+   auto previousLevel = m_meterLevel;
+
    m_meterLevel    = (newLevel > m_meterLevel ? newLevel : getDecayedLevel (newLevel));
    m_peakHoldLevel = std::max<float> (m_peakHoldLevel, newLevel);
+
+   // Determine which segment is dirty...
+   auto previousLevel_px = static_cast<int> (std::round (m_meterLevel * getMeterBounds().getHeight()));
+   auto warningLevel_px  = static_cast<int> (std::round (m_warningSegmentLevel * getMeterBounds().getHeight()));
+
+   m_normalSegment.setLevel (m_meterLevel);
+   m_warningSegment.setLevel (m_meterLevel);
+   m_peakSegment.setLevel (m_meterLevel);
 }
 //==============================================================================
 
@@ -210,13 +228,17 @@ void Level::setDecay (float decay_ms) noexcept
 }
 //==============================================================================
 
-void Level::setRegions (const float warningRegion_db, const float peakRegion_db)
+void Level::defineSegments (const float warningSegment_db, const float peakSegment_db)
 {
-   jassert (peakRegion_db > warningRegion_db);  // NOLINT
-   if (peakRegion_db <= warningRegion_db) return;
+   jassert (peakSegment_db > warningSegment_db);  // NOLINT
+   if (peakSegment_db <= warningSegment_db) return;
 
-   m_warningRegion = juce::Decibels::decibelsToGain (warningRegion_db);
-   m_peakRegion    = juce::Decibels::decibelsToGain (peakRegion_db);
+   m_warningSegmentLevel = juce::Decibels::decibelsToGain (warningSegment_db);
+   m_peakSegmentLevel    = juce::Decibels::decibelsToGain (peakSegment_db);
+
+   m_normalSegment.setRange (0.0f, m_warningSegmentLevel);
+   m_warningSegment.setRange (m_warningSegmentLevel, m_peakSegmentLevel);
+   m_peakSegment.setRange (m_peakSegmentLevel, 1.0f);
 }
 //==============================================================================
 
@@ -255,6 +277,15 @@ void Level::reset() noexcept
    if (std::abs (level - callbackLevel) < kMinMeter_db) level = callbackLevel;
 
    return level;
+}
+//==============================================================================
+
+void Level::setMeterBounds (juce::Rectangle<int> bounds) noexcept
+{
+   m_meterBounds = bounds;
+   m_normalSegment.setMeterBounds (bounds);
+   m_warningSegment.setMeterBounds (bounds);
+   m_peakSegment.setMeterBounds (bounds);
 }
 //==============================================================================
 

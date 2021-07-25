@@ -351,16 +351,16 @@ void MeterChannel::refresh (const bool forceRefresh)
       // Get input level...
       const auto callbackLevel = m_level.getInputLevel();
       const auto height        = static_cast<float> (m_level.getMeterBounds().getHeight());
-      auto       level_px      = static_cast<int> (callbackLevel * height);
+      auto       level_px      = static_cast<int> (std::round(callbackLevel * height));
 
       // Check if the value part needs to be redrawn....
       if (callbackLevel > m_level.getPeakHoldLevel() && m_level.isPeakValueVisible()) addDirty (m_level.getValueBounds());
 
-      m_level.setMeterLevel (callbackLevel);
-
       // Only calculate level when it has changed (and not on label strips)...
       if (! m_isLabelStrip && level_px != m_level.getLevelDrawn())
       {
+         m_level.setMeterLevel (callbackLevel);
+
          if (! isDirty (m_level.getMeterBounds()))
          {
             // Check if there is a different level then currently displayed...
@@ -453,7 +453,7 @@ void MeterChannel::setChannelName (const juce::String& channelName)
 
 void MeterChannel::setRegions (float warningRegion_db, float peakRegion_db)
 {
-   m_level.setRegions (warningRegion_db, peakRegion_db);
+   m_level.defineSegments (warningRegion_db, peakRegion_db);
    setDirty (true);
 }
 //==============================================================================

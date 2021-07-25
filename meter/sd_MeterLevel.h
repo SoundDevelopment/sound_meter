@@ -122,7 +122,7 @@ public:
    void setOptions (Options meterOptions)
    {
       setDecay (meterOptions.decayTime_ms);
-      setRegions (meterOptions.warningRegion_db, meterOptions.peakRegion_db);
+      defineSegments (meterOptions.warningRegion_db, meterOptions.peakRegion_db);
       setTickMarks (meterOptions.tickMarks);
       enableTickMarks (meterOptions.tickMarksEnabled);
       setDecay (meterOptions.decayTime_ms);
@@ -180,15 +180,15 @@ public:
    void showPeakHold (bool isVisible) noexcept { m_options.showPeakHoldIndicator = isVisible; }
 
    /**
-    * @brief Set the levels dividing the different regions of the meter. 
+    * @brief Set the levels dividing the different segments of the meter. 
     *
-    * The meter has 3 regions. Normal, warning and peak. 
-    * The peak region level supplied need to be larger then the warning region level. 
+    * The meter has 3 segments. Normal, warning and peak. 
+    * The peak segment level supplied need to be larger then the warning segment level. 
     *
-    * @param warningRegion_db Sets the level (in db) dividing the normal and warning regions of the meter.
-    * @param peakRegion_db    Sets the level (in db) dividing the warning and peak regions of the meter.
+    * @param warningRegion_db Sets the level (in db) dividing the normal and warning segments of the meter.
+    * @param peakRegion_db    Sets the level (in db) dividing the warning and peak segments of the meter.
     */
-   void setRegions (const float warningRegion_db, const float peakRegion_db);
+   void defineSegments (const float warningRegion_db, const float peakRegion_db);
 
    /**
     * @brief Check if the peak hold indicator is visible.
@@ -278,7 +278,7 @@ public:
     * @param bounds The bounds to use for the 'meter' part of the meter.
     * @see getValueBounds, setValueBounds, getMeterBounds
    */
-   void setMeterBounds (juce::Rectangle<int> bounds) noexcept { m_meterBounds = bounds; }
+   void setMeterBounds (juce::Rectangle<int> bounds) noexcept;
 
    /**
     * @brief Get the bounds of the 'meter' part.
@@ -429,6 +429,111 @@ public:
    */
    void useGradients (bool useGradients) noexcept { m_options.useGradient = useGradients; }
 
+   class Segment
+   {
+   public:
+      int drawMeterSegment (juce::Graphics& g, const juce::Colour& colour, const juce::Colour& nextColour, bool useGradient)
+      {
+         if (m_segmentBounds.isEmpty()) return 0;
+
+         auto level_px  = static_cast<int> ((m_currentLevel - m_startLevel) * m_levelMultiplier);
+         auto levelRect = m_segmentBounds.withTop (m_segmentBounds.getBottom() - level_px);
+
+         int levelDrawn_px = 0;
+         if (level_px > 0 && level_px < m_segmentBounds.getHeight()) levelDrawn_px = level_px;
+
+         //const float segmentLevel = std::min (level, stop);
+
+         //if (segmentLevel > start)  // A part of the segment needs to be filled...
+         //{
+         //   juce::Rectangle<int> segmentRect {};
+
+         //   const auto top    = m_meterBounds.getY() + static_cast<int> (std::round (m_meterBounds.getHeight() * (1.0f - segmentLevel)));
+         //   const auto bottom = static_cast<int> (m_meterBounds.getY() + std::round ((1.0f - start) * m_meterBounds.getHeight()));
+
+         //   // Store the actual drawn level. To check later if it needs to redrawn or not...
+         //   if (segmentLevel < stop) m_levelDrawn_px = bottom - top;
+
+         //if (useGradient)
+         //{
+         //   const auto               max            = m_meterBounds.getY() + static_cast<int> (m_meterBounds.getHeight() * (1.0f - stop));
+         //   const juce::Point<float> gradientPoint1 = { 0.0f, static_cast<float> (bottom) };
+         //   const juce::Point<float> gradientPoint2 = { 0.0f, static_cast<float> (max) };
+         //   g.setGradientFill (juce::ColourGradient (colour, gradientPoint1, nextColour, gradientPoint2, false));
+         //}
+         //else
+         //{
+         g.setColour (colour);
+         //      }
+         // g.fillRect (segmentRect.withLeft (m_meterBounds.getX()).withWidth (m_meterBounds.getWidth()).withTop (top).withBottom (bottom));
+         g.fillRect (levelRect);
+         //}
+
+         return levelDrawn_px;
+      }
+
+      void setLevel (float level)
+      {
+         if (m_segmentBounds.isEmpty()) return;
+
+         auto previousLevel = m_currentLevel;
+         m_currentLevel     = juce::jlimit (m_startLevel, m_stopLevel, level);
+         auto level_px      = static_cast<int> ((level - m_startLevel) / m_segmentBounds.getHeight());
+      }
+
+      void setRange (float newStartLevel, float newStopLevel)
+      {
+         const auto startLevel = juce::jlimit (0.0f, 1.0f, newStartLevel);
+         const auto stopLevel  = juce::jlimit (0.0f, 1.0f, newStopLevel);
+
+         if (startLevel >= stopLevel)
+         {
+            jassertfalse;  // NOLINT
+            return;
+         }
+
+         m_startLevel = startLevel;
+         m_stopLevel  = stopLevel;
+
+         calculateSegment();
+      }
+
+
+      void setMeterBounds (juce::Rectangle<int> bounds) noexcept
+      {
+         m_meterBounds = bounds;
+         calculateSegment();
+      }
+
+      [[nodiscard]] juce::Rectangle<int> getSegmentBounds() const noexcept { return m_segmentBounds; }
+
+   private:
+      float                m_startLevel   = 0.0f;
+      float                m_stopLevel    = 1.0f;
+      float                m_currentLevel = 0.0f;
+      int                  m_levelDrawn   = 0;
+      juce::Rectangle<int> m_meterBounds {};
+      juce::Rectangle<int> m_segmentBounds {};
+      float                m_levelMultiplier = 0.0f;
+
+
+      void calculateSegment()
+      {
+         if (m_meterBounds.isEmpty()) return;
+
+         // Calculate segment bounds...
+         m_segmentBounds = m_meterBounds.getProportion<float> ({ 0.0f, 1.0f - m_stopLevel, 1.0f, m_stopLevel - m_startLevel });
+
+         // Calculate level multiplier to optimize level drawing...
+         m_levelMultiplier = m_segmentBounds.getHeight() / (m_stopLevel - m_startLevel);
+
+         jassert (! m_segmentBounds.isEmpty());
+         setLevel (m_currentLevel);
+      }
+
+      JUCE_LEAK_DETECTOR (Segment)
+   };
+
 private:
    Options m_options;
 
@@ -438,8 +543,12 @@ private:
    float              m_meterLevel    = 0.0f;  // Current meter level.
    int                m_levelDrawn_px = 0;
 
-   float m_warningRegion = 0.0f;
-   float m_peakRegion    = 0.0f;
+   Segment m_normalSegment;
+   Segment m_warningSegment;
+   Segment m_peakSegment;
+
+   float m_warningSegmentLevel = 0.2f;
+   float m_peakSegmentLevel    = 0.8f;
 
    juce::Rectangle<int> m_valueBounds;  // Bounds of the value area.
    juce::Rectangle<int> m_meterBounds;  // Bounds of the meter area.
