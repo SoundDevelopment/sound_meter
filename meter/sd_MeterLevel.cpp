@@ -74,16 +74,11 @@ void Level::drawPeakHold (juce::Graphics& g, const juce::Colour& peakHoldColour)
 }
 //==============================================================================
 
-void Level::drawMeter (juce::Graphics& g, const juce::Colour& peakColour, const juce::Colour& warningColour, const juce::Colour& normalColour)
+void Level::drawMeter (juce::Graphics& g) const
 {
-   m_levelDrawn_px = 0;
-
-   if (auto levelDrawn = m_normalSegment.draw (g, normalColour, warningColour, m_options.useGradient)) m_levelDrawn_px = levelDrawn;
-   if (auto levelDrawn = m_warningSegment.draw (g, warningColour, peakColour, m_options.useGradient)) m_levelDrawn_px = levelDrawn;
-   if (auto levelDrawn = m_peakSegment.draw (g, peakColour, peakColour.darker(), m_options.useGradient)) m_levelDrawn_px = levelDrawn;
-
-   const auto levelTest = static_cast<int> (std::round (getMeterLevel() * getMeterBounds().getHeight()));
-   jassert (m_levelDrawn_px == levelTest);
+   m_normalSegment.draw (g, m_options.useGradient);
+   m_warningSegment.draw (g, m_options.useGradient);
+   m_peakSegment.draw (g, m_options.useGradient);
 }
 //==============================================================================
 
@@ -136,36 +131,6 @@ void Level::drawLabels (juce::Graphics& g, const juce::Colour& textColour) const
 }
 //==============================================================================
 
-void Level::drawMeterSegment (juce::Graphics& g, const float level, const float start, const float stop, const juce::Colour& colour, const juce::Colour& nextColour)
-{
-   const float segmentLevel = std::min (level, stop);
-
-   if (segmentLevel > start)  // A part of the segment needs to be filled...
-   {
-      juce::Rectangle<int> segmentRect {};
-
-      const auto top    = m_meterBounds.getY() + static_cast<int> (std::round (m_meterBounds.getHeight() * (1.0f - segmentLevel)));
-      const auto bottom = static_cast<int> (m_meterBounds.getY() + std::round ((1.0f - start) * m_meterBounds.getHeight()));
-
-      // Store the actual drawn level. To check later if it needs to redrawn or not...
-      if (segmentLevel < stop) m_levelDrawn_px = bottom - top;
-
-      if (m_options.useGradient)
-      {
-         const auto               max            = m_meterBounds.getY() + static_cast<int> (m_meterBounds.getHeight() * (1.0f - stop));
-         const juce::Point<float> gradientPoint1 = { 0.0f, static_cast<float> (bottom) };
-         const juce::Point<float> gradientPoint2 = { 0.0f, static_cast<float> (max) };
-         g.setGradientFill (juce::ColourGradient (colour, gradientPoint1, nextColour, gradientPoint2, false));
-      }
-      else
-      {
-         g.setColour (colour);
-      }
-      g.fillRect (segmentRect.withLeft (m_meterBounds.getX()).withWidth (m_meterBounds.getWidth()).withTop (top).withBottom (bottom));
-   }
-}
-//==============================================================================
-
 void Level::setTickMarks (const std::vector<float>& ticks) noexcept
 {
    m_tickMarks.clear();
@@ -188,7 +153,15 @@ inline void Level::setInputLevel (float newLevel) noexcept
 }
 //==============================================================================
 
-void Level::setMeterLevel (float newLevel) noexcept
+void Level::setColours (const juce::Colour& normalColour, const juce::Colour& warningColour, const juce::Colour& peakColour) noexcept
+{
+   m_normalSegment.setColours (normalColour, warningColour);
+   m_warningSegment.setColours (warningColour, peakColour);
+   m_peakSegment.setColours (peakColour, peakColour.darker());
+}
+//==============================================================================
+
+[[nodiscard]] juce::Rectangle<int> Level::calculateMeterLevel (float newLevel) noexcept
 {
    m_meterLevel    = (newLevel > m_meterLevel ? newLevel : getDecayedLevel (newLevel));
    m_peakHoldLevel = std::max<float> (m_peakHoldLevel, newLevel);
@@ -196,13 +169,20 @@ void Level::setMeterLevel (float newLevel) noexcept
    m_normalSegment.setLevel (m_meterLevel);
    m_warningSegment.setLevel (m_meterLevel);
    m_peakSegment.setLevel (m_meterLevel);
+
+   m_dirtyRect = {};
+   if (m_normalSegment.isDirty()) m_dirtyRect = m_normalSegment.getSegmentBounds();
+   if (m_warningSegment.isDirty()) m_dirtyRect = m_dirtyRect.getUnion (m_warningSegment.getSegmentBounds());
+   if (m_peakSegment.isDirty()) m_dirtyRect = m_dirtyRect.getUnion (m_peakSegment.getSegmentBounds());
+
+   return m_dirtyRect;
 }
 //==============================================================================
 
 void Level::setOptions (Options meterOptions)
 {
    setDecay (meterOptions.decayTime_ms);
-   defineSegments (meterOptions.warningRegion_db, meterOptions.peakRegion_db);
+   defineSegments (meterOptions.warningSegment_db, meterOptions.peakSegment_db);
    setTickMarks (meterOptions.tickMarks);
    enableTickMarks (meterOptions.tickMarksEnabled);
    setDecay (meterOptions.decayTime_ms);
@@ -236,12 +216,12 @@ void Level::defineSegments (const float warningSegment_db, const float peakSegme
    jassert (peakSegment_db > warningSegment_db);  // NOLINT
    if (peakSegment_db <= warningSegment_db) return;
 
-   m_warningSegmentLevel = juce::Decibels::decibelsToGain (warningSegment_db);
-   m_peakSegmentLevel    = juce::Decibels::decibelsToGain (peakSegment_db);
+   const auto warningSegmentLevel = juce::Decibels::decibelsToGain (warningSegment_db);
+   const auto peakSegmentLevel    = juce::Decibels::decibelsToGain (peakSegment_db);
 
-   m_normalSegment.setRange (0.0f, m_warningSegmentLevel);
-   m_warningSegment.setRange (m_warningSegmentLevel, m_peakSegmentLevel);
-   m_peakSegment.setRange (m_peakSegmentLevel, 1.0f);
+   m_normalSegment.setRange (0.0f, warningSegmentLevel);
+   m_warningSegment.setRange (warningSegmentLevel, peakSegmentLevel);
+   m_peakSegment.setRange (peakSegmentLevel, 1.0f);
 }
 //==============================================================================
 
@@ -249,7 +229,6 @@ void Level::reset() noexcept
 {
    m_inputLevel.store (0.0f);
    m_meterLevel          = 0.0f;
-   m_levelDrawn_px       = 0;
    m_previousRefreshTime = 0;
 }
 //==============================================================================

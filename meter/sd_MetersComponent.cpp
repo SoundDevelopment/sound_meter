@@ -616,13 +616,13 @@ void MetersComponent::enableValue (bool valueEnabled)
 }
 //==============================================================================
 
-void MetersComponent::setRegions (float warningRegion_db, float peakRegion_db)
+void MetersComponent::defineSegments (float warningSegment_db, float peakSegment_db)
 {
-   m_options.warningRegion_db = warningRegion_db;
-   m_options.peakRegion_db    = peakRegion_db;
+   m_options.warningSegment_db = warningSegment_db;
+   m_options.peakSegment_db    = peakSegment_db;
 
    for (auto* meterChannel: m_meterChannels)
-      meterChannel->setRegions (warningRegion_db, peakRegion_db);
+      meterChannel->defineSegments (warningSegment_db, peakSegment_db);
 }
 //==============================================================================
 

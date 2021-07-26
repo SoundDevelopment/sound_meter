@@ -160,15 +160,15 @@ public:
    void setIsLabelStrip (bool isLabelStrip = false) noexcept { m_isLabelStrip = isLabelStrip; }
 
    /**
-    * @brief Set the levels dividing the different regions of the meter. 
+    * @brief Set the levels dividing the different segments of the meter. 
     *
-    * The meter has 3 regions. Normal, warning and peak. 
-    * The peak region level supplied need to be larger then the warning region level. 
+    * The meter has 3 segments. Normal, warning and peak. 
+    * The peak segment level supplied need to be larger then the warning segment level. 
     *
-    * @param warningRegion_db Sets the level (in db) dividing the normal and warning regions of the meter.
-    * @param peakRegion_db    Sets the level (in db) dividing the warning and peak regions of the meter.
+    * @param warningSegment_db Sets the level (in db) dividing the normal and warning segments of the meter.
+    * @param peakSegment_db    Sets the level (in db) dividing the warning and peak segments of the meter.
     */
-   void setRegions (float warningRegion_db, float peakRegion_db);
+   void defineSegments (float warningSegment_db, float peakSegment_db);
 
    /**
     * @brief Reset the peak hold.
@@ -411,11 +411,11 @@ public:
    [[nodiscard]] bool autoSetMinimalMode (int proposedWidth, int proposedHeight);
 
    /**
-    * @brief Use gradients in stead of hard region boundaries.
+    * @brief Use gradients in stead of hard segment boundaries.
     * 
     * Beware that this will come with a CPU cost.
     * 
-    * @param useGradients When set to true, uses smooth gradients. False gives hard region boundaries.
+    * @param useGradients When set to true, uses smooth gradients. False gives hard segment boundaries.
    */
    void useGradients (bool useGradients) noexcept;
 
@@ -557,8 +557,6 @@ private:
    juce::Colour m_muteMouseOverColour = juce::Colours::black;
    juce::Colour m_faderColour         = juce::Colours::blue.withAlpha (Constants::kFaderAlphaMax);
    juce::Colour m_peakColour          = juce::Colours::red;
-   juce::Colour m_warningColour       = juce::Colours::yellow;
-   juce::Colour m_normalColour        = juce::Colours::darkolivegreen;
 
    void                       setDirty (bool isDirty = true) noexcept;
    [[nodiscard]] bool         isDirty (const juce::Rectangle<int>& rectToCheck = {}) const noexcept;

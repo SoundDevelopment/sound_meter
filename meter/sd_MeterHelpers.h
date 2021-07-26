@@ -63,8 +63,8 @@ static constexpr auto kTickMarkHeight          = 2;        ///< Height of a tick
 static constexpr auto kFaderFadeTime_ms        = 2500;     ///< Fader fade out time (in milliseconds).
 static constexpr auto kFaderSensitivity        = 10.0f;    ///< Fader sensitivity value. Must be a positive value > 0.
 static constexpr auto kFaderAlphaMax           = 0.3f;     ///< Maximum transparency (alpha) of the fader overlay.
-static constexpr auto kWarningLevel_db         = -9.0f;    ///< Dividing level between 'normal' and 'warning' regions (in decibels).
-static constexpr auto kPeakLevel_db            = -3.0f;    ///< Dividing level between 'warning' and 'peak' regions (in decibels).
+static constexpr auto kWarningLevel_db         = -9.0f;    ///< Dividing level between 'normal' and 'warning' segments (in decibels).
+static constexpr auto kPeakLevel_db            = -3.0f;    ///< Dividing level between 'warning' and 'peak' segments (in decibels).
 static constexpr auto kMinModeHeightThreshold = 150;  ///< Meter minimum mode height threshold in pixels (min. mod is just the meter. not value, ticks or fader).
 static constexpr auto kMinModeWidthThreshold  = 15;   ///< Meter minimum mode width threshold in pixels (min. mod is just the meter. not value, ticks or fader).
 static constexpr auto kMetersPanelId          = "meters_panel";  ///< ID (name) of all components in the meters panel.
@@ -99,10 +99,10 @@ struct Options
    bool               headerEnabled         = true;  ///< Enable the 'header' part of the meter.
    bool               valueEnabled          = true;  ///< Enable the 'value' part of the meter.
    bool               faderEnabled          = true;  ///< Enable the fader (overlayed over the meter). Only works if fader have been enabled in the module.
-   bool               useGradient           = true;  ///< Use gradients to fill the meter or hard region boundaries.
+   bool               useGradient           = true;  ///< Use gradients to fill the meter or hard segment boundaries.
    bool               showPeakHoldIndicator = true;  ///< Show the peak hold indicator (a line that marks the highest level up to now).
-   float              warningRegion_db      = Constants::kWarningLevel_db;  ///< Boundary level from normal to warning.
-   float              peakRegion_db         = Constants::kPeakLevel_db;     ///< Boundary level from warning to peak.
+   float              warningSegment_db     = Constants::kWarningLevel_db;  ///< Boundary level from normal to warning segment.
+   float              peakSegment_db        = Constants::kPeakLevel_db;     ///< Boundary level from warning to peak segment.
    float              decayTime_ms          = Constants::kDefaultDecay_ms;  ///< Meter decay in milliseconds.
    float              refreshRate           = 24.0f;                        ///< Meter refresh rate when using internal timing.
    bool               tickMarksEnabled      = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
@@ -126,7 +126,7 @@ enum class LabelStripPosition
 {
    left,   ///< Left of the meters.
    right,  ///< Right of the meters.
-   none  ///< No label strip will be shown.
+   none    ///< No label strip will be shown.
 };
 
 /**

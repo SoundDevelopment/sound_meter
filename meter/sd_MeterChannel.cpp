@@ -162,9 +162,12 @@ void MeterChannel::setColours() noexcept
    m_muteColour          = getColourFromLnf (mutedColourId, juce::Colours::red);
    m_muteMouseOverColour = getColourFromLnf (mutedMouseOverColourId, juce::Colours::black);
    m_faderColour         = getColourFromLnf (faderColourId, juce::Colours::blue.withAlpha (Constants::kFaderAlphaMax));
-   m_peakColour          = getColourFromLnf (peakColourId, juce::Colours::red);
-   m_warningColour       = getColourFromLnf (warningColourId, juce::Colours::yellow);
-   m_normalColour        = getColourFromLnf (normalColourId, juce::Colours::darkolivegreen);
+
+   // Set segment colours...
+   auto normalColour  = getColourFromLnf (normalColourId, juce::Colours::darkolivegreen);
+   auto warningColour = getColourFromLnf (warningColourId, juce::Colours::yellow);
+   m_peakColour       = getColourFromLnf (peakColourId, juce::Colours::red);
+   m_level.setColours (normalColour, warningColour, m_peakColour);
 }
 //==============================================================================
 
@@ -296,9 +299,10 @@ void MeterChannel::paint (juce::Graphics& g)
       drawMeter (g);
    }
 
+
 #if SDTK_ENABLE_FADER
    // Draw FADER....
-   m_fader.draw (g, m_faderColour);
+   m_fader.draw (g, juce::Colour (m_faderColour));
 #endif
 
    setDirty (false);
@@ -317,7 +321,7 @@ void MeterChannel::drawMeter (juce::Graphics& g)
    if (! m_tickMarksOnTop) m_level.drawTickMarks (g, m_tickColour);
 
    // Draw meter BAR SEGMENTS (normal, warning, peak)...
-   m_active ? m_level.drawMeter (g, m_peakColour, m_warningColour, m_normalColour) : m_level.drawInactiveMeter (g, m_textColour.darker (0.7f));
+   m_active ? m_level.drawMeter (g) : m_level.drawInactiveMeter (g, m_textColour.darker (0.7f));
 
    // Draw TICK-marks on top of the level...
    if (m_tickMarksOnTop) m_level.drawTickMarks (g, m_tickColour);
@@ -351,29 +355,21 @@ void MeterChannel::refresh (const bool forceRefresh)
       // Get input level...
       const auto callbackLevel = m_level.getInputLevel();
       const auto height        = static_cast<float> (m_level.getMeterBounds().getHeight());
-      auto       level_px      = static_cast<int> (std::round(callbackLevel * height));
 
       // Check if the value part needs to be redrawn....
       if (callbackLevel > m_level.getPeakHoldLevel() && m_level.isPeakValueVisible()) addDirty (m_level.getValueBounds());
 
-      m_level.setMeterLevel (callbackLevel);
-      // Only calculate level when it has changed (and not on label strips)...
-      if (! m_isLabelStrip && level_px != m_level.getLevelDrawn())
+      if (! m_isLabelStrip)
       {
-
-         if (! isDirty (m_level.getMeterBounds()))
-         {
-            // Check if there is a different level then currently displayed...
-            level_px = static_cast<int> (height * m_level.getMeterLevel());
-            if (level_px != m_level.getLevelDrawn()) addDirty (m_level.getMeterBounds());  // ... if so, meter part is 'dirty' and needs to redrawn.
-         }
+         auto dirtyRect = m_level.calculateMeterLevel (callbackLevel);
+         addDirty (dirtyRect);
       }
    }
+
 #if SDTK_ENABLE_FADER
    // Repaint if the faders are being faded out...
-   if (! isDirty (m_level.getMeterBounds()) && m_fader.isFading()) addDirty (m_level.getMeterBounds());
+   if (m_fader.isFading()) addDirty (m_level.getMeterBounds());
 #endif
-
 
    // Redraw if dirty or forced to...
    if (forceRefresh)
@@ -451,9 +447,9 @@ void MeterChannel::setChannelName (const juce::String& channelName)
 }
 //==============================================================================
 
-void MeterChannel::setRegions (float warningRegion_db, float peakRegion_db)
+void MeterChannel::defineSegments (float warningSegment_db, float peakSegment_db)
 {
-   m_level.defineSegments (warningRegion_db, peakRegion_db);
+   m_level.defineSegments (warningSegment_db, peakSegment_db);
    setDirty (true);
 }
 //==============================================================================

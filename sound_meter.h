@@ -75,6 +75,7 @@ END_JUCE_MODULE_DECLARATION
 #include <juce_graphics/juce_graphics.h>
 
 #include "meter/sd_MeterHelpers.h"
+#include "meter/sd_MeterSegment.h"
 #include "meter/sd_MeterLevel.h"
 #include "meter/sd_MeterFader.h"
 #include "meter/sd_MeterHeader.h"

@@ -80,15 +80,17 @@ public:
    [[nodiscard]] float getInputLevel() noexcept;
 
    /**
-    * @brief Set the actual meter's level.
+    * @brief Calculate the actual meter level (ballistics included).
     * 
-    * Set's the meter's level with ballistics.
+    * Calculate the meter's level including ballistics.
     * Instant attack, but decayed release.
+    * 
     * @param newLevel The level to use as input for the meter's ballistics.
+    * @return The part of the meter that needs to be redrawn (refreshed).
     * 
     * @see getMeterLevel, setDecay
    */
-   void setMeterLevel (float newLevel) noexcept;
+   [[nodiscard]] juce::Rectangle<int> calculateMeterLevel (float newLevel) noexcept;
 
    /**
     * @brief Get the actual meter's level (including ballistics).
@@ -101,16 +103,6 @@ public:
     * @see setMeterLevel, setDecay
    */
    [[nodiscard]] float getMeterLevel() const noexcept { return m_meterLevel; }
-
-   /**
-    * @brief Get the level actually drawn on screen.
-    *
-    * This will return the level in pixels actually drawn
-    * and is used to determine if the meter is dirty (needs refresh).
-    *
-    * @return The level actually drawn on screen (in pixels).
-    */
-   [[nodiscard]] int getLevelDrawn() const noexcept { return m_levelDrawn_px; }
 
    /**
     * @brief Set the meter's options.
@@ -173,10 +165,10 @@ public:
     * The meter has 3 segments. Normal, warning and peak. 
     * The peak segment level supplied need to be larger then the warning segment level. 
     *
-    * @param warningRegion_db Sets the level (in db) dividing the normal and warning segments of the meter.
-    * @param peakRegion_db    Sets the level (in db) dividing the warning and peak segments of the meter.
+    * @param warningSegment_db Sets the level (in db) dividing the normal and warning segments of the meter.
+    * @param peakSegment_db    Sets the level (in db) dividing the warning and peak segments of the meter.
     */
-   void defineSegments (const float warningRegion_db, const float peakRegion_db);
+   void defineSegments (const float warningSegment_db, const float peakSegment_db);
 
    /**
     * @brief Check if the peak hold indicator is visible.
@@ -297,15 +289,13 @@ public:
    void resetMouseOverValue() noexcept { m_mouseOverValue = false; }
 
    /**
-    * @brief                       Draws the meter.
-    * @param[in,out] g             The juce graphics context to use.
-    * @param         peakColour    Colour of the peak region of the meter. 
-    * @param         warningColour Colour of the warning region of the meter.
-    * @param         normalColour  Colour of the normal region of the meter.
+    * @brief Draws the meter.
+    * 
+    * @param[in,out] g The juce graphics context to use.
     * 
     * @see drawInactiveMeter, drawPeakValue, drawPeakHold, drawTickMarks, drawLabels
    */
-   void drawMeter (juce::Graphics& g, const juce::Colour& peakColour, const juce::Colour& warningColour, const juce::Colour& normalColour);
+   void drawMeter (juce::Graphics& g) const;
 
    /**
     * @brief Draw the 'meter' part in it's inactive (muted) state.
@@ -412,116 +402,35 @@ public:
    void enableTickMarks (bool enabled) noexcept { m_options.tickMarksEnabled = enabled; }
 
    /**
-    * @brief Use gradients in stead of hard region boundaries.
-    * @param useGradients When set to true, uses smooth gradients. False gives hard region boundaries.
+    * @brief Set the colours of the segments.
+    * 
+    * @param normalColour  Colour of the 'normal' segment.
+    * @param warningColour Colour of the 'warning' segment.
+    * @param peakColour    Colour of the 'peak' segment.
+   */
+   void setColours (const juce::Colour& normalColour, const juce::Colour& warningColour, const juce::Colour& peakColour) noexcept;
+
+   /**
+    * @brief Use gradients in stead of hard segment boundaries.
+    * @param useGradients When set to true, uses smooth gradients. False gives hard segment boundaries.
    */
    void useGradients (bool useGradients) noexcept { m_options.useGradient = useGradients; }
-
-   class Segment
-   {
-   public:
-      int draw (juce::Graphics& g, const juce::Colour& colour, const juce::Colour& nextColour, bool useGradient)
-      {
-         if (m_segmentBounds.isEmpty()) return 0;
-
-         float level_px  = (m_currentLevel - m_startLevel) * m_levelMultiplier;
-         auto  levelRect = m_segmentBounds.withTop (m_segmentBounds.getBottom() - level_px);
-
-         int levelDrawn_px = 0;
-         if (level_px > 0 && level_px <= m_segmentBounds.getHeight()) levelDrawn_px = static_cast<int> (std::round (m_meterBounds.getHeight() * m_currentLevel));
-
-         if (useGradient)
-         {
-            const juce::Point<float> gradientPoint1 = { 0.0f, m_segmentBounds.getBottom() };
-            const juce::Point<float> gradientPoint2 = { 0.0f, m_segmentBounds.getY() };
-            g.setGradientFill (juce::ColourGradient (colour, gradientPoint1, nextColour, gradientPoint2, false));
-         }
-         else
-         {
-            g.setColour (colour.withAlpha (0.5f));
-         }
-         // g.fillRect (segmentRect.withLeft (m_meterBounds.getX()).withWidth (m_meterBounds.getWidth()).withTop (top).withBottom (bottom));
-         g.fillRect (levelRect);
-         //}
-
-         return levelDrawn_px;
-      }
-
-      void setLevel (float level)
-      {
-         if (m_segmentBounds.isEmpty()) return;
-
-         m_currentLevel = juce::jlimit (m_startLevel, m_stopLevel, level);
-      }
-
-      void setRange (float newStartLevel, float newStopLevel)
-      {
-         const auto startLevel = juce::jlimit (0.0f, 1.0f, newStartLevel);
-         const auto stopLevel  = juce::jlimit (0.0f, 1.0f, newStopLevel);
-
-         if (startLevel >= stopLevel)
-         {
-            jassertfalse;  // NOLINT
-            return;
-         }
-
-         m_startLevel = startLevel;
-         m_stopLevel  = stopLevel;
-
-         calculateSegment();
-      }
-
-
-      void setMeterBounds (juce::Rectangle<int> bounds) noexcept
-      {
-         m_meterBounds = bounds;
-         calculateSegment();
-      }
-
-      [[nodiscard]] juce::Rectangle<int> getSegmentBounds() const noexcept { return m_segmentBounds.toNearestInt(); }
-
-   private:
-      float                  m_startLevel   = 0.0f;
-      float                  m_stopLevel    = 1.0f;
-      float                  m_currentLevel = 0.0f;
-      int                    m_levelDrawn   = 0;
-      juce::Rectangle<int>   m_meterBounds {};
-      juce::Rectangle<float> m_segmentBounds {};
-      float                  m_levelMultiplier = 0.0f;
-
-
-      void calculateSegment()
-      {
-         if (m_meterBounds.isEmpty()) return;
-
-         // Calculate segment bounds...
-         m_segmentBounds = m_meterBounds.toFloat().getProportion<float> ({ 0.0f, 1.0f - m_stopLevel, 1.0f, m_stopLevel - m_startLevel });
-
-         // Calculate level multiplier to optimize level drawing...
-         m_levelMultiplier = m_segmentBounds.getHeight() / (m_stopLevel - m_startLevel);
-
-         jassert (! m_segmentBounds.isEmpty());
-         setLevel (m_currentLevel);
-      }
-
-      JUCE_LEAK_DETECTOR (Segment)
-   };
 
 private:
    Options m_options;
 
+   // Meter levels...
    std::atomic<float> m_inputLevel { 0.0f };  // Audio peak level.
    std::atomic<bool>  m_inputLevelRead { false };
    float              m_peakHoldLevel = 0.0f;
    float              m_meterLevel    = 0.0f;  // Current meter level.
-   int                m_levelDrawn_px = 0;
 
-   Segment m_normalSegment;
-   Segment m_warningSegment;
-   Segment m_peakSegment;
+   // Meter segments...
+   sd::SoundMeter::Segment m_normalSegment;
+   sd::SoundMeter::Segment m_warningSegment;
+   sd::SoundMeter::Segment m_peakSegment;
 
-   float m_warningSegmentLevel = 0.2f;
-   float m_peakSegmentLevel    = 0.8f;
+   juce::Rectangle<int> m_dirtyRect {};
 
    juce::Rectangle<int> m_valueBounds;  // Bounds of the value area.
    juce::Rectangle<int> m_meterBounds;  // Bounds of the meter area.
@@ -541,7 +450,6 @@ private:
    //==============================================================================
    [[nodiscard]] float getDecayedLevel (const float callbackLevel);
    void                calculateDecayCoeff() noexcept;
-   void                drawMeterSegment (juce::Graphics& g, float level, float start, float stop, const juce::Colour& colour, const juce::Colour& nextColour);
 
    // clang-format on
    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Level)

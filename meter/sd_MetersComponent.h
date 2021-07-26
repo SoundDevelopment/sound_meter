@@ -220,15 +220,15 @@ public:
    void useInternalTiming (bool useInternalTiming) noexcept;
 
    /**
-    * @brief Set the levels dividing the different regions of the meter.
+    * @brief Set the levels dividing the different segments of the meter.
     *
-    * The meter has 3 regions. Normal, warning and peak. 
-    * The peak region level supplied need to be larger then the warning region level. 
+    * The meter has 3 segments. Normal, warning and peak. 
+    * The peak segment level supplied need to be larger then the warning segment level. 
     *
-    * @param warningRegion_db The level (in dB) dividing the normal and warning regions of the meter.
-    * @param peakRegion_db    The level (in dB) dividing the warning and peak regions of the meter.
+    * @param warningSegment_db The level (in dB) dividing the normal and warning segments of the meter.
+    * @param peakSegment_db    The level (in dB) dividing the warning and peak segments of the meter.
     */
-   void setRegions (float warningRegion_db, float peakRegion_db);
+   void defineSegments (float warningSegment_db, float peakSegment_db);
 
    /**
     * @brief Set meter decay rate.
@@ -243,9 +243,9 @@ public:
    void setDecay (float decay_ms);
 
    /**
-    * @brief Use gradients instead of hard region boundaries.
+    * @brief Use gradients instead of hard segment boundaries.
     * 
-    * @param useGradients When set to true, uses smooth gradients. False gives hard region boundaries.=
+    * @param useGradients When set to true, uses smooth gradients. False gives hard segment boundaries.
    */
    void useGradients (bool useGradients) noexcept;
 
