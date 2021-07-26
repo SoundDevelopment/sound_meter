@@ -25,7 +25,7 @@ All classes are in the namespace `sd::SoundMeter` to avoid collisions. You can e
 
 ### MetersComponent
 
-The [MetersComponent](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/classsd_1_1_sound_meter_1_1_meters_component.html) class creates and controls the meters. 
+The [MetersComponent](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/classsd_1_1SoundMeter_1_1MetersComponent.html) class creates and controls the meters. 
 This would live in your editor.h. 
 ```
 private:
@@ -33,11 +33,11 @@ private:
 ```
 <br>
 
-In the constructor you could specify a channel format with [setChannelFormat()](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/classsd_1_1_sound_meter_1_1_meters_component.html#aea27fda8af5ec463436186e8fb3afd20) :
+In the constructor you could specify a channel format with [setChannelFormat()](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/classsd_1_1SoundMeter_1_1MetersComponent.html#aea27fda8af5ec463436186e8fb3afd20) :
 ```
 m_meters.setChannelFormat (juce::AudioChannelSet::stereo());
 ```
-and configure it's options. For example (for all meter options, see [documentation](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/structsd_1_1_sound_meter_1_1_options.html)):
+and configure it's options. For example (for all meter options, see [documentation](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/structsd_1_1SoundMeter_1_1Options.html)):
 ```
 sd::SoundMeter::Options meterOptions;
 meterOptions.faderEnabled     = true;
