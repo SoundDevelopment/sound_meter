@@ -141,7 +141,7 @@ public:
     * @param numChannels  The number of channels (meters).
     * @param channelNames The (optional) channel names to use in the header of the meters.
     * 
-    * @see getNumMeters, setChannelFormat
+    * @see getNumChannels, setChannelFormat
     */
    void setNumChannels (int numChannels, const std::vector<juce::String>& channelNames = {});
 
@@ -151,7 +151,7 @@ public:
     * @param channels     The channel format to use.
     * @param channelNames The (optional) channel names to use in the header of the meters.
     * 
-    * @see setNumMeters, getNumMeters
+    * @see setNumChannels, getNumChannels
     */
    void setChannelFormat (const juce::AudioChannelSet& channels, const std::vector<juce::String>& channelNames = {});
 
@@ -162,7 +162,7 @@ public:
     * 
     * @see setNumChannels, setChannelFormat
    */
-   int getNumMeters() const noexcept { return m_meterChannels.size(); }
+   int getNumChannels() const noexcept { return m_meterChannels.size(); }
 
    /**
     * @brief Get the default meters panel width.
@@ -396,12 +396,14 @@ public:
 
 #endif /* SDTK_ENABLE_FADER */
 
-   //==============================================================================
-   // Internal juce methods...
 
+   /** @internal */ 
    void visibilityChanged() override { setColours(); }
+   /** @internal */ 
    void lookAndFeelChanged() override { setColours(); }
+   /** @internal */ 
    void paint (juce::Graphics& g) override;
+   /** @internal */ 
    void resized() override;
 
 private:
