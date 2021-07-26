@@ -48,7 +48,7 @@ MeterChannel::MeterChannel()
 //==============================================================================
 
 MeterChannel::MeterChannel (Options meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip /*= false*/,
-                            ChannelType channelType /*= ChannelType::unknown*/, Fader::Listener* faderListener /*= nullptr*/)
+                            ChannelType channelType /*= ChannelType::unknown*/ )
   : MeterChannel()
 {
    setName (channelName);
@@ -59,12 +59,6 @@ MeterChannel::MeterChannel (Options meterOptions, Padding padding, const juce::S
    setIsLabelStrip (isLabelStrip);
 
    setPadding (padding);
-
-#if SDTK_ENABLE_FADER
-   if (faderListener) addFaderListener (*faderListener);
-#else
-   juce::ignoreUnused (faderListener);
-#endif
 
    setPaintingIsUnclipped (true);
 }
@@ -86,10 +80,16 @@ void MeterChannel::flashFader() noexcept
    m_fader.flash();
    addDirty (m_fader.getBounds());
 }
+//==============================================================================
+
+void MeterChannel::notifyParent()
+{
+   if (onFaderMove) onFaderMove (this);
+}
+//==============================================================================
 
 #endif /* SDTK_ENABLE_FADER */
 
-//==============================================================================
 
 [[nodiscard]] juce::Colour MeterChannel::getColourFromLnf (int colourId, const juce::Colour& fallbackColour) const
 {
@@ -392,7 +392,7 @@ void MeterChannel::setActive (bool isActive, NotificationOptions notify /*= Noti
    m_active = isActive;
 
 #if SDTK_ENABLE_FADER
-   if (notify == NotificationOptions::notify) m_fader.notify();
+   if (notify == NotificationOptions::notify) notifyParent();
 #else
    juce::ignoreUnused (notify);
 #endif

@@ -144,7 +144,7 @@ bool Fader::setValue (float value, NotificationOptions notificationOption /*= No
    if (! m_enabled) return false;
    if (m_faderValue.load() == value) return false;
    m_faderValue.store (value);
-   if (notificationOption == NotificationOptions::notify) notify();
+   if (notificationOption == NotificationOptions::notify && m_parentMeter ) m_parentMeter->notifyParent();
    return true;
 }
 //==============================================================================
@@ -162,25 +162,7 @@ void Fader::setValueFromPos (const int position, NotificationOptions notificatio
 {
    return static_cast<int> (juce::Time::getMillisecondCounter()) - m_fadeStart;
 }
-//==============================================================================
 
-void Fader::notify()
-{
-   if (! m_parentMeter || ! m_enabled) return;
-   m_faderListeners.call ([=] (Listener& l) { l.faderChanged (m_parentMeter, getValue()); });  // Fader changed CALLBACK.
-}
-//==============================================================================
-
-void Fader::addListener (Listener& listener)
-{
-   m_faderListeners.add (&listener);
-}
-//==============================================================================
-
-void Fader::removeListener (Listener& listener)
-{
-   m_faderListeners.remove (&listener);
-}
 //==============================================================================
 
 }  // namespace SoundMeter

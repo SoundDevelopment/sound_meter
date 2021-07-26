@@ -67,10 +67,13 @@ public:
     * @param channelName   The channel name (set by the user).
     * @param isLabelStrip  When set to true, this meter will function as a label strip (with markers for levels at the tick-marks).
     * @param channelType   The channel type (left, right, center, etc...).
-    * @param faderListener A listener to any changes in the fader.
    */
-   MeterChannel (Options meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip = false,
-                 ChannelType channelType = ChannelType::unknown, Fader::Listener* faderListener = nullptr);
+   MeterChannel (Options meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip = false, ChannelType channelType = ChannelType::unknown);
+
+   /**
+   * @brief Destructor
+   */
+   virtual ~MeterChannel() { onFaderMove = nullptr; }
 
    /**
     * @brief Reset the meter (but not the peak hold).
@@ -482,22 +485,14 @@ public:
    void setFaderValue (float value, NotificationOptions notificationOption = NotificationOptions::dontNotify, bool showFader = true);
 
    /**
-    * @brief Add a listener to any changes in the fader.
-    * 
-    * @param listener The listener to add to the list.
-    * 
-    * @see removeFaderListener
+    * @brief Notify the parent component that a fader has moved (or a mute button has been pressed).
    */
-   void addFaderListener (Fader::Listener& listener) { m_fader.addListener (listener); }
+   void notifyParent();
 
    /**
-    * @brief Remove a listener to any changes in the fader.
-    * 
-    * @param listener The listener to remove from the list.
-    * 
-    * @see addFaderListener
+    * @brief You can assign a lambda to this callback object to have it called when the fader has moved.
    */
-   void removeFaderListener (Fader::Listener& listener) { m_fader.removeListener (listener); }
+   std::function<void (sd::SoundMeter::MeterChannel* meter)> onFaderMove;
 
 #endif /* SDTK_ENABLE_FADER */
 

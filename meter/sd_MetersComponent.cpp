@@ -41,16 +41,12 @@ MetersComponent::MetersComponent() : MetersComponent (Options()) { }
 
 MetersComponent::MetersComponent (Options meterOptions)
   : m_options (meterOptions),
-    m_labelStrip (meterOptions, Padding (Constants::kLabelStripLeftPadding, 0, 0, 0), Constants::kMetersPanelId, true, juce::AudioChannelSet::ChannelType::unknown,
-#if SDTK_ENABLE_FADER
-                  this)
-#else
-                  nullptr)
-#endif
+    m_labelStrip (meterOptions, Padding (Constants::kLabelStripLeftPadding, 0, 0, 0), Constants::kMetersPanelId, true, juce::AudioChannelSet::ChannelType::unknown)
 {
 #if SDTK_ENABLE_FADER
    m_labelStrip.enableFader (m_options.faderEnabled);
-   m_labelStrip.addMouseListener (this, true);
+   m_labelStrip.addMouseListener( this, true );
+   m_labelStrip.onFaderMove = [this] (MeterChannel* meterChannel) { faderChanged (meterChannel); };
 #endif
 
    addAndMakeVisible (m_labelStrip);
@@ -76,7 +72,6 @@ MetersComponent::~MetersComponent()
 {
 
 #if SDTK_ENABLE_FADER
-   m_labelStrip.removeFaderListener (*this);
    m_labelStrip.removeMouseListener (this);
 #endif
 
@@ -182,7 +177,7 @@ void MetersComponent::resized()
       meterChannel->setMinimalMode (minModeEnabled);
       if (m_labelStripPosition == LabelStripPosition::right)
          meterChannel->setBounds (panelBounds.removeFromLeft (meterWidth));  // ... set it's width to m_meterWidth
-      else  
+      else
          meterChannel->setBounds (panelBounds.removeFromRight (meterWidth));  // ... set it's width to m_meterWidth
 
 #if SDTK_ENABLE_FADER
@@ -275,7 +270,7 @@ void MetersComponent::mouseEnter (const juce::MouseEvent& /*event*/)
 }
 //==============================================================================
 
-void MetersComponent::faderChanged (MeterChannel* sourceChannel, float value)
+void MetersComponent::faderChanged (MeterChannel* sourceChannel)
 {
    // Master strip fader moves all channel faders relatively to each other...
    if (sourceChannel == &m_labelStrip)
@@ -294,7 +289,7 @@ void MetersComponent::faderChanged (MeterChannel* sourceChannel, float value)
             auto meterIdx = m_meterChannels.indexOf (singleMeter);
             if (juce::isPositiveAndBelow (meterIdx, m_faderGains.size()))
             {
-               m_faderGains[meterIdx] = m_faderGainsBuffer[meterIdx] * value;                                // Multiply the gain with the master fader value.
+               m_faderGains[meterIdx] = m_faderGainsBuffer[meterIdx] * sourceChannel->getFaderValue();       // Multiply the gain with the master fader value.
                singleMeter->setFaderValue (m_faderGains[meterIdx], NotificationOptions::dontNotify, false);  // Update the fader to display the new gain value.
             }
          }
@@ -343,7 +338,13 @@ void MetersComponent::getFaderValues (NotificationOptions notificationOption /*=
 
 void MetersComponent::notifyListeners()
 {
-   m_fadersListeners.call ([=] (FadersChangeListener& l) { l.fadersChanged (m_faderGains); });
+   Component::BailOutChecker checker (this);
+
+   if (checker.shouldBailOut()) return;
+
+   m_fadersListeners.callChecked (checker, [=] (FadersChangeListener& l) { l.fadersChanged (m_faderGains); });
+
+   if (checker.shouldBailOut()) return;
 }
 //==============================================================================
 
@@ -467,13 +468,11 @@ void MetersComponent::createMeters (const juce::AudioChannelSet& channelFormat, 
    for (int channelIdx = 0; channelIdx < channelFormat.size(); ++channelIdx)
    {
       auto meterChannel = std::make_unique<MeterChannel> (m_options, Padding (0, Constants::kFaderRightPadding, 0, 0), Constants::kMetersPanelId, false,
-                                                          channelFormat.getTypeOfChannel (channelIdx),
+                                                          channelFormat.getTypeOfChannel (channelIdx));
+
 #if SDTK_ENABLE_FADER
-                                                          this
-#else
-                                                          nullptr
+      meterChannel->onFaderMove = [this] (MeterChannel* meterChannel) { faderChanged (meterChannel); };
 #endif
-      );
 
       meterChannel->setFont (m_font);
       meterChannel->addMouseListener (this, true);
@@ -492,10 +491,7 @@ void MetersComponent::deleteMeters()
 {
 #if SDTK_ENABLE_FADER
    for (auto meterChannel: m_meterChannels)
-   {
-      meterChannel->removeFaderListener (*this);
       meterChannel->removeMouseListener (this);
-   }
 #endif
 
    m_meterChannels.clear();

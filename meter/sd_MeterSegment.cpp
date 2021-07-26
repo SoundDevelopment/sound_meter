@@ -100,7 +100,7 @@ void Segment::calculateSegment() noexcept
    if (m_meterBounds.isEmpty()) return;
 
    // Calculate segment bounds...
-   m_segmentBounds = m_meterBounds.getProportion<float> ({ 0.0f, 1.0f - m_stopLevel, 1.0f, m_stopLevel - m_startLevel });
+   m_segmentBounds = m_meterBounds.toFloat().getProportion<float> ({ 0.0f, 1.0f - m_stopLevel, 1.0f, m_stopLevel - m_startLevel }).toNearestIntEdges();
 
    // Calculate level multiplier to optimize level drawing...
    m_levelMultiplier = m_segmentBounds.getHeight() / (m_stopLevel - m_startLevel);

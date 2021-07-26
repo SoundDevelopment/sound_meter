@@ -56,7 +56,7 @@ public:
     * @brief Parameterized constructor
     * @param parentMeter The parent meter object
    */
-   explicit Fader (MeterChannel* parentMeter) : m_parentMeter (parentMeter) {};
+   explicit Fader ( SoundMeter::MeterChannel* parentMeter ) : m_parentMeter (parentMeter) {};
 
    /**
     * @brief Show the fader briefly and fade out (unless overridden and shown longer).
@@ -155,51 +155,8 @@ public:
     */
    void draw (juce::Graphics& g, const juce::Colour& faderColour);
 
-   /**
-    * @brief Fader listener class.
-    *
-    * Listeners get notified when the fader has changed.
-    */
-   struct Listener
-   {
-      virtual ~Listener() = default;
-
-      /**
-       * @brief Fader value has changed.
-       * 
-       * @param sourceMeter The meter whose fader has been changed.
-       * @param value       The new value of the fader.
-      */
-      virtual void faderChanged (MeterChannel* sourceMeter, float value) = 0;
-   };
-
-   /**
-    * @brief Add a listener to any changes in the fader.
-    * 
-    * @param listener The listener to add to the list.
-    * 
-    * @see removeListener
-   */
-   void addListener (Listener& listener);
-
-   /**
-    * @brief Remove a listener to any changes in the fader.
-    * 
-    * @param listener The listener to remove from the list.
-    * 
-    * @see addListener
-   */
-   void removeListener (Listener& listener);
-
-   /**
-    * @brief Notify any listener that the fader has changed.
-   */
-   void notify();
-
-
 private:
    std::atomic<float>           m_faderValue { 1.0f };  // Fader value (between 0..1).
-   juce::ListenerList<Listener> m_faderListeners;
    SoundMeter::MeterChannel*    m_parentMeter = nullptr;
    bool                         m_visible     = false;
    bool                         m_enabled     = false;

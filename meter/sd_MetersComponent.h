@@ -52,9 +52,6 @@ namespace SoundMeter
 class MetersComponent
   : public juce::Component
   , private juce::Timer
-#if SDTK_ENABLE_FADER
-  , public Fader::Listener
-#endif
 {
 public:
    /**
@@ -408,6 +405,7 @@ public:
    void resized() override;
 
 private:
+
    // clang-format off
    
    Options                          m_options               {};
@@ -437,7 +435,7 @@ private:
    void                             notifyListeners         ();                                          // Notify the listeners the faders have been moved.
    void                             mouseEnter              (const juce::MouseEvent& event) override;
    void                             mouseExit               (const juce::MouseEvent& event) override;
-   void                             faderChanged            ( MeterChannel* sourceMeter, float value ) override;
+   void                             faderChanged            ( MeterChannel* sourceMeter);
    
 #endif
 
