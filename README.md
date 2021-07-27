@@ -5,15 +5,16 @@
 
 
 Features:
-- Fully resize-able.
-- Configurable meter ballistics (meter decay).
-- Normal, warning and peak zones, with configurable colours.
-- Tick-marks (dividing lines on the meter) at user specified levels.
-- Peak indicator and optional peak value readout.
-- Optional label strip next to the meters (which can double as master fader).
-- Optional header identifying the meter's name (set by user) or channel type.
-- Adaptive. Will show header, value, tick-marks only when there is space available.
-- Optional fader and mute button (in the header).
+- Fully **resize-able**.
+- **Efficient**. Only redraws when needed.
+- Configurable meter **ballistics** (meter decay).
+- Normal, warning and peak **segments**, with configurable colours.
+- **Tick-marks** (dividing lines on the meter) at user specified levels.
+- Peak **indicator** and optional peak **value** readout.
+- Optional **label strip** next to the meters (which can double as master fader).
+- Optional **header** identifying the meter's name (set by user) or channel type.
+- **Adaptive**. Will show header, value, tick-marks only when there is space available.
+- Optional **fader** and mute button (in the header).
 
 You can find the API documentation [here](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/)...
 <br>
@@ -26,14 +27,14 @@ All classes are in the namespace `sd::SoundMeter` to avoid collisions. You can e
 ### MetersComponent
 
 The [MetersComponent](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/classsd_1_1SoundMeter_1_1MetersComponent.html) class creates and controls the meters. 
-This would live in your editor.h. 
+This would live in your **editor.h**. 
 ```
 private:
    sd::SoundMeter::MetersComponent  m_meters;
 ```
 <br>
 
-In the constructor you could specify a channel format with [setChannelFormat()](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/classsd_1_1SoundMeter_1_1MetersComponent.html#aea27fda8af5ec463436186e8fb3afd20) :
+In the **constructor** you can specify a channel format with [setChannelFormat](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/classsd_1_1SoundMeter_1_1MetersComponent.html#aea27fda8af5ec463436186e8fb3afd20) or set the nummer of channels with [setNumChannels](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/classsd_1_1SoundMeter_1_1MetersComponent.html#a042d84e77a91f501c57377d461957e41):
 ```
 m_meters.setChannelFormat (juce::AudioChannelSet::stereo());
 ```
@@ -46,7 +47,7 @@ meterOptions.peakRegion_db    = -3.0f;
 meterOptions.warningRegion_db = -12.0f;
 m_meters.setOptions (meterOptions);
 ```
-Finally (still in the constructor) we add the component and make it visible:
+Finally (still in the **constructor**) we add the component and make it visible:
 ```
 addAndMakeVisible (m_meters);
 ```
