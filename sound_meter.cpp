@@ -32,8 +32,6 @@
 
 // TODO: - LnF methods.
 // TODO: - Make minimal mode optional.
-// TODO: - Only redraw dirty segments
-// TODO: - Remove gradient CPU cost message.
 
 
 #ifdef SOUND_METER_HEADER_H

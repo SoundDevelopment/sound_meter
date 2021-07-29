@@ -416,8 +416,6 @@ public:
    /**
     * @brief Use gradients in stead of hard segment boundaries.
     * 
-    * Beware that this will come with a CPU cost.
-    * 
     * @param useGradients When set to true, uses smooth gradients. False gives hard segment boundaries.
    */
    void useGradients (bool useGradients) noexcept;
@@ -490,18 +488,22 @@ public:
    void notifyParent();
 
    /**
-    * @brief You can assign a lambda to this callback object to have it called when the fader has moved.
+    * You can assign a lambda to this callback object to have it called when the fader has moved.
    */
+
+   /** You can assign a lambda to this callback object to have it called when the button is clicked. */
    std::function<void (sd::SoundMeter::MeterChannel* meter)> onFaderMove;
 
+ 
 #endif /* SDTK_ENABLE_FADER */
 
-
-   //==============================================================================
-   // Internal
+   /** @internal */  
    void paint (juce::Graphics& g) override;
+   /** @internal */ 
    void resized() override;
+   /** @internal */ 
    void lookAndFeelChanged() override;  // On change in lookandfeel or visibility. Cache the colours.
+   /** @internal */ 
    void visibilityChanged() override;
 
    /**
