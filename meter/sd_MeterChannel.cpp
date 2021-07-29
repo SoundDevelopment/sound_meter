@@ -67,6 +67,11 @@ void MeterChannel::reset() noexcept
 
 #if SDTK_ENABLE_FADER
 
+virtual ~MeterChannel() override
+{
+   onFaderMove = nullptr;
+}
+
 void MeterChannel::flashFader() noexcept
 {
    m_fader.flash();

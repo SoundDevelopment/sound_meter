@@ -128,7 +128,7 @@ public:
     * 
     * @see setValueFromPos, getValue
     */
-   bool setValue (float value, NotificationOptions notificationOption = NotificationOptions::notify);
+   bool setValue (float value, [[maybe_unused]] NotificationOptions notificationOption = NotificationOptions::notify);
 
    /**
     * @brief Set fader value according to a supplied mouse position.
@@ -156,13 +156,13 @@ public:
    void draw (juce::Graphics& g, const juce::Colour& faderColour);
 
 private:
-   std::atomic<float>           m_faderValue { 1.0f };  // Fader value (between 0..1).
-   SoundMeter::MeterChannel*    m_parentMeter = nullptr;
-   bool                         m_visible     = false;
-   bool                         m_enabled     = false;
-   bool                         m_isFading    = false;
-   int                          m_fadeStart   = 0;
-   juce::Rectangle<int>         m_bounds {};
+   std::atomic<float>                            m_faderValue { 1.0f };  // Fader value (between 0..1).
+   [[maybe_unused]] SoundMeter::MeterChannel*    m_parentMeter = nullptr;
+   bool                                          m_visible     = false;
+   bool                                          m_enabled     = false;
+   bool                                          m_isFading    = false;
+   int                                           m_fadeStart   = 0;
+   juce::Rectangle<int>                          m_bounds {};
 
    [[nodiscard]] int getTimeSinceStartFade() const noexcept;
 

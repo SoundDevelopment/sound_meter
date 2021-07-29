@@ -70,11 +70,13 @@ public:
    */
    MeterChannel (Options meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip = false, ChannelType channelType = ChannelType::unknown);
 
+#if SDTK_ENABLE_FADER
    /**
    * @brief Destructor
    */
-   virtual ~MeterChannel() override { onFaderMove = nullptr; }
-
+   virtual ~MeterChannel() override;
+#endif
+   
    /**
     * @brief Reset the meter (but not the peak hold).
     *
@@ -494,7 +496,6 @@ public:
    /** You can assign a lambda to this callback object to have it called when the button is clicked. */
    std::function<void (sd::SoundMeter::MeterChannel* meter)> onFaderMove;
 
- 
 #endif /* SDTK_ENABLE_FADER */
 
    /** @internal */  
