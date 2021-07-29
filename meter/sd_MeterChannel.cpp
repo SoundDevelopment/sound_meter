@@ -36,19 +36,15 @@ namespace sd
 namespace SoundMeter
 {
 
-#pragma region Misc Methods
-
 MeterChannel::MeterChannel()
 #if SDTK_ENABLE_FADER
   : m_fader (this)
 #endif
 {
-   setPaintingIsUnclipped (true);
 }
 //==============================================================================
 
-MeterChannel::MeterChannel (Options meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip /*= false*/,
-                            ChannelType channelType /*= ChannelType::unknown*/ )
+MeterChannel::MeterChannel (Options meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip /*= false*/, ChannelType channelType /*= ChannelType::unknown*/)
   : MeterChannel()
 {
    setName (channelName);
@@ -59,8 +55,6 @@ MeterChannel::MeterChannel (Options meterOptions, Padding padding, const juce::S
    setIsLabelStrip (isLabelStrip);
 
    setPadding (padding);
-
-   setPaintingIsUnclipped (true);
 }
 //==============================================================================
 
@@ -69,11 +63,9 @@ void MeterChannel::reset() noexcept
    m_level.reset();
    setDirty();
 }
-
+//==============================================================================
 
 #if SDTK_ENABLE_FADER
-
-//==============================================================================
 
 void MeterChannel::flashFader() noexcept
 {
@@ -299,10 +291,8 @@ void MeterChannel::paint (juce::Graphics& g)
       drawMeter (g);
    }
 
-
 #if SDTK_ENABLE_FADER
-   // Draw FADER....
-   m_fader.draw (g, juce::Colour (m_faderColour));
+   m_fader.draw (g, juce::Colour (m_faderColour));  // Draw FADER....
 #endif
 
    setDirty (false);
@@ -350,25 +340,23 @@ void MeterChannel::setDirty (bool isDirty /*= true*/) noexcept
 
 void MeterChannel::refresh (const bool forceRefresh)
 {
-   if (m_active)
+   if (! m_active) return;
+
+   // Get input level...
+   const auto callbackLevel = m_level.getInputLevel();
+   const auto height        = static_cast<float> (m_level.getMeterBounds().getHeight());
+
+   // Check if the value part needs to be redrawn....
+   if (callbackLevel > m_level.getPeakHoldLevel() && m_level.isPeakValueVisible()) addDirty (m_level.getValueBounds());
+
+   if (! m_isLabelStrip)
    {
-      // Get input level...
-      const auto callbackLevel = m_level.getInputLevel();
-      const auto height        = static_cast<float> (m_level.getMeterBounds().getHeight());
-
-      // Check if the value part needs to be redrawn....
-      if (callbackLevel > m_level.getPeakHoldLevel() && m_level.isPeakValueVisible()) addDirty (m_level.getValueBounds());
-
-      if (! m_isLabelStrip)
-      {
-         auto dirtyRect = m_level.calculateMeterLevel (callbackLevel);
-         addDirty (dirtyRect);
-      }
+      auto dirtyRect = m_level.calculateMeterLevel (callbackLevel);
+      addDirty (dirtyRect);
    }
 
 #if SDTK_ENABLE_FADER
-   // Repaint if the faders are being faded out...
-   if (m_fader.isFading()) addDirty (m_level.getMeterBounds());
+   if (m_fader.isFading()) addDirty (m_level.getMeterBounds());  // Repaint if the faders are being faded out...
 #endif
 
    // Redraw if dirty or forced to...
@@ -504,7 +492,7 @@ void MeterChannel::mouseDown (const juce::MouseEvent& event)
       // Clicked on the METER part...
       if (! m_header.isMouseOver (event.y) && ! m_level.isMouseOverValue (event.y) && m_fader.isVisible())
       {
-         if (! isActive()) setActive (true);  // Activate if it was de-activated.
+         if (! isActive()) setActive (true);  // Activate if it was deactivated.
          m_fader.setValueFromPos (event.y);   // Set the fader level at the value clicked.
          addDirty (m_fader.getBounds());
       }

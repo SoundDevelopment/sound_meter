@@ -416,8 +416,6 @@ public:
    /**
     * @brief Use gradients in stead of hard segment boundaries.
     * 
-    * Beware that this will come with a CPU cost.
-    * 
     * @param useGradients When set to true, uses smooth gradients. False gives hard segment boundaries.
    */
    void useGradients (bool useGradients) noexcept;
