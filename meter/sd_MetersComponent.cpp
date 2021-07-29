@@ -57,7 +57,7 @@ MetersComponent::MetersComponent (Options meterOptions)
 }
 //==============================================================================
 
-MetersComponent::MetersComponent (const juce::AudioChannelSet& channelFormat) : MetersComponent (Options(), channelFormat) {};
+MetersComponent::MetersComponent (const juce::AudioChannelSet& channelFormat) : MetersComponent (Options(), channelFormat) {}
 //==============================================================================
 
 MetersComponent::MetersComponent (Options meterOptions, const juce::AudioChannelSet& channelFormat) : MetersComponent (meterOptions)
@@ -207,9 +207,9 @@ void MetersComponent::setChannelNames (const std::vector<juce::String>& channelN
 {
    using namespace Constants;
 
-   const int numChannelNames = static_cast<int> (channelNames.size());
+   const auto numChannelNames = static_cast<int>( channelNames.size() );
 
-   const int numMeters = m_meterChannels.size();
+   const auto numMeters = static_cast<int> (m_meterChannels.size());
 
    auto defaultMeterWidth = static_cast<float> (kMinWidth);
 
@@ -218,9 +218,9 @@ void MetersComponent::setChannelNames (const std::vector<juce::String>& channelN
    {
       if (meterIdx < numChannelNames)
       {
-         if (channelNames[meterIdx].isNotEmpty())
+         if (channelNames[(size_t) meterIdx].isNotEmpty())
          {
-            m_meterChannels[meterIdx]->setChannelName (channelNames[meterIdx]);  // ... and set the channel name.
+            m_meterChannels[meterIdx]->setChannelName (channelNames[(size_t) meterIdx]);  // ... and set the channel name.
 
             // Calculate the meter width so it fits the largest of channel names...
             defaultMeterWidth = std::max (defaultMeterWidth, m_meterChannels[meterIdx]->getChannelNameWidth());
@@ -286,7 +286,7 @@ void MetersComponent::faderChanged (MeterChannel* sourceChannel)
          // Apply the master fader VALUE to all meter faders ...
          for (auto singleMeter: m_meterChannels)
          {
-            auto meterIdx = m_meterChannels.indexOf (singleMeter);
+            auto meterIdx = static_cast<size_t>( m_meterChannels.indexOf (singleMeter));
             if (juce::isPositiveAndBelow (meterIdx, m_faderGains.size()))
             {
                m_faderGains[meterIdx] = m_faderGainsBuffer[meterIdx] * sourceChannel->getFaderValue();       // Multiply the gain with the master fader value.
@@ -321,10 +321,10 @@ void MetersComponent::getFaderValues (NotificationOptions notificationOption /*=
    // if( static_cast<int>( m_mixerGains.size() ) != m_meters.size() ) m_mixerGains.resize( m_meters.size() );
 
    // Loop through all meters...
-   for (int channelIdx = 0; channelIdx < m_meterChannels.size(); ++channelIdx)
+   for (int channelIdx = 0; channelIdx < (int)m_meterChannels.size(); ++channelIdx)
    {
       // If the meter is active, get the value from the fader, otherwise a value of 0.0 is used...
-      m_faderGains[channelIdx] = (m_meterChannels[channelIdx]->isActive() ? m_meterChannels[channelIdx]->getFaderValue() : 0.0f);
+      m_faderGains[(size_t) channelIdx] = (m_meterChannels[channelIdx]->isActive() ? m_meterChannels[channelIdx]->getFaderValue() : 0.0f);
    }
 
    // If all meters are in-active, so is the master fader ...
@@ -447,7 +447,7 @@ void MetersComponent::setChannelFormat (const juce::AudioChannelSet& channelForm
 
    // Make sure the number of mixer gains matches the number of channels ...
    if (channelFormat.size() != static_cast<int> (m_faderGains.size()))
-      m_faderGains.resize (channelFormat.size());  // ... and if not resize the mixer gains to accommodate.
+      m_faderGains.resize (static_cast<size_t>(channelFormat.size()));  // ... and if not resize the mixer gains to accommodate.
 
    resetFaders();
 
@@ -471,7 +471,7 @@ void MetersComponent::createMeters (const juce::AudioChannelSet& channelFormat, 
                                                           channelFormat.getTypeOfChannel (channelIdx));
 
 #if SDTK_ENABLE_FADER
-      meterChannel->onFaderMove = [this] (MeterChannel* meterChannel) { faderChanged (meterChannel); };
+      meterChannel->onFaderMove = [this] (MeterChannel* channel) { faderChanged (channel); };
 #endif
 
       meterChannel->setFont (m_font);

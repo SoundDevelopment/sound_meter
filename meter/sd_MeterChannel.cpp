@@ -67,6 +67,11 @@ void MeterChannel::reset() noexcept
 
 #if SDTK_ENABLE_FADER
 
+virtual ~MeterChannel() override
+{
+   onFaderMove = nullptr;
+}
+
 void MeterChannel::flashFader() noexcept
 {
    m_fader.flash();
@@ -344,8 +349,7 @@ void MeterChannel::refresh (const bool forceRefresh)
 
    // Get input level...
    const auto callbackLevel = m_level.getInputLevel();
-   const auto height        = static_cast<float> (m_level.getMeterBounds().getHeight());
-
+ 
    // Check if the value part needs to be redrawn....
    if (callbackLevel > m_level.getPeakHoldLevel() && m_level.isPeakValueVisible()) addDirty (m_level.getValueBounds());
 
