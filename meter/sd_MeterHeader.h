@@ -277,7 +277,7 @@ private:
    void calculateInfoWidth();
 
    // clang-format on
-   JUCE_LEAK_DETECTOR (Header);
+   JUCE_LEAK_DETECTOR (Header)
 };
 
 }  // namespace SoundMeter

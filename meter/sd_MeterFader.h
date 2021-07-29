@@ -56,7 +56,7 @@ public:
     * @brief Parameterized constructor
     * @param parentMeter The parent meter object
    */
-   explicit Fader ( SoundMeter::MeterChannel* parentMeter ) : m_parentMeter (parentMeter) {};
+   explicit Fader ( SoundMeter::MeterChannel* parentMeter ) : m_parentMeter (parentMeter) {}
 
    /**
     * @brief Show the fader briefly and fade out (unless overridden and shown longer).
@@ -160,7 +160,6 @@ private:
    SoundMeter::MeterChannel*    m_parentMeter = nullptr;
    bool                         m_visible     = false;
    bool                         m_enabled     = false;
-   bool                         m_mouseOver   = false;
    bool                         m_isFading    = false;
    int                          m_fadeStart   = 0;
    juce::Rectangle<int>         m_bounds {};

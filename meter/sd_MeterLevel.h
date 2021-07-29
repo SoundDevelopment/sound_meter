@@ -68,7 +68,7 @@ public:
     * 
     * @see getInputLevel
    */
-   inline void setInputLevel (float newLevel) noexcept;
+   void setInputLevel (float newLevel) noexcept;
 
    /**
     * @brief Get's the meter's input level.

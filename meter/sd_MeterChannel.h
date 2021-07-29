@@ -73,7 +73,7 @@ public:
    /**
    * @brief Destructor
    */
-   virtual ~MeterChannel() { onFaderMove = nullptr; }
+   virtual ~MeterChannel() override { onFaderMove = nullptr; }
 
    /**
     * @brief Reset the meter (but not the peak hold).

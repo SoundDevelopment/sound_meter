@@ -146,7 +146,7 @@ void Level::setTickMarks (const std::vector<float>& ticks) noexcept
 }
 //==============================================================================
 
-inline void Level::setInputLevel (float newLevel) noexcept
+void Level::setInputLevel (float newLevel) noexcept
 {
    m_inputLevel.store (m_inputLevelRead.load() ? newLevel : std::max (m_inputLevel.load(), newLevel));
    m_inputLevelRead.store (false);
@@ -236,8 +236,8 @@ void Level::reset() noexcept
 [[nodiscard]] float Level::getDecayedLevel (const float callbackLevel)
 {
    // Measure time passed...
-   const auto currentTime = juce::Time::getMillisecondCounter();
-   const auto timePassed  = juce::Time::getMillisecondCounter() - m_previousRefreshTime;
+   const auto currentTime = static_cast<int>( juce::Time::getMillisecondCounter( ));
+   const auto timePassed  = static_cast<int>( juce::Time::getMillisecondCounter() ) - m_previousRefreshTime;
 
    // A new frame is not needed yet, return the current value...
    if (timePassed < m_refreshPeriod_ms) return m_meterLevel;
