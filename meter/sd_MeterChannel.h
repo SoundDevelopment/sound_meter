@@ -489,10 +489,6 @@ public:
    */
    void notifyParent();
 
-   /**
-    * You can assign a lambda to this callback object to have it called when the fader has moved.
-   */
-
    /** You can assign a lambda to this callback object to have it called when the button is clicked. */
    std::function<void (sd::SoundMeter::MeterChannel* meter)> onFaderMove;
 
