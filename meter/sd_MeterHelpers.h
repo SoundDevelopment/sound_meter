@@ -83,7 +83,7 @@ struct Padding
     * @param newTop    New top padding amount (in pixels).
     * @param newBottom New bottom padding amount (in pixels).
    */
-   Padding (int newLeft, int newRight, int newTop, int newBottom) : left (newLeft), right (newRight), top (newTop), bottom (newBottom) {}
+   Padding (int newLeft, int newRight, int newTop, int newBottom) : left (newLeft), right (newRight), top (newTop), bottom (newBottom) { }
    int left   = 0;  ///< Space between meter and left border (in pixels).
    int right  = 0;  ///< Space between meter and right border (in pixels).
    int top    = 0;  ///< Space between meter and top border (in pixels).
@@ -95,19 +95,20 @@ struct Padding
 */
 struct Options
 {
-   bool               enabled               = true;  ///< Enable the meter.
-   bool               headerEnabled         = true;  ///< Enable the 'header' part of the meter.
-   bool               valueEnabled          = true;  ///< Enable the 'value' part of the meter.
-   bool               faderEnabled          = true;  ///< Enable the fader (overlayed over the meter). Only works if fader have been enabled in the module.
-   bool               useGradient           = true;  ///< Use gradients to fill the meter or hard segment boundaries.
-   bool               showPeakHoldIndicator = true;  ///< Show the peak hold indicator (a line that marks the highest level up to now).
-   float              warningSegment_db     = Constants::kWarningLevel_db;  ///< Boundary level from normal to warning segment.
-   float              peakSegment_db        = Constants::kPeakLevel_db;     ///< Boundary level from warning to peak segment.
-   float              decayTime_ms          = Constants::kDefaultDecay_ms;  ///< Meter decay in milliseconds.
-   float              refreshRate           = 24.0f;                        ///< Meter refresh rate when using internal timing.
-   bool               tickMarksEnabled      = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
-   bool               tickMarksOnTop = false;  ///< Show the tick-marks below the level or above the level (level might obscure the tick-marks if loud enough).
-   std::vector<float> tickMarks      = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };  ///< Tick-mark position in db.
+   bool  enabled               = true;  ///< Enable the meter.
+   bool  headerEnabled         = true;  ///< Enable the 'header' part of the meter.
+   bool  valueEnabled          = true;  ///< Enable the 'value' part of the meter.
+   bool  faderEnabled          = true;  ///< Enable the fader (overlayed over the meter). Only works if fader have been enabled in the module.
+   bool  useGradient           = true;  ///< Use gradients to fill the meter or hard segment boundaries.
+   bool  showPeakHoldIndicator = true;  ///< Show the peak hold indicator (a line that marks the highest level up to now).
+   bool  useMinimalMode        = true;  ///< Automatically adapt the meter to use the most of the space available (by hiding header, value, tick-marks, etc...).
+   float warningSegment_db     = Constants::kWarningLevel_db;  ///< Boundary level from normal to warning segment.
+   float peakSegment_db        = Constants::kPeakLevel_db;     ///< Boundary level from warning to peak segment.
+   float decayTime_ms          = Constants::kDefaultDecay_ms;  ///< Meter decay in milliseconds.
+   float refreshRate           = 24.0f;                        ///< Meter refresh rate when using internal timing.
+   bool  tickMarksEnabled      = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
+   bool  tickMarksOnTop        = false;  ///< Show the tick-marks below the level or above the level (level might obscure the tick-marks if loud enough).
+   std::vector<float> tickMarks = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };  ///< Tick-mark position in db.
 };
 
 /**

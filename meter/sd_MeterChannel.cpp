@@ -125,6 +125,8 @@ void MeterChannel::useGradients (bool useGradients) noexcept
 
 void MeterChannel::setMinimalMode (bool minimalMode) noexcept
 {
+   if (!m_options.useMinimalMode) return;
+
    if (minimalMode == m_minimalMode) return;
 
    m_minimalMode = minimalMode;
@@ -417,6 +419,8 @@ void MeterChannel::resetPeakHold() noexcept
 
 void MeterChannel::setOptions (Options meterOptions)
 {
+   m_options = meterOptions;
+
    setVisible (meterOptions.enabled);
    setEnabled (meterOptions.enabled);
 
