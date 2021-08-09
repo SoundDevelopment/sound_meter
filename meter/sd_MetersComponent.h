@@ -206,9 +206,9 @@ public:
    /**
     * @brief Set the timing option to use (internal/external).
     * 
-    * When using internal timing, the panel will update it's meters by itself using
-    * the refresh rate specified in setPanelRefreshRate.
-    * On external, the user has to do this manually with the 'refresh' method.
+    * When using internal timing, the panel will redraw (refresh) the meters automatically
+    * using the refresh rate specified in setPanelRefreshRate.
+    * When using external timing, the user has to do this manually with the 'refresh' method.
     * 
     * @param useInternalTiming When set to true, the meter panel will update itself.
     * 

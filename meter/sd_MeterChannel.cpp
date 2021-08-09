@@ -125,6 +125,8 @@ void MeterChannel::useGradients (bool useGradients) noexcept
 
 void MeterChannel::setMinimalMode (bool minimalMode) noexcept
 {
+   if (! m_options.useMinimalMode) return;
+
    if (minimalMode == m_minimalMode) return;
 
    m_minimalMode = minimalMode;
@@ -346,11 +348,9 @@ void MeterChannel::setDirty (bool isDirty /*= true*/) noexcept
 
 void MeterChannel::refresh (const bool forceRefresh)
 {
-   if (! m_active) return;
-
    // Get input level...
    const auto callbackLevel = m_level.getInputLevel();
- 
+
    // Check if the value part needs to be redrawn....
    if (callbackLevel > m_level.getPeakHoldLevel() && m_level.isPeakValueVisible()) addDirty (m_level.getValueBounds());
 
@@ -417,6 +417,8 @@ void MeterChannel::resetPeakHold() noexcept
 
 void MeterChannel::setOptions (Options meterOptions)
 {
+   m_options = meterOptions;
+
    setVisible (meterOptions.enabled);
    setEnabled (meterOptions.enabled);
 

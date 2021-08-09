@@ -41,7 +41,7 @@ MetersComponent::MetersComponent() : MetersComponent (Options()) { }
 
 MetersComponent::MetersComponent (Options meterOptions)
   : m_options (meterOptions),
-    m_labelStrip (meterOptions, Padding (Constants::kLabelStripLeftPadding, 0, 0, 0), Constants::kMetersPanelId, true, juce::AudioChannelSet::ChannelType::unknown)
+    m_labelStrip (meterOptions, Padding (Constants::kLabelStripLeftPadding, 0, 0, 0), Constants::kLabelStripId, true, juce::AudioChannelSet::ChannelType::unknown)
 {
 #if SDTK_ENABLE_FADER
    m_labelStrip.enableFader (m_options.faderEnabled);
