@@ -50,123 +50,122 @@ class MeterChannel;
 */
 class Fader
 {
-public:
-
-   /**
-    * @brief Parameterized constructor
-    * @param parentMeter The parent meter object
-   */
-   explicit Fader ( SoundMeter::MeterChannel* parentMeter ) : m_parentMeter (parentMeter) {}
-
-   /**
-    * @brief Show the fader briefly and fade out (unless overridden and shown longer).
+ public:
+    /**
+     * @brief Parameterized constructor
+     * @param parentMeter The parent meter object
     */
-   void flash() noexcept;
+    explicit Fader (SoundMeter::MeterChannel* parentMeter) : m_parentMeter (parentMeter) { }
 
-   /**
+    /**
+     * @brief Show the fader briefly and fade out (unless overridden and shown longer).
+    */
+    void flash() noexcept;
+
+    /**
     * @brief Check if the fader is visible.
-    * 
-    * @return True, if the meter is visible, otherwise the fader is hidden.
-    * @see setVisible, setEnabled, isEnabled
-   */
-   [[nodiscard]] bool isVisible() const noexcept;
-
-   /**
-    * @brief Show or hide the fader.
-    * 
-    * @param setVisible When set to true, show the fader. Otherwise hide it.
-    * @see isVisible, setEnabled, isEnabled
-   */
-   void setVisible (bool showFader = true) noexcept;
-
-   /**
-    * @brief Check if the 'fader' overlay is enabled.
-    * 
-    * @return True, when the fader is enabled.
-    * @see setEnabled, isVisible, setVisible
-   */
-   [[nodiscard]] bool isEnabled() const noexcept;
-
-   /**
-    * @brief Enable or disable the 'fader' overlay.
-    * 
-    * @param enabled True, when the fader needs to be enabled.
-    * @see isEnabled, isActive, setActive
-   */
-   void enable (bool enabled = true) noexcept;
-
-   /**
-    * @brief Set the fader bounds.
-    * 
-    * @param bounds Bounds to use for the fader.
-    * @see getBounds
-   */
-   void setBounds (const juce::Rectangle<int>& bounds) noexcept;
-
-   /**
-    * @brief Get the fader bounds.
-    * 
-    * @return Bounds used by the fader.
-    * @see setBounds
-   */
-   [[nodiscard]] juce::Rectangle<int> getBounds() const noexcept;
-
-   /**
-    * @brief Get the value of the meter fader.
-    *
-    * @return The current fader value [0..1].
-    * @see setValueFromPos, setValue
+     * 
+     * @return True, if the meter is visible, otherwise the fader is hidden.
+     * @see setVisible, setEnabled, isEnabled
     */
-   [[nodiscard]] float getValue() const noexcept;
+    [[nodiscard]] bool isVisible() const noexcept;
 
-   /**
-    * @brief Set fader value.
-    *
-    * @param value               The value [0..1] the fader needs to be set to.
-    * @param notificationOption  Select whether to notify the listeners.
-    * @return                    True, if the value actually changed.
-    * 
-    * @see setValueFromPos, getValue
+    /**
+     * @brief Show or hide the fader.
+     * 
+     * @param setVisible When set to true, show the fader. Otherwise hide it.
+     * @see isVisible, setEnabled, isEnabled
     */
-   bool setValue (float value, [[maybe_unused]] NotificationOptions notificationOption = NotificationOptions::notify);
+    void setVisible (bool showFader = true) noexcept;
 
-   /**
-    * @brief Set fader value according to a supplied mouse position.
-    * 
-    * @param position           The mouse position (y coordinate) to use to calculate the fader value.
-    * @param notificationOption Select whether to notify the listeners.
-    * 
-    * @see setValue
-   */
-   void setValueFromPos (int position, NotificationOptions notificationOption = NotificationOptions::notify);
-
-   /**
-    * Check whether the fader is currently fading out.
-    *
-    * @return True, if the fader is currently fading out.
+    /**
+     * @brief Check if the 'fader' overlay is enabled.
+     * 
+     * @return True, when the fader is enabled.
+     * @see setEnabled, isVisible, setVisible
     */
-   [[nodiscard]] bool isFading() const noexcept { return m_isFading; }
+    [[nodiscard]] bool isEnabled() const noexcept;
 
-   /**
-    * Draw the fader.
-    *
-    * @param[in,out] g   The juce graphics context to use.
-    * @param faderColour Fader colour to use.
+    /**
+     * @brief Enable or disable the 'fader' overlay.
+     * 
+     * @param enabled True, when the fader needs to be enabled.
+     * @see isEnabled, isActive, setActive
     */
-   void draw (juce::Graphics& g, const juce::Colour& faderColour);
+    void enable (bool enabled = true) noexcept;
 
-private:
-   std::atomic<float>                            m_faderValue { 1.0f };  // Fader value (between 0..1).
-   [[maybe_unused]] SoundMeter::MeterChannel*    m_parentMeter = nullptr;
-   bool                                          m_visible     = false;
-   bool                                          m_enabled     = false;
-   bool                                          m_isFading    = false;
-   int                                           m_fadeStart   = 0;
-   juce::Rectangle<int>                          m_bounds {};
+    /**
+     * @brief Set the fader bounds.
+     * 
+     * @param bounds Bounds to use for the fader.
+     * @see getBounds
+    */
+    void setBounds (const juce::Rectangle<int>& bounds) noexcept;
 
-   [[nodiscard]] int getTimeSinceStartFade() const noexcept;
+    /**
+     * @brief Get the fader bounds.
+     * 
+     * @return Bounds used by the fader.
+     * @see setBounds
+    */
+    [[nodiscard]] juce::Rectangle<int> getBounds() const noexcept;
 
-   JUCE_LEAK_DETECTOR (Fader)
+    /**
+     * @brief Get the value of the meter fader.
+     *
+     * @return The current fader value [0..1].
+     * @see setValueFromPos, setValue
+    */
+    [[nodiscard]] float getValue() const noexcept;
+
+    /**
+     * @brief Set fader value.
+     *
+     * @param value               The value [0..1] the fader needs to be set to.
+     * @param notificationOption  Select whether to notify the listeners.
+     * @return                    True, if the value actually changed.
+     * 
+     * @see setValueFromPos, getValue
+    */
+    bool setValue (float value, [[maybe_unused]] NotificationOptions notificationOption = NotificationOptions::notify);
+
+    /**
+     * @brief Set fader value according to a supplied mouse position.
+     * 
+     * @param position           The mouse position (y coordinate) to use to calculate the fader value.
+     * @param notificationOption Select whether to notify the listeners.
+     * 
+     * @see setValue
+    */
+    void setValueFromPos (int position, NotificationOptions notificationOption = NotificationOptions::notify);
+
+    /**
+     * Check whether the fader is currently fading out.
+     *
+     * @return True, if the fader is currently fading out.
+    */
+    [[nodiscard]] bool isFading() const noexcept { return m_isFading; }
+
+    /**
+     * Draw the fader.
+     *
+     * @param[in,out] g   The juce graphics context to use.
+     * @param faderColour Fader colour to use.
+    */
+    void draw (juce::Graphics& g, const juce::Colour& faderColour);
+
+ private:
+    std::atomic<float>                         m_faderValue { 1.0f };  // Fader value (between 0..1).
+    [[maybe_unused]] SoundMeter::MeterChannel* m_parentMeter = nullptr;
+    bool                                       m_visible     = false;
+    bool                                       m_enabled     = false;
+    bool                                       m_isFading    = false;
+    int                                        m_fadeStart   = 0;
+    juce::Rectangle<int>                       m_bounds {};
+
+    [[nodiscard]] int getTimeSinceStartFade() const noexcept;
+
+    JUCE_LEAK_DETECTOR (Fader)
 };
 
 }  // namespace SoundMeter

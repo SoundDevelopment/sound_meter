@@ -41,12 +41,12 @@ namespace Helpers
 //==============================================================================
 [[nodiscard]] juce::Rectangle<int> applyPadding (const juce::Rectangle<int>& rectToPad, Padding paddingToApply)
 {
-   juce::Rectangle<int> result { rectToPad };
-   if (juce::isPositiveAndBelow (paddingToApply.left, result.getWidth())) result.setLeft (rectToPad.getX() + paddingToApply.left);
-   if (juce::isPositiveAndBelow (paddingToApply.right, result.getWidth())) result.setWidth (rectToPad.getWidth() - paddingToApply.right);
-   if (juce::isPositiveAndBelow (paddingToApply.bottom, result.getHeight())) result.setHeight (rectToPad.getHeight() - paddingToApply.bottom);
+    juce::Rectangle<int> result { rectToPad };
+    if (juce::isPositiveAndBelow (paddingToApply.left, result.getWidth())) result.setLeft (rectToPad.getX() + paddingToApply.left);
+    if (juce::isPositiveAndBelow (paddingToApply.right, result.getWidth())) result.setWidth (rectToPad.getWidth() - paddingToApply.right);
+    if (juce::isPositiveAndBelow (paddingToApply.bottom, result.getHeight())) result.setHeight (rectToPad.getHeight() - paddingToApply.bottom);
 
-   return result;
+    return result;
 }
 
 }  // namespace Helpers
