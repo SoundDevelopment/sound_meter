@@ -55,7 +55,7 @@ class Level
      * @brief Reset the meter (but not the peak hold).
      *
      * @see resetPeakHold
-     */
+    */
     void reset() noexcept;
 
     /**
