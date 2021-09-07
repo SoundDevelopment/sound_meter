@@ -38,87 +38,87 @@ namespace SoundMeter
 
 void Segment::draw (juce::Graphics& g, bool useGradient) const
 {
-   if (m_segmentBounds.isEmpty()) return;
+    if (m_segmentBounds.isEmpty()) return;
 
-   // Get the actual 'level' rectangle...
-   const auto levelRect = m_segmentBounds.withTop (m_segmentBounds.getBottom() - m_currentLevel_px);
+    // Get the actual 'level' rectangle...
+    const auto levelRect = m_segmentBounds.withTop (m_segmentBounds.getBottom() - m_currentLevel_px);
 
-   // Set the fill of the meters (solid zones or gradients)...
-   if (useGradient)
-      g.setGradientFill (m_gradientFill);
-   else
-      g.setColour (m_segmentColour);
+    // Set the fill of the meters (solid zones or gradients)...
+    if (useGradient)
+        g.setGradientFill (m_gradientFill);
+    else
+        g.setColour (m_segmentColour);
 
-   // Actually draw the level...
-   g.fillRect (levelRect);
+    // Actually draw the level...
+    g.fillRect (levelRect);
 }
 //==============================================================================
 
 void Segment::setLevel (float level) noexcept
 {
-   if (m_segmentBounds.isEmpty()) return;
+    if (m_segmentBounds.isEmpty()) return;
 
-   // Store previous level drawn (to check later if the segment needs to be redrawn).
-   const auto previousLevel_px = m_currentLevel_px;
+    // Store previous level drawn (to check later if the segment needs to be redrawn).
+    const auto previousLevel_px = m_currentLevel_px;
 
-   // Set the new level and calculate the amount of pixels it corresponds to...
-   m_currentLevel    = juce::jlimit (m_startLevel, m_stopLevel, level);
-   m_currentLevel_px = static_cast<int> (std::round ((m_currentLevel - m_startLevel) * m_levelMultiplier));
+    // Set the new level and calculate the amount of pixels it corresponds to...
+    m_currentLevel    = juce::jlimit (m_startLevel, m_stopLevel, level);
+    m_currentLevel_px = static_cast<int> (std::round ((m_currentLevel - m_startLevel) * m_levelMultiplier));
 
-   // If the level drawn needs to be update, make the segment 'dirty'.
-   m_dirty = (m_currentLevel_px != previousLevel_px);
+    // If the level drawn needs to be update, make the segment 'dirty'.
+    m_dirty = (m_currentLevel_px != previousLevel_px);
 }
 //==============================================================================
 
 void Segment::setRange (float newStartLevel, float newStopLevel) noexcept
 {
-   const auto startLevel = juce::jlimit (0.0f, 1.0f, newStartLevel);
-   const auto stopLevel  = juce::jlimit (0.0f, 1.0f, newStopLevel);
+    const auto startLevel = juce::jlimit (0.0f, 1.0f, newStartLevel);
+    const auto stopLevel  = juce::jlimit (0.0f, 1.0f, newStopLevel);
 
-   if (startLevel >= stopLevel)
-   {
-      jassertfalse;  // NOLINT
-      return;
-   }
+    if (startLevel >= stopLevel)
+    {
+        jassertfalse;  // NOLINT
+        return;
+    }
 
-   m_startLevel = startLevel;
-   m_stopLevel  = stopLevel;
+    m_startLevel = startLevel;
+    m_stopLevel  = stopLevel;
 
-   calculateSegment();
+    calculateSegment();
 }
 //==============================================================================
 
 void Segment::setMeterBounds (juce::Rectangle<int> bounds) noexcept
 {
-   m_meterBounds = bounds;
-   calculateSegment();
+    m_meterBounds = bounds;
+    calculateSegment();
 }
 //==============================================================================
 
 void Segment::calculateSegment() noexcept
 {
-   if (m_meterBounds.isEmpty()) return;
+    if (m_meterBounds.isEmpty()) return;
 
-   // Calculate segment bounds...
-   m_segmentBounds = m_meterBounds.toFloat().getProportion<float> ({ 0.0f, 1.0f - m_stopLevel, 1.0f, m_stopLevel - m_startLevel }).toNearestIntEdges();
+    // Calculate segment bounds...
+    m_segmentBounds = m_meterBounds.toFloat().getProportion<float> ({ 0.0f, 1.0f - m_stopLevel, 1.0f, m_stopLevel - m_startLevel }).toNearestIntEdges();
 
-   // Calculate level multiplier to optimize level drawing...
-   m_levelMultiplier = m_segmentBounds.getHeight() / (m_stopLevel - m_startLevel);
+    // Calculate level multiplier to optimize level drawing...
+    m_levelMultiplier = m_segmentBounds.getHeight() / (m_stopLevel - m_startLevel);
 
-   // Calculate gradient fill...
-   const juce::Point<float> gradientPoint1 = { 0.0f, static_cast<float> (m_segmentBounds.getBottom()) };
-   const juce::Point<float> gradientPoint2 = { 0.0f, static_cast<float> (m_segmentBounds.getY()) };
-   m_gradientFill                          = juce::ColourGradient (m_segmentColour, gradientPoint1, m_nextColour, gradientPoint2, false);
+    // Calculate gradient fill...
+    const juce::Point<float> gradientPoint1 = { 0.0f, static_cast<float> (m_segmentBounds.getBottom()) };
+    const juce::Point<float> gradientPoint2 = { 0.0f, static_cast<float> (m_segmentBounds.getY()) };
+    m_gradientFill                          = juce::ColourGradient (m_segmentColour, gradientPoint1, m_nextColour, gradientPoint2, false);
 
-   setLevel (m_currentLevel);
+    setLevel (m_currentLevel);
 }
 //==============================================================================
 
 void Segment::setColours (const juce::Colour& segmentColour, const juce::Colour& nextColour) noexcept
 {
-   m_segmentColour = segmentColour;
-   m_nextColour    = nextColour;
-   calculateSegment();
+    m_segmentColour = segmentColour;
+    m_nextColour    = nextColour;
+    calculateSegment();
 }
 
 }  // namespace SoundMeter
