@@ -503,6 +503,21 @@ class MeterChannel
     /** @internal */
     void visibilityChanged() override;
 
+    
+    /**
+     These methods define a interface for the LookAndFeel class of juce.
+     The MeterChannel needs a LookAndFeel, that implements these methods.
+     There is a default implementation to be included in your custom LookAndFeel class, \see LookAndFeelMethods.h
+     */
+    class LookAndFeelMethods
+    {
+     public:
+        virtual ~LookAndFeelMethods() { }
+
+        /** This is called to draw the fader on top of the meter. */
+        virtual void drawFader( juce::Graphics& g, juce::Rectangle<int> bounds, float faderValue, juce::Colour faderColour ) = 0;
+    };
+
     /**
      * @brief Colour IDs that can be used to customise the colours.
      * This can be done by overriding juce's LookAndFeel class.
