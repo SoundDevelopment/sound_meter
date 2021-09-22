@@ -189,6 +189,7 @@ void Level::setOptions (Options meterOptions)
     useGradients (meterOptions.useGradient);
     setRefreshRate (meterOptions.refreshRate);
     showPeakHold (meterOptions.showPeakHoldIndicator);
+    enableValue( meterOptions.valueEnabled);
 
     m_options = meterOptions;
 }
