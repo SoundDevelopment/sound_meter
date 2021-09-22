@@ -127,8 +127,6 @@ void MeterChannel::setMinimalMode (bool minimalMode) noexcept
 {
     if (! m_options.useMinimalMode) return;
 
-    if (minimalMode == m_minimalMode) return;
-
     m_minimalMode = minimalMode;
     showTickMarks (! m_minimalMode);      // ... show tick marks if it's not too narrow for ID and not in minimum mode.
     showHeader (! m_minimalMode);         // ... show channel ID if it's not too narrow for ID and not in minimum mode.
