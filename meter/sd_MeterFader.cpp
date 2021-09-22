@@ -114,30 +114,12 @@ void Fader::draw (juce::Graphics& g, const juce::Colour& faderColour)
     // If the fader is not fully transparent, draw it...
     if (alpha > 0.0f)
     {
-        bool lnfMethodFound = false;
-        if (m_parentMeter)
-        {
-            juce::LookAndFeel& lnf = m_parentMeter->getLookAndFeel();
-            if (MeterChannel::LookAndFeelMethods* lnfMethods = dynamic_cast<MeterChannel::LookAndFeelMethods*> (&lnf))
-            {
-                lnfMethods->drawFader (g, m_bounds, getValue(), faderColour.withAlpha (alpha));
-                lnfMethodFound = true;
-            }
-        }
-
-        if (! lnfMethodFound) drawFader (g, m_bounds, getValue(), faderColour.withAlpha (alpha));
+        g.setColour (faderColour.withAlpha (alpha));
+        auto faderRect = m_bounds;
+        g.fillRect (faderRect.removeFromBottom (m_bounds.proportionOfHeight (getValue())));
     }
 }
 //==============================================================================
-
-void Fader::drawFader (juce::Graphics& g, juce::Rectangle<int> bounds, float value, juce::Colour faderColour)
-{
-    g.setColour (faderColour);
-    auto faderRect = bounds;
-    g.fillRect (faderRect.removeFromBottom (bounds.proportionOfHeight (value)));
-}
-//==============================================================================
-
 
 [[nodiscard]] bool Fader::isEnabled() const noexcept
 {

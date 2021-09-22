@@ -447,12 +447,9 @@ void MetersComponent::setChannelFormat (const juce::AudioChannelSet& channelForm
 
     // Make sure the number of mixer gains matches the number of channels ...
     if (channelFormat.size() != static_cast<int> (m_faderGains.size()))
-    {
         m_faderGains.resize (static_cast<size_t> (channelFormat.size()));  // ... and if not resize the mixer gains to accommodate.
-        std::fill (m_faderGains.begin(), m_faderGains.end(), 1.0f);
-        resetFaders();
-    }
 
+    resetFaders();
 
 #endif /* SDTK_ENABLE_FADER */
 }

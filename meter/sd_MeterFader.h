@@ -140,31 +140,19 @@ class Fader
     void setValueFromPos (int position, NotificationOptions notificationOption = NotificationOptions::notify);
 
     /**
-     * @brief Check whether the fader is currently fading out.
+     * Check whether the fader is currently fading out.
      *
      * @return True, if the fader is currently fading out.
     */
     [[nodiscard]] bool isFading() const noexcept { return m_isFading; }
 
     /**
-     * @brief Draw the fader.
+     * Draw the fader.
      *
      * @param[in,out] g   The juce graphics context to use.
      * @param faderColour Fader colour to use.
     */
     void draw (juce::Graphics& g, const juce::Colour& faderColour);
-    
-    /**
-     * @brief Actually draw the fader part.
-     * 
-     * This function get's called or an overridden LookAndFeel method.
-     * 
-     * @param[in,out] g The juce graphics context to use.
-     * @param bounds  The bounds available to the fader part.
-     * @param value     The value of the fader.
-     * @param alpha     The alpha component of the fader (to enable fading).
-    */
-    void drawFader (juce::Graphics& g, juce::Rectangle<int> bounds, float value, juce::Colour faderColour );
 
  private:
     std::atomic<float>                         m_faderValue { 1.0f };  // Fader value (between 0..1).

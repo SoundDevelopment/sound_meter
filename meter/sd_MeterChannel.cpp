@@ -300,8 +300,7 @@ void MeterChannel::paint (juce::Graphics& g)
     }
 
 #if SDTK_ENABLE_FADER
-    if ( !m_minimalMode )
-        m_fader.draw (g, juce::Colour (m_faderColour));  // Draw FADER....
+    m_fader.draw (g, juce::Colour (m_faderColour));  // Draw FADER....
 #endif
 
     setDirty (false);

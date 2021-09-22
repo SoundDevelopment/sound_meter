@@ -62,13 +62,13 @@ static constexpr auto kDefaultDecay_ms         = 1000.0f;  ///< Default meter de
 static constexpr auto kTickMarkHeight          = 2;        ///< Height of a tick mark (in pixels).
 static constexpr auto kFaderFadeTime_ms        = 2500;     ///< Fader fade out time (in milliseconds).
 static constexpr auto kFaderSensitivity        = 10.0f;    ///< Fader sensitivity value. Must be a positive value > 0.
-static constexpr auto kFaderAlphaMax           = 0.8f;     ///< Maximum transparency (alpha) of the fader overlay.
+static constexpr auto kFaderAlphaMax           = 0.3f;     ///< Maximum transparency (alpha) of the fader overlay.
 static constexpr auto kWarningLevel_db         = -9.0f;    ///< Dividing level between 'normal' and 'warning' segments (in decibels).
 static constexpr auto kPeakLevel_db            = -3.0f;    ///< Dividing level between 'warning' and 'peak' segments (in decibels).
-static constexpr auto kMinModeHeightThreshold  = 150;  ///< Meter minimum mode height threshold in pixels (min. mod is just the meter. not value, ticks or fader).
-static constexpr auto kMinModeWidthThreshold   = 15;   ///< Meter minimum mode width threshold in pixels (min. mod is just the meter. not value, ticks or fader).
-static constexpr auto kMetersPanelId           = "meters_panel";  ///< ID (name) of all components in the meters panel.
-static constexpr auto kLabelStripId            = "label_strip";   ///< ID (name) of the label-strip (master fader).
+static constexpr auto kMinModeHeightThreshold = 150;  ///< Meter minimum mode height threshold in pixels (min. mod is just the meter. not value, ticks or fader).
+static constexpr auto kMinModeWidthThreshold  = 15;   ///< Meter minimum mode width threshold in pixels (min. mod is just the meter. not value, ticks or fader).
+static constexpr auto kMetersPanelId          = "meters_panel";  ///< ID (name) of all components in the meters panel.
+static constexpr auto kLabelStripId           = "label_strip";   ///< ID (name) of the label-strip (master fader).
 }  // namespace Constants
 
 /**
