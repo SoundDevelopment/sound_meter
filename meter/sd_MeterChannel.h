@@ -53,6 +53,7 @@ class MeterChannel
 {
  public:
     using ChannelType = juce::AudioChannelSet::ChannelType;
+    using Ptr         = juce::Component::SafePointer<MeterChannel>;
 
     /**
      * @brief Default constructor.
