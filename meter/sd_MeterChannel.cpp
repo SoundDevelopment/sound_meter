@@ -361,7 +361,7 @@ void MeterChannel::refresh (const bool forceRefresh)
         }
 
 #if SDTK_ENABLE_FADER
-        if (m_fader.isFading()) addDirty (m_level.getMeterBounds());  // Repaint if the faders are being faded out...
+        if (m_fader.needsRedrawing()) addDirty (m_level.getMeterBounds());  // Repaint if the faders are being moved/faded out...
 #endif
     }
 
@@ -468,7 +468,6 @@ void MeterChannel::setFaderValue (const float value, NotificationOptions notific
     if (m_fader.setValue (value, notificationOption))
     {
         if (mustShowFader && ! m_fader.isVisible()) flashFader();
-
         addDirty (m_fader.getBounds());
     }
 }

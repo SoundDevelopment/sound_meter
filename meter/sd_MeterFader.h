@@ -140,27 +140,33 @@ class Fader
     void setValueFromPos (int position, NotificationOptions notificationOption = NotificationOptions::notify);
 
     /**
-     * Check whether the fader is currently fading out.
+     * @brief Check whether the fader is currently fading out.
      *
      * @return True, if the fader is currently fading out.
     */
     [[nodiscard]] bool isFading() const noexcept { return m_isFading; }
 
     /**
-     * Draw the fader.
+     * @brief Draw the fader.
      *
      * @param[in,out] g   The juce graphics context to use.
      * @param faderColour Fader colour to use.
     */
     void draw (juce::Graphics& g, const juce::Colour& faderColour);
+    
+    /**
+     * @brief Check if the fader needs redrawing.
+    */
+    [[nodiscard]] bool needsRedrawing() { return ( m_drawnFaderValue != m_faderValue.load() ) || isFading(); }
 
  private:
     std::atomic<float>                         m_faderValue { 1.0f };  // Fader value (between 0..1).
-    [[maybe_unused]] SoundMeter::MeterChannel* m_parentMeter = nullptr;
-    bool                                       m_visible     = false;
-    bool                                       m_enabled     = false;
-    bool                                       m_isFading    = false;
-    int                                        m_fadeStart   = 0;
+    float                                      m_drawnFaderValue = 0.0f;
+    [[maybe_unused]] SoundMeter::MeterChannel* m_parentMeter     = nullptr;
+    bool                                       m_visible         = false;
+    bool                                       m_enabled         = false;
+    bool                                       m_isFading        = false;
+    int                                        m_fadeStart       = 0;
     juce::Rectangle<int>                       m_bounds {};
 
     [[nodiscard]] int getTimeSinceStartFade() const noexcept;

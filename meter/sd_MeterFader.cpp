@@ -116,7 +116,8 @@ void Fader::draw (juce::Graphics& g, const juce::Colour& faderColour)
     {
         g.setColour (faderColour.withAlpha (alpha));
         auto faderRect = m_bounds;
-        g.fillRect (faderRect.removeFromBottom (m_bounds.proportionOfHeight (getValue())));
+        m_drawnFaderValue = getValue();
+        g.fillRect (faderRect.removeFromBottom (m_bounds.proportionOfHeight (m_drawnFaderValue)));
     }
 }
 //==============================================================================
