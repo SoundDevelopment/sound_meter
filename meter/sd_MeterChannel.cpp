@@ -469,6 +469,7 @@ void MeterChannel::setFaderValue (const float value, NotificationOptions notific
     {
         if (mustShowFader && ! m_fader.isVisible()) flashFader();
         addDirty (m_fader.getBounds());
+        refresh (false);
     }
 }
 //==============================================================================
@@ -600,7 +601,8 @@ void MeterChannel::mouseDrag (const juce::MouseEvent& event)
         && ! m_level.isMouseOverValue (event.y))
     {
         m_fader.setValueFromPos (event.y);
-        addDirty (m_fader.getBounds().getUnion (m_header.getBounds()));
+        addDirty (m_level.getMeterBounds());
+        refresh (false);
     }
 }
 //==============================================================================
