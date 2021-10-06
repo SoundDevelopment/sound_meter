@@ -159,7 +159,7 @@ void Fader::setValueFromPos (const int position, NotificationOptions notificatio
     const auto height = static_cast<float> (m_bounds.getHeight());
     if (height <= 0.0f) return;
 
-    setValue (1.0f - juce::jlimit (0.0f, 1.0f, static_cast<float> (position - m_bounds.getY()) / height), notificationOption);
+    setValue (1.0f - std::clamp(static_cast<float> (position - m_bounds.getY()) / height, 0.0f, 1.0f ), notificationOption);
 }
 //==============================================================================
 
