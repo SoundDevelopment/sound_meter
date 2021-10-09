@@ -49,7 +49,7 @@ namespace Constants
 static constexpr auto kMinWidth                = 2;        ///< Minimum meter width (in pixels).
 static constexpr auto kMaxWidth                = 500;      ///< Maximum meter width (in pixels).
 static constexpr auto kPeakHoldHeight          = 2;        ///< Height of the peak hold strip (in pixels).
-static constexpr auto kDefaultHeaderHeight     = 30;       ///< Default height of the 'header' part (in pixels).
+static constexpr auto kDefaultHeaderHeight     = 25;       ///< Default height of the 'header' part (in pixels).
 static constexpr auto kDefaultHeaderLabelWidth = 30;       ///< Default 'header' label width (in pixels).
 static constexpr auto kDefaultHeaderFontHeight = 12.0f;    ///< Default height of the font used in the 'header' part (in pixels).
 static constexpr auto kLabelStripTextPadding   = 2;        ///< Padding around the text in a label strip (in pixels).
