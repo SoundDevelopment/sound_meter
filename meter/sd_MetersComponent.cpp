@@ -84,8 +84,7 @@ void MetersComponent::reset()
     deleteMeters();
 
 #if SDTK_ENABLE_FADER
-    m_faderGains.clear();
-    m_faderGainsBuffer.clear();
+    resetFaders();
     m_labelStrip.showFader (false);
 #endif
 
@@ -387,8 +386,12 @@ void MetersComponent::muteAll (bool mute /*= true */)
 
 void MetersComponent::resetFaders()
 {
-    std::fill (m_faderGains.begin(), m_faderGains.end(), 1.0f);  // Set all fader gains to unity.
-    m_faderGainsBuffer = m_faderGains;                           // Copy the just reset fade gains to it's buffer.
+    if (std::any_of (m_faderGains.begin(), m_faderGains.end(), [] (auto gain) { return gain != 1.0F; }) )
+    {
+        std::fill (m_faderGains.begin(), m_faderGains.end(), 1.0f);  // Set all fader gains to unity.
+        notifyListeners();
+    }
+    m_faderGainsBuffer = m_faderGains;                           // Copy the just reset fader gains to it's buffer.
 
     // Activate (un-mute) all faders and set them to unity gain...
     for (const auto& meterChannel: m_meterChannels)
@@ -400,7 +403,6 @@ void MetersComponent::resetFaders()
     m_labelStrip.setActive (true);
     m_labelStrip.setFaderValue (1.0f);
     m_labelStrip.flashFader();
-    notifyListeners();
 }
 //==============================================================================
 
