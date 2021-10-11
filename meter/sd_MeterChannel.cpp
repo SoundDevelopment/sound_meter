@@ -254,9 +254,12 @@ void MeterChannel::resized()
     // Resize channel name and value...
     if (! m_isLabelStrip)  // Label strips do not have channel names or peak values.
     {
-        // Draw peak value.
-        const bool wideEnoughForValue = m_header.getFont().getStringWidth ("-99.99") <= meterBounds.getWidth();
-        if (m_level.isPeakValueVisible() && wideEnoughForValue) m_level.setValueBounds (meterBounds.removeFromBottom (Constants::kDefaultHeaderHeight));
+        if ( auto* font = m_header.getFont() )
+        {
+            // Draw peak value.
+            const bool wideEnoughForValue = font->getStringWidth ("-99.99") <= meterBounds.getWidth();
+            if (m_level.isPeakValueVisible() && wideEnoughForValue) m_level.setValueBounds (meterBounds.removeFromBottom (Constants::kDefaultHeaderHeight));
+        }
     }
 
 #if SDTK_ENABLE_FADER
@@ -270,7 +273,8 @@ void MeterChannel::paint (juce::Graphics& g)
 {
     if (getLocalBounds().isEmpty()) return;
 
-    g.setFont (m_header.getFont());
+    if (auto* font = m_header.getFont())
+        g.setFont (*font);
 
     // Draw the 'HEADER' part of the meter...
 #if SDTK_ENABLE_FADER
@@ -402,9 +406,9 @@ void MeterChannel::resetMouseOvers() noexcept
 }
 //==============================================================================
 
-void MeterChannel::setFont (const juce::Font& font) noexcept
+void MeterChannel::setFont ( juce::Font* font) noexcept
 {
-    m_header.setFont (font.withHeight (Constants::kDefaultHeaderFontHeight));
+    m_header.setFont (font);
     setDirty();
 }
 //==============================================================================

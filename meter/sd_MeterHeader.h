@@ -156,14 +156,14 @@ class Header
     * @param font The font to use.
     * @see getFont
     */
-    void setFont (const juce::Font& font) noexcept;
+    void setFont (juce::Font* font) noexcept;
 
     /**
      * @brief Get the font used to display the info.
      * 
      * @return The font used to display the info.
     */
-    [[nodiscard]] const juce::Font& getFont() const noexcept;
+    [[nodiscard]] const juce::Font* getFont() const noexcept;
 
     /**
     * @brief Set the bounds of the 'header' part of the meter.
@@ -259,8 +259,7 @@ class Header
     bool m_visible = true;
     bool m_enabled = true;
 
-    juce::Font m_font;
-
+    juce::Font* m_font = nullptr;
     // Info
     juce::String                       m_name                 = "";
     juce::AudioChannelSet::ChannelType m_type                 = juce::AudioChannelSet::ChannelType::unknown;

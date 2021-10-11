@@ -101,8 +101,10 @@ void Header::setName (const juce::String name)
 
 void Header::calculateInfoWidth()
 {
-    m_nameWidth = m_font.getStringWidthFloat (m_name);
-    m_typeWidth = m_font.getStringWidthFloat (m_typeDescription);
+    if (! m_font) return;
+
+    m_nameWidth = m_font->getStringWidthFloat (m_name);
+    m_typeWidth = m_font->getStringWidthFloat (m_typeDescription);
 }
 //==============================================================================
 
@@ -151,13 +153,13 @@ void Header::setBounds (const juce::Rectangle<int>& bounds) noexcept
 }
 //==============================================================================
 
-[[nodiscard]] const juce::Font& Header::getFont() const noexcept
+[[nodiscard]] const juce::Font* Header::getFont() const noexcept
 {
     return m_font;
 }
 //==============================================================================
 
-void Header::setFont (const juce::Font& font) noexcept
+void Header::setFont ( juce::Font* font) noexcept
 {
     m_font = font;
     calculateInfoWidth();
@@ -166,7 +168,9 @@ void Header::setFont (const juce::Font& font) noexcept
 
 bool Header::textFits (const juce::String& text, const int widthAvailable) const
 {
-    return m_font.getStringWidthFloat (text) <= static_cast<float> (widthAvailable);
+    if (! m_font) return false;
+
+    return m_font->getStringWidthFloat (text) <= static_cast<float> (widthAvailable);
 }
 //==============================================================================
 

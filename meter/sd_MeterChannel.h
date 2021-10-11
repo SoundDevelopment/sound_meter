@@ -131,9 +131,9 @@ class MeterChannel
     void setActive (bool isActive, NotificationOptions notify = NotificationOptions::dontNotify);
 
     /**
-     * @brief Check if the meter is active (unmuted).
+     * @brief Check if the meter is active (un-muted).
      *
-     * @return True, if the meter is active (unmuted).
+     * @return True, if the meter is active (un-muted).
      *
      * @see setActive
     */
@@ -247,7 +247,7 @@ class MeterChannel
      *
      * @param font The font to use.
     */
-    void setFont (const juce::Font& font) noexcept;
+    void setFont ( juce::Font* font) noexcept;
 
     /**
      * @brief Set the channel name.

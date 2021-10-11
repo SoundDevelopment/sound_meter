@@ -474,7 +474,7 @@ void MetersComponent::createMeters (const juce::AudioChannelSet& channelFormat, 
         meterChannel->onFaderMove = [this] (MeterChannel* channel) { faderChanged (channel); };
 #endif
 
-        meterChannel->setFont (m_font);
+        meterChannel->setFont (&m_font);
         meterChannel->addMouseListener (this, true);
 
         addChildComponent (meterChannel.get());
@@ -530,8 +530,8 @@ void MetersComponent::setFont (const juce::Font& newFont) noexcept
 {
     m_font = newFont;
     for (auto* meterChannel: m_meterChannels)
-        meterChannel->setFont (newFont);
-    m_labelStrip.setFont (newFont);
+        meterChannel->setFont (&m_font);
+    m_labelStrip.setFont (&m_font);
 }
 //==============================================================================
 
