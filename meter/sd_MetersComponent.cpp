@@ -95,6 +95,15 @@ void MetersComponent::reset()
 }
 //==============================================================================
 
+void MetersComponent::clearMeters() 
+{
+    for (auto* meter: m_meterChannels)
+        meter->setInputLevel( 0.0F );
+
+    refresh(true);
+}
+//==============================================================================
+
 void MetersComponent::refresh (const bool forceRefresh /*= false*/)
 {
     m_labelStrip.refresh (forceRefresh);
@@ -449,9 +458,11 @@ void MetersComponent::setChannelFormat (const juce::AudioChannelSet& channelForm
 
     // Make sure the number of mixer gains matches the number of channels ...
     if (channelFormat.size() != static_cast<int> (m_faderGains.size()))
+    {
         m_faderGains.resize (static_cast<size_t> (channelFormat.size()));  // ... and if not resize the mixer gains to accommodate.
 
-    resetFaders();
+        resetFaders();
+    }
 
 #endif /* SDTK_ENABLE_FADER */
 }

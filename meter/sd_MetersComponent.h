@@ -107,7 +107,7 @@ class MetersComponent
      * 
      * @see resetPeakHold, resetMeters
     */
-    void reset();
+    void reset ();
 
     /**
      * @brief Reset all meters.
@@ -116,6 +116,11 @@ class MetersComponent
      * @see reset, resetPeakHold
     */
     void resetMeters();
+ 
+    /**
+     * @brief Clear the level of the meters.
+    */
+    void clearMeters();
 
     /**
      * @brief Reset all peak hold indicators and 'values'.
