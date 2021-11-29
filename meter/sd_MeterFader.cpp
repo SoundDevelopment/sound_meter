@@ -115,7 +115,7 @@ void Fader::draw (juce::Graphics& g, const juce::Colour& faderColour)
     if (alpha > 0.0f)
     {
         g.setColour (faderColour.withAlpha (alpha));
-        auto faderRect = m_bounds;
+        auto faderRect    = m_bounds;
         m_drawnFaderValue = getValue();
         g.fillRect (faderRect.removeFromBottom (m_bounds.proportionOfHeight (m_drawnFaderValue)));
     }
@@ -140,7 +140,7 @@ void Fader::enable (bool enabled /*= true*/) noexcept
 }
 //==============================================================================
 
-bool Fader::setValue (float value, [[maybe_unused]] NotificationOptions notificationOption /*= NotificationOptions::Notify*/)
+bool Fader::setValue (float value, NotificationOptions notificationOption /*= NotificationOptions::Notify*/)
 {
     if (! m_enabled) return false;
     if (m_faderValue.load() == value) return false;
@@ -148,6 +148,8 @@ bool Fader::setValue (float value, [[maybe_unused]] NotificationOptions notifica
 
 #if SDTK_ENABLE_FADER
     if (notificationOption == NotificationOptions::notify && m_parentMeter) m_parentMeter->notifyParent();
+#else
+    juce::ignoreUnused (notificationOption);
 #endif
 
     return true;
@@ -159,7 +161,7 @@ void Fader::setValueFromPos (const int position, NotificationOptions notificatio
     const auto height = static_cast<float> (m_bounds.getHeight());
     if (height <= 0.0f) return;
 
-    setValue (1.0f - std::clamp(static_cast<float> (position - m_bounds.getY()) / height, 0.0f, 1.0f ), notificationOption);
+    setValue (1.0f - juce::jlimit (0.0f, 1.0f, static_cast<float> (position - m_bounds.getY()) / height), notificationOption);
 }
 //==============================================================================
 

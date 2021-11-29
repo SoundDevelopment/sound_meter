@@ -55,7 +55,7 @@ class Fader
      * @brief Parameterized constructor
      * @param parentMeter The parent meter object
     */
-    explicit Fader (SoundMeter::MeterChannel* parentMeter) : m_parentMeter (parentMeter) { }
+    explicit Fader (SoundMeter::MeterChannel* parentMeter) : m_parentMeter (parentMeter) { juce::ignoreUnused (m_parentMeter); }
 
     /**
      * @brief Show the fader briefly and fade out (unless overridden and shown longer).
@@ -127,7 +127,7 @@ class Fader
      * 
      * @see setValueFromPos, getValue
     */
-    bool setValue (float value, [[maybe_unused]] NotificationOptions notificationOption = NotificationOptions::notify);
+    bool setValue (float value, NotificationOptions notificationOption = NotificationOptions::notify);
 
     /**
      * @brief Set fader value according to a supplied mouse position.
@@ -153,21 +153,21 @@ class Fader
      * @param faderColour Fader colour to use.
     */
     void draw (juce::Graphics& g, const juce::Colour& faderColour);
-    
+
     /**
      * @brief Check if the fader needs redrawing.
     */
-    [[nodiscard]] bool needsRedrawing() { return ( m_drawnFaderValue != m_faderValue.load() ) || isFading(); }
+    [[nodiscard]] bool needsRedrawing() { return (m_drawnFaderValue != m_faderValue.load()) || isFading(); }
 
  private:
-    std::atomic<float>                         m_faderValue { 1.0f };  // Fader value (between 0..1).
-    float                                      m_drawnFaderValue = 0.0f;
-    [[maybe_unused]] SoundMeter::MeterChannel* m_parentMeter     = nullptr;
-    bool                                       m_visible         = false;
-    bool                                       m_enabled         = false;
-    bool                                       m_isFading        = false;
-    int                                        m_fadeStart       = 0;
-    juce::Rectangle<int>                       m_bounds {};
+    std::atomic<float>        m_faderValue { 1.0f };  // Fader value (between 0..1).
+    float                     m_drawnFaderValue = 0.0f;
+    SoundMeter::MeterChannel* m_parentMeter     = nullptr;
+    bool                      m_visible         = false;
+    bool                      m_enabled         = false;
+    bool                      m_isFading        = false;
+    int                       m_fadeStart       = 0;
+    juce::Rectangle<int>      m_bounds {};
 
     [[nodiscard]] int getTimeSinceStartFade() const noexcept;
 
