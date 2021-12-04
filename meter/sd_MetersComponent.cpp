@@ -403,6 +403,7 @@ void MetersComponent::muteAll (bool mute /*= true */)
 
 void MetersComponent::resetFaders()
 {
+    if (std::any_of (m_faderGains.begin(), m_faderGains.end(), [] (auto gain) { return gain != 1.0f; }))
     {
         std::fill (m_faderGains.begin(), m_faderGains.end(), 1.0f);  // Set all fader gains to unity.
         notifyListeners();
