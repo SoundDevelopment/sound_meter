@@ -95,12 +95,12 @@ void MetersComponent::reset()
 }
 //==============================================================================
 
-void MetersComponent::clearMeters() 
+void MetersComponent::clearMeters()
 {
     for (auto* meter: m_meterChannels)
-        meter->setInputLevel( 0.0F );
+        meter->setInputLevel (0.0f);
 
-    refresh(true);
+    refresh (true);
 }
 //==============================================================================
 
@@ -280,11 +280,12 @@ void MetersComponent::mouseEnter (const juce::MouseEvent& /*event*/)
 
 void MetersComponent::faderChanged (MeterChannel* sourceChannel)
 {
+    jassert (m_faderGains.size() == m_faderGainsBuffer.size());  // NOLINT
+    if (m_faderGains.size() != m_faderGainsBuffer.size()) return;
+
     // Master strip fader moves all channel faders relatively to each other...
     if (sourceChannel == &m_labelStrip)
     {
-        jassert (m_faderGains.size() == m_faderGainsBuffer.size());  // NOLINT
-
         // If the master fader is ACTIVE ...
         if (m_labelStrip.isActive())
         {
@@ -298,7 +299,7 @@ void MetersComponent::faderChanged (MeterChannel* sourceChannel)
                 if (juce::isPositiveAndBelow (meterIdx, m_faderGains.size()))
                 {
                     m_faderGains[meterIdx] = m_faderGainsBuffer[meterIdx] * sourceChannel->getFaderValue();  // Multiply the gain with the master fader value.
-                    meter->setFaderValue (m_faderGains[meterIdx], NotificationOptions::dontNotify, false);  // Update the fader to display the new gain value.
+                    meter->setFaderValue (m_faderGains[meterIdx], NotificationOptions::dontNotify, false);   // Update the fader to display the new gain value.
                 }
             }
         }
@@ -317,6 +318,13 @@ void MetersComponent::faderChanged (MeterChannel* sourceChannel)
     }
 
     notifyListeners();
+}
+//==============================================================================
+
+void MetersComponent::setFaderValues (const std::vector<float>& faderValues, NotificationOptions notificationOption /*= NotificationOptions::dontNotify*/)
+{
+    for (int meterIdx = 0; meterIdx < m_meterChannels.size(); ++meterIdx)
+        if (meterIdx < faderValues.size()) m_meterChannels[meterIdx]->setFaderValue (faderValues[meterIdx], notificationOption);
 }
 //==============================================================================
 
@@ -395,7 +403,6 @@ void MetersComponent::muteAll (bool mute /*= true */)
 
 void MetersComponent::resetFaders()
 {
-    if (std::any_of (m_faderGains.begin(), m_faderGains.end(), [] (auto gain) { return gain != 1.0F; }))
     {
         std::fill (m_faderGains.begin(), m_faderGains.end(), 1.0f);  // Set all fader gains to unity.
         notifyListeners();
@@ -457,12 +464,26 @@ void MetersComponent::setChannelFormat (const juce::AudioChannelSet& channelForm
 #if SDTK_ENABLE_FADER
 
     // Make sure the number of mixer gains matches the number of channels ...
-    if (channelFormat.size() != static_cast<int> (m_faderGains.size()))
+    const auto numFaderGains = static_cast<int> (m_faderGains.size());
+    jassert (channelFormat.size() > 0);  // NOLINT
+    if (channelFormat.size() != numFaderGains)
     {
-        m_faderGains.resize (static_cast<size_t> (channelFormat.size()));  // ... and if not resize the mixer gains to accommodate.
+        if (numFaderGains > channelFormat.size() || m_faderGains.empty())
+        {
+            m_faderGains.resize (static_cast<size_t> (channelFormat.size()), 1.0F);  // ... and if not resize the mixer gains to accommodate.
+            m_faderGainsBuffer.resize (static_cast<size_t> (channelFormat.size()), 1.0F);
+        }
+        else
+        {
+            const auto  numChannelsToAdd = (channelFormat.size() - numFaderGains);
+            const float lastGain         = m_faderGains.back();
+            const float lastBufferedGain = m_faderGainsBuffer.back();
 
-        resetFaders();
+            m_faderGains.insert (m_faderGains.end(), numChannelsToAdd, lastGain);
+            m_faderGainsBuffer.insert (m_faderGainsBuffer.end(), numChannelsToAdd, lastGain);
+        }
     }
+    setFaderValues (m_faderGains);
 
 #endif /* SDTK_ENABLE_FADER */
 }

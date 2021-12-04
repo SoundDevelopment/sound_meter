@@ -330,6 +330,14 @@ class MetersComponent
     void getFaderValues (NotificationOptions notificationOption = NotificationOptions::notify);
 
     /**
+     * @brief Set the values of all channel faders.
+     * 
+     * @param faderValues A list of all values.
+     * @param notificationOption Set whether to notify the listeners of the gathered fader values.
+    */
+    void setFaderValues (const std::vector<float>& faderValues, NotificationOptions notificationOption = NotificationOptions::dontNotify);
+
+    /**
      * @brief Get the master fader.
      * 
      * Get a reference to the master fader component.
