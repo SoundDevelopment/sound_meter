@@ -481,7 +481,7 @@ void MetersComponent::setChannelFormat (const juce::AudioChannelSet& channelForm
             const float lastBufferedGain = m_faderGainsBuffer.back();
 
             m_faderGains.insert (m_faderGains.end(), numChannelsToAdd, lastGain);
-            m_faderGainsBuffer.insert (m_faderGainsBuffer.end(), numChannelsToAdd, lastGain);
+            m_faderGainsBuffer.insert (m_faderGainsBuffer.end(), numChannelsToAdd, lastBufferedGain);
         }
     }
     setFaderValues (m_faderGains);
