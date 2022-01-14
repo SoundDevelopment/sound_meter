@@ -247,7 +247,7 @@ class MeterChannel
      *
      * @param font The font to use.
     */
-    void setFont ( juce::Font* font) noexcept;
+    void setFont (juce::Font* font) noexcept;
 
     /**
      * @brief Set the channel name.
@@ -534,10 +534,10 @@ class MeterChannel
     Fader m_fader;
 #endif /* SDTK_ENABLE_FADER */
 
-    bool                 m_active         = true;
-    bool                 m_isLabelStrip   = false;
-    bool                 m_minimalMode    = false;
-    bool                 m_tickMarksOnTop = false;
+    bool                 m_active { true };
+    bool                 m_isLabelStrip { false };
+    bool                 m_minimalMode { false };
+    bool                 m_tickMarksOnTop { false };
     juce::Rectangle<int> m_dirtyRect {};
 
     Padding m_padding { 0, 0, 0, 0 };  ///< Space between meter and component's edge.

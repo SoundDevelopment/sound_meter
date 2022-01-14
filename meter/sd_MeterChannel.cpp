@@ -386,7 +386,6 @@ void MeterChannel::refresh (const bool forceRefresh)
 void MeterChannel::setActive (bool isActive, NotificationOptions notify /*= NotificationOptions::dontNotify*/)
 {
     if (m_active == isActive) return;
-    reset();
     m_active = isActive;
 
 #if SDTK_ENABLE_FADER
@@ -395,7 +394,7 @@ void MeterChannel::setActive (bool isActive, NotificationOptions notify /*= Noti
     juce::ignoreUnused (notify);
 #endif
 
-    setDirty();
+    reset();
 }
 //==============================================================================
 
@@ -570,13 +569,8 @@ void MeterChannel::mouseMove (const juce::MouseEvent& event)
 
 void MeterChannel::mouseExit (const juce::MouseEvent& /*event*/)
 {
-    if (m_header.isMouseOver())
-        addDirty (m_header.getBounds());
-    else if (m_level.isMouseOverValue())
-        addDirty (m_level.getValueBounds());
-    else
-        addDirty (m_level.getMeterBounds());
     resetMouseOvers();
+    repaint();
 }
 //==============================================================================
 
