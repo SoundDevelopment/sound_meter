@@ -395,6 +395,7 @@ void MeterChannel::setActive (bool isActive, NotificationOptions notify /*= Noti
 #endif
 
     reset();
+    repaint();
 }
 //==============================================================================
 
