@@ -55,7 +55,7 @@ class Fader
      * @brief Parameterized constructor
      * @param parentMeter The parent meter object
     */
-    explicit Fader (SoundMeter::MeterChannel* parentMeter) : m_parentMeter (parentMeter) { juce::ignoreUnused (m_parentMeter); }
+    explicit Fader (SoundMeter::MeterChannel* parentMeter) noexcept : m_parentMeter (parentMeter) { juce::ignoreUnused (m_parentMeter); }
 
     /**
      * @brief Show the fader briefly and fade out (unless overridden and shown longer).
@@ -157,7 +157,7 @@ class Fader
     /**
      * @brief Check if the fader needs redrawing.
     */
-    [[nodiscard]] bool needsRedrawing() { return (m_drawnFaderValue != m_faderValue.load()) || isFading(); }
+    [[nodiscard]] bool needsRedrawing() noexcept { return (m_drawnFaderValue != m_faderValue.load()) || isFading(); }
 
  private:
     std::atomic<float>        m_faderValue { 1.0f };  // Fader value (between 0..1).

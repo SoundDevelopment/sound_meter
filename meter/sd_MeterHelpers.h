@@ -84,7 +84,7 @@ struct Padding
     * @param newTop    New top padding amount (in pixels).
     * @param newBottom New bottom padding amount (in pixels).
    */
-    Padding (int newLeft, int newRight, int newTop, int newBottom) : left (newLeft), right (newRight), top (newTop), bottom (newBottom) { }
+    Padding (int newLeft, int newRight, int newTop, int newBottom) noexcept : left (newLeft), right (newRight), top (newTop), bottom (newBottom) { }
     int left   = 0;  ///< Space between meter and left border (in pixels).
     int right  = 0;  ///< Space between meter and right border (in pixels).
     int top    = 0;  ///< Space between meter and top border (in pixels).
