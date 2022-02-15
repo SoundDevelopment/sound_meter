@@ -242,7 +242,7 @@ class Level
      * 
      * @see getValueBounds, setMeterBounds, getMeterBounds
     */
-    void setValueBounds (juce::Rectangle<int> bounds) noexcept { m_valueBounds = bounds; }
+    void setValueBounds (const juce::Rectangle<int>& bounds) noexcept { m_valueBounds = bounds; }
 
     /**
      * @brief Get the bounds of the 'value' part of the meter.

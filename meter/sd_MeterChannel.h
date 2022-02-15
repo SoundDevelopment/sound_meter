@@ -555,7 +555,7 @@ class MeterChannel
 
     void                       setDirty (bool isDirty = true) noexcept;
     [[nodiscard]] bool         isDirty (const juce::Rectangle<int>& rectToCheck = {}) const noexcept;
-    void                       addDirty (juce::Rectangle<int> dirtyRect) noexcept { m_dirtyRect = m_dirtyRect.getUnion (dirtyRect); }
+    void                       addDirty (const juce::Rectangle<int>& dirtyRect) noexcept { m_dirtyRect = m_dirtyRect.getUnion (dirtyRect); }
     void                       drawMeter (juce::Graphics& g);
     [[nodiscard]] juce::Colour getColourFromLnf (int colourId, const juce::Colour& fallbackColour) const;
     void                       mouseMove (const juce::MouseEvent& event) override;
