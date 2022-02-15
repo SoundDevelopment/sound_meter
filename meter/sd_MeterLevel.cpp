@@ -179,7 +179,7 @@ void Level::setColours (const juce::Colour& normalColour, const juce::Colour& wa
 }
 //==============================================================================
 
-void Level::setOptions (Options meterOptions)
+void Level::setOptions (const Options& meterOptions)
 {
     setDecay (meterOptions.decayTime_ms);
     defineSegments (meterOptions.warningSegment_db, meterOptions.peakSegment_db);
@@ -263,7 +263,7 @@ void Level::reset() noexcept
 }
 //==============================================================================
 
-void Level::setMeterBounds (juce::Rectangle<int> bounds) noexcept
+void Level::setMeterBounds (const juce::Rectangle<int>& bounds) noexcept
 {
     m_meterBounds = bounds;
     m_normalSegment.setMeterBounds (bounds);

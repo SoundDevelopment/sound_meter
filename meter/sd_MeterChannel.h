@@ -368,7 +368,7 @@ class MeterChannel
      *
      * @param padding Amount of padding to apply.
     */
-    void setPadding (Padding padding) noexcept { m_padding = padding; }
+    void setPadding (const Padding& padding) noexcept { m_padding = padding; }
 
     /**
      * Get the bounds of the 'meter' and 'header' parts combined.

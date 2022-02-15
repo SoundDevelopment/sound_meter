@@ -77,7 +77,7 @@ class Segment
      * 
      * @see getSegmentBounds
     */
-    void setMeterBounds (juce::Rectangle<int> bounds) noexcept;
+    void setMeterBounds (const juce::Rectangle<int>& bounds) noexcept;
 
     /**
      * @brief Get the bounds of the segment.

@@ -111,7 +111,7 @@ class Level
      *
      * @param meterOptions Meter options to use.
     */
-    void setOptions (Options meterOptions);
+    void setOptions (const Options& meterOptions);
 
     /**
      * @brief Get the meter's refresh (redraw) rate.
@@ -258,7 +258,7 @@ class Level
      * @param bounds The bounds to use for the 'meter' part of the meter.
      * @see getValueBounds, setValueBounds, getMeterBounds
     */
-    void setMeterBounds (juce::Rectangle<int> bounds) noexcept;
+    void setMeterBounds (const juce::Rectangle<int>& bounds) noexcept;
 
     /**
      * @brief Get the bounds of the 'meter' part.

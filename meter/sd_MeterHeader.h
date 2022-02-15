@@ -96,7 +96,7 @@ class Header
      * 
      * @see getName
     */
-    void setName (const juce::String name);
+    void setName (const juce::String& name);
 
     /**
      * @brief Get the channel name.

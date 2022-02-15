@@ -138,8 +138,7 @@ void MeterChannel::setMinimalMode (bool minimalMode) noexcept
 
 void MeterChannel::lookAndFeelChanged()
 {
-    setColours();
-    setDirty();
+    visibilityChanged();
 }
 //==============================================================================
 

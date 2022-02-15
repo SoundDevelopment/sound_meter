@@ -89,7 +89,7 @@ void Header::setType (const juce::AudioChannelSet::ChannelType& type)
 
 //==============================================================================
 
-void Header::setName (const juce::String name)
+void Header::setName (const juce::String& name)
 {
     if (name.isEmpty()) return;
 

@@ -88,7 +88,7 @@ void Segment::setRange (float newStartLevel, float newStopLevel) noexcept
 }
 //==============================================================================
 
-void Segment::setMeterBounds (juce::Rectangle<int> bounds) noexcept
+void Segment::setMeterBounds (const juce::Rectangle<int>& bounds) noexcept
 {
     m_meterBounds = bounds;
     calculateSegment();
