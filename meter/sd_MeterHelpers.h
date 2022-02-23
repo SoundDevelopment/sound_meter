@@ -99,7 +99,7 @@ struct Options
     bool  enabled               = true;  ///< Enable the meter.
     bool  headerEnabled         = true;  ///< Enable the 'header' part of the meter.
     bool  valueEnabled          = true;  ///< Enable the 'value' part of the meter.
-    bool  faderEnabled          = true;  ///< Enable the fader (overlayed over the meter). Only works if fader have been enabled in the module.
+    bool  faderEnabled          = true;  ///< Enable the fader (overlay-ed over the meter). Only works if fader have been enabled in the module.
     bool  useGradient           = true;  ///< Use gradients to fill the meter or hard segment boundaries.
     bool  showPeakHoldIndicator = true;  ///< Show the peak hold indicator (a line that marks the highest level up to now).
     bool  useMinimalMode    = true;  ///< Automatically adapt the meter to use the most of the space available (by hiding header, value, tick-marks, etc...).

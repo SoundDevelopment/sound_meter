@@ -545,9 +545,9 @@ class MeterChannel
     // Cached colours...
     juce::Colour m_backgroundColour    = juce::Colours::black;
     juce::Colour m_inactiveColour      = juce::Colours::grey;
-    juce::Colour m_textColour          = juce::Colours::white.darker (0.6f);
-    juce::Colour m_textValueColour     = juce::Colours::white.darker (0.6f);
-    juce::Colour m_tickColour          = juce::Colours::white.darker (0.3f).withAlpha (0.5f);
+    juce::Colour m_textColour          = juce::Colours::white.darker (0.6F);
+    juce::Colour m_textValueColour     = juce::Colours::white.darker (0.6F);
+    juce::Colour m_tickColour          = juce::Colours::white.darker (0.3F).withAlpha (0.5F);
     juce::Colour m_muteColour          = juce::Colours::red;
     juce::Colour m_muteMouseOverColour = juce::Colours::black;
     juce::Colour m_faderColour         = juce::Colours::blue.withAlpha (Constants::kFaderAlphaMax);
