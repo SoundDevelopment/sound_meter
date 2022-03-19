@@ -60,7 +60,7 @@ class Fader
     /**
      * @brief Show the fader briefly and fade out (unless overridden and shown longer).
     */
-    void flash() noexcept;
+    void flash();
 
     /**
     * @brief Check if the fader is visible.
@@ -68,7 +68,7 @@ class Fader
      * @return True, if the meter is visible, otherwise the fader is hidden.
      * @see setVisible, setEnabled, isEnabled
     */
-    [[nodiscard]] bool isVisible() const noexcept;
+    [[nodiscard]] bool isVisible() const;
 
     /**
      * @brief Show or hide the fader.
@@ -76,7 +76,7 @@ class Fader
      * @param setVisible When set to true, show the fader. Otherwise hide it.
      * @see isVisible, setEnabled, isEnabled
     */
-    void setVisible (bool showFader = true) noexcept;
+    void setVisible (bool showFader = true);
 
     /**
      * @brief Check if the 'fader' overlay is enabled.
@@ -84,7 +84,7 @@ class Fader
      * @return True, when the fader is enabled.
      * @see setEnabled, isVisible, setVisible
     */
-    [[nodiscard]] bool isEnabled() const noexcept;
+    [[nodiscard]] bool isEnabled() const;
 
     /**
      * @brief Enable or disable the 'fader' overlay.
@@ -92,7 +92,7 @@ class Fader
      * @param enabled True, when the fader needs to be enabled.
      * @see isEnabled, isActive, setActive
     */
-    void enable (bool enabled = true) noexcept;
+    void enable (bool enabled = true);
 
     /**
      * @brief Set the fader bounds.
@@ -100,7 +100,7 @@ class Fader
      * @param bounds Bounds to use for the fader.
      * @see getBounds
     */
-    void setBounds (const juce::Rectangle<int>& bounds) noexcept;
+    void setBounds (const juce::Rectangle<int>& bounds);
 
     /**
      * @brief Get the fader bounds.
@@ -108,7 +108,7 @@ class Fader
      * @return Bounds used by the fader.
      * @see setBounds
     */
-    [[nodiscard]] juce::Rectangle<int> getBounds() const noexcept;
+    [[nodiscard]] juce::Rectangle<int> getBounds() const;
 
     /**
      * @brief Get the value of the meter fader.
@@ -116,7 +116,7 @@ class Fader
      * @return The current fader value [0..1].
      * @see setValueFromPos, setValue
     */
-    [[nodiscard]] float getValue() const noexcept;
+    [[nodiscard]] float getValue() const;
 
     /**
      * @brief Set fader value.
@@ -144,7 +144,7 @@ class Fader
      *
      * @return True, if the fader is currently fading out.
     */
-    [[nodiscard]] bool isFading() const noexcept { return m_isFading; }
+    [[nodiscard]] bool isFading() const { return m_isFading; }
 
     /**
      * @brief Draw the fader.
@@ -157,7 +157,7 @@ class Fader
     /**
      * @brief Check if the fader needs redrawing.
     */
-    [[nodiscard]] bool needsRedrawing() noexcept { return (m_drawnFaderValue != m_faderValue.load()) || isFading(); }
+    [[nodiscard]] bool needsRedrawing() { return (m_drawnFaderValue != m_faderValue.load()) || isFading(); }
 
  private:
     std::atomic<float>        m_faderValue { 1.0f };  // Fader value (between 0..1).
@@ -169,7 +169,7 @@ class Fader
     int                       m_fadeStart       = 0;
     juce::Rectangle<int>      m_bounds {};
 
-    [[nodiscard]] int getTimeSinceStartFade() const noexcept;
+    [[nodiscard]] int getTimeSinceStartFade() const;
 
     JUCE_LEAK_DETECTOR (Fader)
 };

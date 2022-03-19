@@ -60,7 +60,7 @@ class Segment
      * 
      * @param level The meter level.
     */
-    void setLevel (float level) noexcept;
+    void setLevel (float level);
 
     /**
      * @brief Set the range of the segment.
@@ -68,7 +68,7 @@ class Segment
      * @param newStartLevel Start of the segment (in amp [0..1]).
      * @param newStopLevel  End of the segment (in amp [0..1]).
     */
-    void setRange (float newStartLevel, float newStopLevel) noexcept;
+    void setRange (float newStartLevel, float newStopLevel);
 
     /**
      * @brief Set the bounds of the full level part (all segments).
@@ -77,7 +77,7 @@ class Segment
      * 
      * @see getSegmentBounds
     */
-    void setMeterBounds (const juce::Rectangle<int>& bounds) noexcept;
+    void setMeterBounds (const juce::Rectangle<int>& bounds);
 
     /**
      * @brief Get the bounds of the segment.
@@ -86,14 +86,14 @@ class Segment
      *
      * @see setMeterBounds
     */
-    [[nodiscard]] juce::Rectangle<int> getSegmentBounds() const noexcept { return m_segmentBounds; }
+    [[nodiscard]] juce::Rectangle<int> getSegmentBounds() const { return m_segmentBounds; }
 
     /**
      * @brief Check if the segment needs to be redrawn (is dirty).
      *
      * @return True, if the segment needs to be redrawn.
     */
-    [[nodiscard]] bool isDirty() const noexcept { return m_dirty; }
+    [[nodiscard]] bool isDirty() const { return m_dirty; }
 
     /**
      * @brief Set the segment colour (and next colour).
@@ -103,7 +103,7 @@ class Segment
      * @param segmentColour Segment colour.
      * @param nextColour    Next colour (used for gradient).
     */
-    void setColours (const juce::Colour& segmentColour, const juce::Colour& nextColour) noexcept;
+    void setColours (const juce::Colour& segmentColour, const juce::Colour& nextColour);
 
  private:
     float m_startLevel      = 0.0f;
@@ -120,7 +120,7 @@ class Segment
     juce::Rectangle<int> m_meterBounds {};
     juce::Rectangle<int> m_segmentBounds {};
 
-    void calculateSegment() noexcept;
+    void calculateSegment();
 
     JUCE_LEAK_DETECTOR (Segment)
 };

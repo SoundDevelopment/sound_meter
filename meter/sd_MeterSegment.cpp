@@ -54,7 +54,7 @@ void Segment::draw (juce::Graphics& g, bool useGradient) const
 }
 //==============================================================================
 
-void Segment::setLevel (float level) noexcept
+void Segment::setLevel (float level)
 {
     if (m_segmentBounds.isEmpty()) return;
 
@@ -70,7 +70,7 @@ void Segment::setLevel (float level) noexcept
 }
 //==============================================================================
 
-void Segment::setRange (float newStartLevel, float newStopLevel) noexcept
+void Segment::setRange (float newStartLevel, float newStopLevel)
 {
     const auto startLevel = juce::jlimit (0.0f, 1.0f, newStartLevel);
     const auto stopLevel  = juce::jlimit (0.0f, 1.0f, newStopLevel);
@@ -88,14 +88,14 @@ void Segment::setRange (float newStartLevel, float newStopLevel) noexcept
 }
 //==============================================================================
 
-void Segment::setMeterBounds (const juce::Rectangle<int>& bounds) noexcept
+void Segment::setMeterBounds (const juce::Rectangle<int>& bounds)
 {
     m_meterBounds = bounds;
     calculateSegment();
 }
 //==============================================================================
 
-void Segment::calculateSegment() noexcept
+void Segment::calculateSegment()
 {
     if (m_meterBounds.isEmpty()) return;
 
@@ -114,7 +114,7 @@ void Segment::calculateSegment() noexcept
 }
 //==============================================================================
 
-void Segment::setColours (const juce::Colour& segmentColour, const juce::Colour& nextColour) noexcept
+void Segment::setColours (const juce::Colour& segmentColour, const juce::Colour& nextColour)
 {
     m_segmentColour = segmentColour;
     m_nextColour    = nextColour;

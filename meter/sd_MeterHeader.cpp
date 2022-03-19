@@ -82,7 +82,7 @@ void Header::setType (const juce::AudioChannelSet::ChannelType& type)
 }
 //==============================================================================
 
-[[nodiscard]] const juce::AudioChannelSet::ChannelType& Header::getType() const noexcept
+[[nodiscard]] const juce::AudioChannelSet::ChannelType& Header::getType() const
 {
     return m_type;
 }
@@ -108,25 +108,25 @@ void Header::calculateInfoWidth()
 }
 //==============================================================================
 
-[[nodiscard]] float Header::getNameWidth() const noexcept
+float Header::getNameWidth() const
 {
     return m_nameWidth;
 }
 //==============================================================================
 
-[[nodiscard]] float Header::getTypeWidth() const noexcept
+float Header::getTypeWidth() const
 {
     return m_typeWidth;
 }
 //==============================================================================
 
-[[nodiscard]] juce::String Header::getName() const noexcept
+juce::String Header::getName() const
 {
     return m_name;
 }
 //==============================================================================
 
-[[nodiscard]] juce::String Header::getInfo() const noexcept
+juce::String Header::getInfo() const
 {
     // Check which type width to use. This meter's one or a refered meter...
     const auto typeWidthToCompare = (m_referredWidth > 0 ? m_referredWidth : m_typeWidth);
@@ -141,25 +141,25 @@ void Header::calculateInfoWidth()
 }
 //==============================================================================
 
-void Header::setBounds (const juce::Rectangle<int>& bounds) noexcept
+void Header::setBounds (const juce::Rectangle<int>& bounds)
 {
     m_bounds = bounds;
 }
 //==============================================================================
 
-[[nodiscard]] juce::Rectangle<int> Header::getBounds() const noexcept
+juce::Rectangle<int> Header::getBounds() const
 {
     return m_bounds;
 }
 //==============================================================================
 
-[[nodiscard]] const juce::Font* Header::getFont() const noexcept
+const juce::Font* Header::getFont() const
 {
     return m_font;
 }
 //==============================================================================
 
-void Header::setFont ( juce::Font* font) noexcept
+void Header::setFont ( juce::Font* font)
 {
     m_font = font;
     calculateInfoWidth();
@@ -174,7 +174,7 @@ bool Header::textFits (const juce::String& text, const int widthAvailable) const
 }
 //==============================================================================
 
-[[nodiscard]] bool Header::isMouseOver (const int y) noexcept
+[[nodiscard]] bool Header::isMouseOver (const int y)
 {
     m_mouseOver = (y < m_bounds.getHeight());
     return m_mouseOver;

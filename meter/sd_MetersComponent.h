@@ -167,7 +167,7 @@ class MetersComponent
     * 
     * @see setNumChannels, setChannelFormat
    */
-    int getNumChannels() const noexcept { return m_meterChannels.size(); }
+    int getNumChannels() const { return m_meterChannels.size(); }
 
     /**
      * @brief Get the default meters panel width.
@@ -178,7 +178,7 @@ class MetersComponent
      * 
      * @return The default panel width (in pixels).
     */
-    int getAutoSizedPanelWidth() const noexcept { return m_autoSizedPanelWidth; }
+    int getAutoSizedPanelWidth() const { return m_autoSizedPanelWidth; }
 
     /**
      * @brief Set the channel names to display above the meters.
@@ -206,7 +206,7 @@ class MetersComponent
      * 
      * @see setDecay, refresh, setInternalTiming
     */
-    void setRefreshRate (float refreshRate) noexcept;
+    void setRefreshRate (float refreshRate);
 
     /**
      * @brief Set the timing option to use (internal/external).
@@ -219,7 +219,7 @@ class MetersComponent
      * 
      * @see refresh, setPanelRefreshRate
     */
-    void useInternalTiming (bool useInternalTiming) noexcept;
+    void useInternalTiming (bool useInternalTiming);
 
     /**
      * @brief Set the levels dividing the different segments of the meter.
@@ -249,7 +249,7 @@ class MetersComponent
      * 
      * @param useGradients When set to true, uses smooth gradients. False gives hard segment boundaries.
     */
-    void useGradients (bool useGradients) noexcept;
+    void useGradients (bool useGradients);
 
     /**
      * @brief Set the position of the label-strip relative to the meters.
@@ -286,7 +286,7 @@ class MetersComponent
      * @brief Set the font to be used in the panel and it's meters.
      * @param font The font to use.
     */
-    void setFont (const juce::Font& font) noexcept;
+    void setFont (const juce::Font& font);
 
     /**
      * @brief Enable or disable the panel.
@@ -319,7 +319,7 @@ class MetersComponent
      *
      * @param faderEnabled When set to true, the faders are enabled.
     */
-    void setFadersEnabled (bool faderEnabled) noexcept;
+    void setFadersEnabled (bool faderEnabled);
 
     /**
      * @brief Get values from all faders.
@@ -344,7 +344,7 @@ class MetersComponent
      * 
      * @return A reference to the master fader component.
     */
-    const MeterChannel& getMasterFader() const noexcept { return m_labelStrip; }
+    const MeterChannel& getMasterFader() const { return m_labelStrip; }
 
     /**
      * @brief Set all faders to unity gain.
@@ -458,7 +458,7 @@ class MetersComponent
    void                             setColours              ();
    void                             createMeters            ( const juce::AudioChannelSet& channelFormat, const std::vector<juce::String>& channelNames );
    void                             deleteMeters            ();
-   [[nodiscard]] MeterChannel*      getMeterChannel         ( const int meterIndex ) noexcept;
+   [[nodiscard]] MeterChannel*      getMeterChannel         ( const int meterIndex );
 
 
     // clang-format on

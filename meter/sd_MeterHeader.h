@@ -85,7 +85,7 @@ class Header
      * 
      * @see setType
     */
-    [[nodiscard]] const juce::AudioChannelSet::ChannelType& getType() const noexcept;
+    [[nodiscard]] const juce::AudioChannelSet::ChannelType& getType() const;
 
     /**
      * @brief Set the channel name.
@@ -107,7 +107,7 @@ class Header
      * 
      * @see setName
     */
-    [[nodiscard]] juce::String getName() const noexcept;
+    [[nodiscard]] juce::String getName() const;
 
     /**
     * @brief Get the width (in pixels) of the channel name.
@@ -115,7 +115,7 @@ class Header
     * @return The width (in pixels) taken by the channel name.
     * @see getTypeWidth, textFits
     */
-    [[nodiscard]] float getNameWidth() const noexcept;
+    [[nodiscard]] float getNameWidth() const;
 
     /**
      * @brief Get the width (in pixels) of the channel description.
@@ -123,7 +123,7 @@ class Header
      * @return The width (in pixels) taken by the channel description.
      * @see getNameWdith, textFits
     */
-    [[nodiscard]] float getTypeWidth() const noexcept;
+    [[nodiscard]] float getTypeWidth() const;
 
     /**
      * @brief Get the info text displayed in the 'header'
@@ -136,7 +136,7 @@ class Header
      * 
      * @see getName, getType
     */
-    [[nodiscard]] juce::String getInfo() const noexcept;
+    [[nodiscard]] juce::String getInfo() const;
 
     /**
      * @brief Check whether a certain text will fit the width available using the meter's specified font.
@@ -156,14 +156,14 @@ class Header
     * @param font The font to use.
     * @see getFont
     */
-    void setFont (juce::Font* font) noexcept;
+    void setFont (juce::Font* font);
 
     /**
      * @brief Get the font used to display the info.
      * 
      * @return The font used to display the info.
     */
-    [[nodiscard]] const juce::Font* getFont() const noexcept;
+    [[nodiscard]] const juce::Font* getFont() const;
 
     /**
     * @brief Set the bounds of the 'header' part of the meter.
@@ -171,7 +171,7 @@ class Header
     * @param bounds The bounds to use for the 'header' part of the meter.
     * @see getBounds
    */
-    void setBounds (const juce::Rectangle<int>& bounds) noexcept;
+    void setBounds (const juce::Rectangle<int>& bounds);
 
     /**
      * @brief Get the bounds of the 'header' part of the meter.
@@ -179,7 +179,7 @@ class Header
      * @return The bounds of the 'header' part of the meter.
      * @see setBounds
     */
-    [[nodiscard]] juce::Rectangle<int> getBounds() const noexcept;
+    [[nodiscard]] juce::Rectangle<int> getBounds() const;
 
     /**
      * @brief Check if the 'header' part of the meter is visible.
@@ -187,7 +187,7 @@ class Header
      * @return True, when the 'header' part is visible.
      * @see setVisible, setEnabled
     */
-    [[nodiscard]] bool isVisible() const noexcept { return m_visible && m_enabled; }
+    [[nodiscard]] bool isVisible() const { return m_visible && m_enabled; }
 
     /**
      * @brief Show the 'header' part of the meter.
@@ -195,7 +195,7 @@ class Header
      * @param visible When set to true, the 'header' part will be visible.
      * @see isVisible, setEnabled
     */
-    void setVisible (bool visible) noexcept { m_visible = visible; }
+    void setVisible (bool visible) { m_visible = visible; }
 
     /**
     * @brief Enable the 'header' part of the meter.
@@ -203,7 +203,7 @@ class Header
     * @param enable When set to true, the header part will be enabled.
     * @see setVisible, isVisible
    */
-    void setEnabled (bool enable) noexcept { m_enabled = enable; }
+    void setEnabled (bool enable) { m_enabled = enable; }
 
     /**
      * @brief Check if the mouse is over the 'header' part of the meter.
@@ -212,7 +212,7 @@ class Header
      * @return  True, when the mouse is over the 'header' part of the meter, using the supplied y coordinate.
      * @see resetMouseOver
     */
-    [[nodiscard]] bool isMouseOver (const int y) noexcept;
+    [[nodiscard]] bool isMouseOver (const int y);
 
     /**
      * @brief Check if the mouse is over the 'header' part of the meter.
@@ -220,12 +220,12 @@ class Header
      * @return  True, when the mouse is over the 'header' part of the meter.
      * @see resetMouseOver
     */
-    [[nodiscard]] bool isMouseOver() const noexcept { return m_mouseOver; }
+    [[nodiscard]] bool isMouseOver() const { return m_mouseOver; }
 
     /**
      * @brief Reset 'mouse over' status of the 'header' part of the meter.
     */
-    void resetMouseOver() noexcept { m_mouseOver = false; }
+    void resetMouseOver() { m_mouseOver = false; }
 
     /**
      * @brief Set the referred width (from other meters) used to decide what info to display.
@@ -238,7 +238,7 @@ class Header
      * 
      * @param referredWidth The width (in pixels) to use when deciding what to display in the header.
     */
-    void setReferredWidth (float referredWidth) noexcept { m_referredWidth = referredWidth; }
+    void setReferredWidth (float referredWidth) { m_referredWidth = referredWidth; }
 
 
     /**

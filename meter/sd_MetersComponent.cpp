@@ -112,7 +112,7 @@ void MetersComponent::refresh (const bool forceRefresh /*= false*/)
 }
 //==============================================================================
 
-void MetersComponent::setRefreshRate (float refreshRate_hz) noexcept
+void MetersComponent::setRefreshRate (float refreshRate_hz)
 {
     m_options.refreshRate = refreshRate_hz;
 
@@ -128,7 +128,7 @@ void MetersComponent::setRefreshRate (float refreshRate_hz) noexcept
 }
 //==============================================================================
 
-void MetersComponent::useInternalTiming (bool useInternalTiming) noexcept
+void MetersComponent::useInternalTiming (bool useInternalTiming)
 {
     m_useInternalTimer = useInternalTiming;
 
@@ -423,7 +423,7 @@ void MetersComponent::resetFaders()
 }
 //==============================================================================
 
-void MetersComponent::setFadersEnabled (bool faderEnabled) noexcept
+void MetersComponent::setFadersEnabled (bool faderEnabled)
 {
     for (auto* meter: m_meterChannels)
         meter->enableFader (faderEnabled);
@@ -533,7 +533,7 @@ void MetersComponent::deleteMeters()
 }
 //==============================================================================
 
-MeterChannel* MetersComponent::getMeterChannel (const int meterIndex) noexcept
+MeterChannel* MetersComponent::getMeterChannel (const int meterIndex)
 {
     return (juce::isPositiveAndBelow (meterIndex, m_meterChannels.size()) ? m_meterChannels[meterIndex] : nullptr);
 }
@@ -561,7 +561,7 @@ void MetersComponent::setDecay (float decay_ms)
 }
 //==============================================================================
 
-void MetersComponent::setFont (const juce::Font& newFont) noexcept
+void MetersComponent::setFont (const juce::Font& newFont)
 {
     m_font = newFont;
     for (auto* meter: m_meterChannels)
@@ -605,7 +605,7 @@ void MetersComponent::showTickMarks (bool showTickMarks)
 }
 //==============================================================================
 
-void MetersComponent::useGradients (bool useGradients) noexcept
+void MetersComponent::useGradients (bool useGradients)
 {
     m_options.useGradient = useGradients;
     for (auto* meter: m_meterChannels)

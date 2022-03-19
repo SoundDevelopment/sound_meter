@@ -131,7 +131,7 @@ void Level::drawLabels (juce::Graphics& g, const juce::Colour& textColour) const
 }
 //==============================================================================
 
-void Level::setTickMarks (const std::vector<float>& ticks) noexcept
+void Level::setTickMarks (const std::vector<float>& ticks)
 {
     m_tickMarks.clear();
     for (const auto& tick: ticks)
@@ -139,21 +139,21 @@ void Level::setTickMarks (const std::vector<float>& ticks) noexcept
 }
 //==============================================================================
 
-[[nodiscard]] float Level::getInputLevel() noexcept
+float Level::getInputLevel()
 {
     m_inputLevelRead.store (true);
     return juce::jlimit (-m_maxLevel, m_maxLevel, m_inputLevel.load());
 }
 //==============================================================================
 
-void Level::setInputLevel (float newLevel) noexcept
+void Level::setInputLevel (float newLevel)
 {
     m_inputLevel.store (m_inputLevelRead.load() ? newLevel : std::max (m_inputLevel.load(), newLevel));
     m_inputLevelRead.store (false);
 }
 //==============================================================================
 
-void Level::setColours (const juce::Colour& normalColour, const juce::Colour& warningColour, const juce::Colour& peakColour) noexcept
+void Level::setColours (const juce::Colour& normalColour, const juce::Colour& warningColour, const juce::Colour& peakColour)
 {
     m_normalSegment.setColours (normalColour, warningColour);
     m_warningSegment.setColours (warningColour, peakColour);
@@ -161,7 +161,7 @@ void Level::setColours (const juce::Colour& normalColour, const juce::Colour& wa
 }
 //==============================================================================
 
-[[nodiscard]] juce::Rectangle<int> Level::calculateMeterLevel (float newLevel) noexcept
+juce::Rectangle<int> Level::calculateMeterLevel (float newLevel)
 {
     m_meterLevel    = (newLevel > m_meterLevel ? newLevel : getDecayedLevel (newLevel));
     m_peakHoldLevel = std::max<float> (m_peakHoldLevel, newLevel);
@@ -195,7 +195,7 @@ void Level::setOptions (const Options& meterOptions)
 }
 //==============================================================================
 
-void Level::setRefreshRate (float refreshRate_hz) noexcept
+void Level::setRefreshRate (float refreshRate_hz)
 {
     if (refreshRate_hz <= 0.0f) return;
 
@@ -205,7 +205,7 @@ void Level::setRefreshRate (float refreshRate_hz) noexcept
 }
 //==============================================================================
 
-void Level::setDecay (float decay_ms) noexcept
+void Level::setDecay (float decay_ms)
 {
     m_options.decayTime_ms = juce::jlimit (Constants::kMinDecay_ms, Constants::kMaxDecay_ms, decay_ms);
     calculateDecayCoeff();
@@ -226,7 +226,7 @@ void Level::defineSegments (const float warningSegment_db, const float peakSegme
 }
 //==============================================================================
 
-void Level::reset() noexcept
+void Level::reset()
 {
     m_inputLevel.store (0.0f);
     m_meterLevel          = 0.0f;
@@ -263,7 +263,7 @@ void Level::reset() noexcept
 }
 //==============================================================================
 
-void Level::setMeterBounds (const juce::Rectangle<int>& bounds) noexcept
+void Level::setMeterBounds (const juce::Rectangle<int>& bounds)
 {
     m_meterBounds = bounds;
     m_normalSegment.setMeterBounds (bounds);
@@ -272,14 +272,14 @@ void Level::setMeterBounds (const juce::Rectangle<int>& bounds) noexcept
 }
 //==============================================================================
 
-void Level::calculateDecayCoeff() noexcept
+void Level::calculateDecayCoeff()
 {
     // Rises to 99% of in value over duration of time constant.
     m_decayCoeff = std::pow (0.01f, (1000.0f / (m_options.decayTime_ms * m_options.refreshRate)));  // NOLINT
 }
 //==============================================================================
 
-bool Level::isMouseOverValue (const int y) noexcept
+bool Level::isMouseOverValue (const int y)
 {
     m_mouseOverValue = (y >= m_valueBounds.getY() && ! m_valueBounds.isEmpty());
     return m_mouseOverValue;

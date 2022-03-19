@@ -37,7 +37,7 @@ namespace SoundMeter
 {
 //==============================================================================
 
-void Fader::flash() noexcept
+void Fader::flash()
 {
     if (! m_enabled) return;
 
@@ -46,13 +46,13 @@ void Fader::flash() noexcept
 }
 //==============================================================================
 
-[[nodiscard]] bool Fader::isVisible() const noexcept
+[[nodiscard]] bool Fader::isVisible() const
 {
     return m_visible && m_enabled;
 }
 //==============================================================================
 
-void Fader::setVisible (bool showFader /*= true*/) noexcept
+void Fader::setVisible (bool showFader /*= true*/)
 {
     if (! m_enabled) return;
 
@@ -75,13 +75,13 @@ void Fader::setVisible (bool showFader /*= true*/) noexcept
 }
 //==============================================================================
 
-void Fader::setBounds (const juce::Rectangle<int>& bounds) noexcept
+void Fader::setBounds (const juce::Rectangle<int>& bounds)
 {
     m_bounds = bounds;
 }
 //==============================================================================
 
-[[nodiscard]] juce::Rectangle<int> Fader::getBounds() const noexcept
+[[nodiscard]] juce::Rectangle<int> Fader::getBounds() const
 {
     return m_bounds;
 }
@@ -122,19 +122,19 @@ void Fader::draw (juce::Graphics& g, const juce::Colour& faderColour)
 }
 //==============================================================================
 
-[[nodiscard]] bool Fader::isEnabled() const noexcept
+[[nodiscard]] bool Fader::isEnabled() const
 {
     return m_enabled;
 }
 //==============================================================================
 
-void Fader::enable (bool enabled /*= true*/) noexcept
+void Fader::enable (bool enabled /*= true*/)
 {
     m_enabled = enabled;
 }
 //==============================================================================
 
-[[nodiscard]] float Fader::getValue() const noexcept
+float Fader::getValue() const
 {
     return m_faderValue.load();
 }
@@ -165,7 +165,7 @@ void Fader::setValueFromPos (const int position, NotificationOptions notificatio
 }
 //==============================================================================
 
-[[nodiscard]] int Fader::getTimeSinceStartFade() const noexcept
+[[nodiscard]] int Fader::getTimeSinceStartFade() const
 {
     return static_cast<int> (juce::Time::getMillisecondCounter()) - m_fadeStart;
 }
