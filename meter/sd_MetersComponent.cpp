@@ -653,7 +653,9 @@ void MetersComponent::defineSegments (float warningSegment_db, float peakSegment
     m_options.peakSegment_db    = peakSegment_db;
 
     for (auto* meter: m_meterChannels)
-        meter->defineSegments (warningSegment_db, peakSegment_db);
+    {
+        if (meter) meter->defineSegments (warningSegment_db, peakSegment_db);
+    }
 }
 //==============================================================================
 
