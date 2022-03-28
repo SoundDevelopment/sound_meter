@@ -461,8 +461,9 @@ void MeterChannel::showFader (const bool faderVisible /*= true */)
 
     // If slider needs to be DE-ACTIVATED...
     if (! faderVisible || ! m_fader.isEnabled()) resetMouseOvers();
-
     addDirty (m_fader.getBounds());
+    refresh (false);
+
 }
 //==============================================================================
 
