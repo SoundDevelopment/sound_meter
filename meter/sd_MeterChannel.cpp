@@ -463,7 +463,6 @@ void MeterChannel::showFader (const bool faderVisible /*= true */)
     if (! faderVisible || ! m_fader.isEnabled()) resetMouseOvers();
     addDirty (m_fader.getBounds());
     refresh (false);
-
 }
 //==============================================================================
 

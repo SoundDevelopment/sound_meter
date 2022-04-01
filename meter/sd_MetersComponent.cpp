@@ -430,7 +430,15 @@ void MetersComponent::setFadersEnabled (bool faderEnabled)
     m_labelStrip.enableFader (faderEnabled);
     m_options.faderEnabled = faderEnabled;
 }
+//==============================================================================
 
+void MetersComponent::flashFaders ()
+{
+    for (auto* meter: m_meterChannels)
+        meter->flashFader();
+    
+    m_labelStrip.flashFader();
+}
 
 #endif /* SDTK_ENABLE_FADER */
 

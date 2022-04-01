@@ -315,6 +315,11 @@ class MetersComponent
     void showFaders (bool showMixer);
 
     /**
+     * @brief Show the faders briefly and fade out (unless overridden and shown longer).
+    */
+    void flashFaders();
+
+    /**
      * @brief Enable the faders on the meters.
      *
      * @param faderEnabled When set to true, the faders are enabled.

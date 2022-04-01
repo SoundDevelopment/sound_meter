@@ -81,7 +81,7 @@ void Fader::setBounds (const juce::Rectangle<int>& bounds)
 }
 //==============================================================================
 
-[[nodiscard]] juce::Rectangle<int> Fader::getBounds() const
+juce::Rectangle<int> Fader::getBounds() const
 {
     return m_bounds;
 }
@@ -122,7 +122,7 @@ void Fader::draw (juce::Graphics& g, const juce::Colour& faderColour)
 }
 //==============================================================================
 
-[[nodiscard]] bool Fader::isEnabled() const
+bool Fader::isEnabled() const
 {
     return m_enabled;
 }

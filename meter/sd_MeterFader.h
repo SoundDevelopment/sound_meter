@@ -161,7 +161,7 @@ class Fader
 
  private:
     std::atomic<float>        m_faderValue { 1.0f };  // Fader value (between 0..1).
-    float                     m_drawnFaderValue = 0.0f;
+    float                     m_drawnFaderValue = 1.0f;
     SoundMeter::MeterChannel* m_parentMeter     = nullptr;
     bool                      m_visible         = false;
     bool                      m_enabled         = false;
