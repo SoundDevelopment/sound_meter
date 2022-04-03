@@ -422,8 +422,8 @@ class Level
     // Meter levels...
     std::atomic<float> m_inputLevel { 0.0f };  // Audio peak level.
     std::atomic<bool>  m_inputLevelRead { false };
-    float              m_peakHoldLevel = 0.0f;
-    float              m_meterLevel    = 0.0f;  // Current meter level.
+    float              m_peakHoldLevel { 0.0f };
+    float              m_meterLevel { 0.0f };  // Current meter level.
 
     // Meter segments...
     sd::SoundMeter::Segment m_normalSegment;
