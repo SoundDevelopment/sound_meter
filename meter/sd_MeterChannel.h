@@ -137,7 +137,7 @@ class MeterChannel
      *
      * @see setActive
     */
-    [[nodiscard]] bool isActive() const { return m_active; }
+    [[nodiscard]] bool isActive() const noexcept { return m_active; }
 
     /**
      * @brief Set meter decay.
@@ -153,7 +153,7 @@ class MeterChannel
      * @return Meter decay in milliseconds.
      * @see setDecay, setRefreshRate
     */
-    [[nodiscard]] float getDecay() const { return m_level.getDecay(); }
+    [[nodiscard]] float getDecay() const noexcept { return m_level.getDecay(); }
 
     /**
      * @brief Set whether this meter is a label strip. 
@@ -163,7 +163,7 @@ class MeterChannel
      *
      * @param isLabelStrip when set, this meter behave like a label strip.
     */
-    void setIsLabelStrip (bool isLabelStrip = false) { m_isLabelStrip = isLabelStrip; }
+    void setIsLabelStrip (bool isLabelStrip = false) noexcept { m_isLabelStrip = isLabelStrip; }
 
     /**
      * @brief Set the levels dividing the different segments of the meter. 
@@ -313,7 +313,7 @@ class MeterChannel
      * 
      * @param referredWidth The width (in pixels) to use when deciding what to display in the header.
     */
-    void setReferredTypeWidth (float referredTypeWidth) { m_header.setReferredWidth (referredTypeWidth); }
+    void setReferredTypeWidth (float referredTypeWidth) noexcept { m_header.setReferredWidth (referredTypeWidth); }
 
     /**
      * @brief Show tick-marks (divider lines) on the meter.
@@ -368,7 +368,7 @@ class MeterChannel
      *
      * @param padding Amount of padding to apply.
     */
-    void setPadding (const Padding& padding) { m_padding = padding; }
+    void setPadding (const Padding& padding) noexcept { m_padding = padding; }
 
     /**
      * Get the bounds of the 'meter' and 'header' parts combined.
@@ -397,7 +397,7 @@ class MeterChannel
      * @return True, if the meter is in 'minimal' mode.
      * @see setMinimalMode, autoSetMinimalMode
     */
-    [[nodiscard]] bool isMinimalModeActive() const { return m_minimalMode; }
+    [[nodiscard]] bool isMinimalModeActive() const noexcept { return m_minimalMode; }
 
     /**
      * @brief Automatically set the meter in 'minimal' mode.
@@ -555,7 +555,7 @@ class MeterChannel
 
     void                       setDirty (bool isDirty = true);
     [[nodiscard]] bool         isDirty (const juce::Rectangle<int>& rectToCheck = {}) const;
-    void                       addDirty (const juce::Rectangle<int>& dirtyRect) { m_dirtyRect = m_dirtyRect.getUnion (dirtyRect); }
+    void                       addDirty (const juce::Rectangle<int>& dirtyRect) noexcept { m_dirtyRect = m_dirtyRect.getUnion (dirtyRect); }
     void                       drawMeter (juce::Graphics& g);
     [[nodiscard]] juce::Colour getColourFromLnf (int colourId, const juce::Colour& fallbackColour) const;
     void                       mouseMove (const juce::MouseEvent& event) override;

@@ -82,7 +82,7 @@ void Header::setType (const juce::AudioChannelSet::ChannelType& type)
 }
 //==============================================================================
 
-[[nodiscard]] const juce::AudioChannelSet::ChannelType& Header::getType() const
+const juce::AudioChannelSet::ChannelType& Header::getType() const noexcept
 {
     return m_type;
 }
@@ -108,19 +108,19 @@ void Header::calculateInfoWidth()
 }
 //==============================================================================
 
-float Header::getNameWidth() const
+float Header::getNameWidth() const noexcept
 {
     return m_nameWidth;
 }
 //==============================================================================
 
-float Header::getTypeWidth() const
+float Header::getTypeWidth() const noexcept
 {
     return m_typeWidth;
 }
 //==============================================================================
 
-juce::String Header::getName() const
+juce::String Header::getName() const noexcept
 {
     return m_name;
 }
@@ -141,19 +141,19 @@ juce::String Header::getInfo() const
 }
 //==============================================================================
 
-void Header::setBounds (const juce::Rectangle<int>& bounds)
+void Header::setBounds (const juce::Rectangle<int>& bounds) noexcept
 {
     m_bounds = bounds;
 }
 //==============================================================================
 
-juce::Rectangle<int> Header::getBounds() const
+juce::Rectangle<int> Header::getBounds() const noexcept
 {
     return m_bounds;
 }
 //==============================================================================
 
-const juce::Font* Header::getFont() const
+const juce::Font* Header::getFont() const noexcept
 {
     return m_font;
 }

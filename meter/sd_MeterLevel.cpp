@@ -234,7 +234,7 @@ void Level::reset()
 }
 //==============================================================================
 
-[[nodiscard]] float Level::getDecayedLevel (const float callbackLevel)
+float Level::getDecayedLevel (const float callbackLevel)
 {
     // Measure time passed...
     const auto currentTime = static_cast<int> (juce::Time::getMillisecondCounter());

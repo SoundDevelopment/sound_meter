@@ -102,7 +102,7 @@ class Level
      * 
      * @see setMeterLevel, setDecay
     */
-    [[nodiscard]] float getMeterLevel() const { return m_meterLevel; }
+    [[nodiscard]] float getMeterLevel() const noexcept { return m_meterLevel; }
 
     /**
      * @brief Set the meter's options.
@@ -120,7 +120,7 @@ class Level
      *
      * @see setRefreshRate
     */
-    [[nodiscard]] float getRefreshRate() const { return m_options.refreshRate; }
+    [[nodiscard]] float getRefreshRate() const noexcept { return m_options.refreshRate; }
 
     /**
      * @brief Sets the meter's refresh rate. 
@@ -148,7 +148,7 @@ class Level
      * 
      * @see setDecay
     */
-    [[nodiscard]] float getDecay() const { return m_options.decayTime_ms; }
+    [[nodiscard]] float getDecay() const noexcept { return m_options.decayTime_ms; }
 
     /**
      * @brief Set's the visibility of the peak hold indicator.
@@ -157,7 +157,7 @@ class Level
      * 
      * @see isPeakHoldVisible, resetPeakHoldLevel
     */
-    void showPeakHold (bool isVisible) { m_options.showPeakHoldIndicator = isVisible; }
+    void showPeakHold (bool isVisible) noexcept { m_options.showPeakHoldIndicator = isVisible; }
 
     /**
      * @brief Set the levels dividing the different segments of the meter. 
@@ -177,7 +177,7 @@ class Level
      *
      * @see showPeakHold, resetPeakHoldLevel
     */
-    [[nodiscard]] bool isPeakHoldVisible() const { return m_options.showPeakHoldIndicator; }
+    [[nodiscard]] bool isPeakHoldVisible() const noexcept { return m_options.showPeakHoldIndicator; }
 
     /**
      * @brief Enable the peak 'value' part of the meter.
@@ -190,7 +190,7 @@ class Level
      * 
      * @see isPeakValueVisible, resetPeakHoldLevel, setValueVisible
     */
-    void enableValue (bool valueEnabled) { m_options.valueEnabled = valueEnabled; }
+    void enableValue (bool valueEnabled) noexcept { m_options.valueEnabled = valueEnabled; }
 
     /**
      * @brief Show the peak 'value' part of the meter.
@@ -202,7 +202,7 @@ class Level
      *
      * @see isPeakValueVisible, resetPeakHoldLevel, enableValue
     */
-    void showValue (bool isVisible) { m_valueVisible = isVisible; }
+    void showValue (bool isVisible) noexcept { m_valueVisible = isVisible; }
 
     /**
      * @brief Check if the peak 'value' part is visible.
@@ -214,7 +214,7 @@ class Level
      *
      * @see showValue, resetPeakHoldLevel
     */
-    [[nodiscard]] bool isPeakValueVisible() const { return m_valueVisible && m_options.valueEnabled; }
+    [[nodiscard]] bool isPeakValueVisible() const noexcept { return m_valueVisible && m_options.valueEnabled; }
 
     /**
      * @brief Reset the peak hold level.
@@ -223,7 +223,7 @@ class Level
      * 
      * @see getPeakHoldLevel, isPeakValueVisible, setPeakValueVisible, showPeakHold, showValue, isPeakHoldVisible
     */
-    void resetPeakHoldLevel() { m_peakHoldLevel = 0.0f; }
+    void resetPeakHoldLevel() noexcept { m_peakHoldLevel = 0.0f; }
 
     /**
      * @brief Get the current peak hold level.
@@ -233,7 +233,7 @@ class Level
      * @return The current peak hold level (in amp).
      * @see resetPeakHoldLevel, isPeakValueVisible, setPeakValueVisible, setPeakHoldVisible, isPeakHoldVisible
     */
-    [[nodiscard]] float getPeakHoldLevel() const { return m_peakHoldLevel; }
+    [[nodiscard]] float getPeakHoldLevel() const noexcept { return m_peakHoldLevel; }
 
     /**
      * @brief Set the bounds of the 'value' part of the meter.
@@ -242,7 +242,7 @@ class Level
      * 
      * @see getValueBounds, setMeterBounds, getMeterBounds
     */
-    void setValueBounds (const juce::Rectangle<int>& bounds) { m_valueBounds = bounds; }
+    void setValueBounds (const juce::Rectangle<int>& bounds) noexcept { m_valueBounds = bounds; }
 
     /**
      * @brief Get the bounds of the 'value' part of the meter.
@@ -250,7 +250,7 @@ class Level
      * @return The bounds of the 'value' part of the meter.
      * @see setMeterBounds, setValueBounds, getMeterBounds
     */
-    [[nodiscard]] juce::Rectangle<int> getValueBounds() const { return m_valueBounds; }
+    [[nodiscard]] juce::Rectangle<int> getValueBounds() const noexcept { return m_valueBounds; }
 
     /**
      * @brief Set the bounds of the 'meter' part of the meter.
@@ -266,7 +266,7 @@ class Level
      * @return The bounds of the 'meter' part.
      * @see getValueBounds, setValueBounds, setMeterBounds
     */
-    [[nodiscard]] juce::Rectangle<int> getMeterBounds() const { return m_meterBounds; }
+    [[nodiscard]] juce::Rectangle<int> getMeterBounds() const noexcept { return m_meterBounds; }
 
     /**
      * @brief Check if the mouse cursor is over the 'value' part of the meter.
@@ -281,12 +281,12 @@ class Level
      * 
      * @return True, if the mouse cursor is over the 'value' part of the meter.
     */
-    [[nodiscard]] bool isMouseOverValue() const { return m_mouseOverValue; }
+    [[nodiscard]] bool isMouseOverValue() const noexcept { return m_mouseOverValue; }
 
     /**
      * @brief Reset 'mouse over' status of the 'value' part of the meter.
     */
-    void resetMouseOverValue() { m_mouseOverValue = false; }
+    void resetMouseOverValue() noexcept { m_mouseOverValue = false; }
 
     /**
      * @brief Draws the meter.
@@ -386,7 +386,7 @@ class Level
      * @param visible When set true, shows the tick-marks. 
      * @see setTickMarks, enableTickMarks
     */
-    void showTickMarks (bool visible) { m_tickMarksVisible = visible; }
+    void showTickMarks (bool visible) noexcept { m_tickMarksVisible = visible; }
 
     /**
      * @brief Enable tick-marks (divider lines) on the meter.
@@ -399,7 +399,7 @@ class Level
      * @param enabled When set true, the tick-marks are enabled. 
      * @see setTickMarks, showTickMarks
     */
-    void enableTickMarks (bool enabled) { m_options.tickMarksEnabled = enabled; }
+    void enableTickMarks (bool enabled) noexcept { m_options.tickMarksEnabled = enabled; }
 
     /**
      * @brief Set the colours of the segments.
@@ -414,7 +414,7 @@ class Level
      * @brief Use gradients in stead of hard segment boundaries.
      * @param useGradients When set to true, uses smooth gradients. False gives hard segment boundaries.
     */
-    void useGradients (bool useGradients) { m_options.useGradient = useGradients; }
+    void useGradients (bool useGradients) noexcept { m_options.useGradient = useGradients; }
 
  private:
     Options m_options;

@@ -167,7 +167,7 @@ class MetersComponent
     * 
     * @see setNumChannels, setChannelFormat
    */
-    int getNumChannels() const { return m_meterChannels.size(); }
+    int getNumChannels() const noexcept { return m_meterChannels.size(); }
 
     /**
      * @brief Get the default meters panel width.
@@ -178,7 +178,7 @@ class MetersComponent
      * 
      * @return The default panel width (in pixels).
     */
-    int getAutoSizedPanelWidth() const { return m_autoSizedPanelWidth; }
+    int getAutoSizedPanelWidth() const noexcept { return m_autoSizedPanelWidth; }
 
     /**
      * @brief Set the channel names to display above the meters.
@@ -349,7 +349,7 @@ class MetersComponent
      * 
      * @return A reference to the master fader component.
     */
-    const MeterChannel& getMasterFader() const { return m_labelStrip; }
+    const MeterChannel& getMasterFader() const noexcept { return m_labelStrip; }
 
     /**
      * @brief Set all faders to unity gain.

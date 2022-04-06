@@ -324,7 +324,9 @@ void MetersComponent::faderChanged (MeterChannel* sourceChannel)
 void MetersComponent::setFaderValues (const std::vector<float>& faderValues, NotificationOptions notificationOption /*= NotificationOptions::dontNotify*/)
 {
     for (int meterIdx = 0; meterIdx < m_meterChannels.size(); ++meterIdx)
+    {
         if (meterIdx < faderValues.size()) m_meterChannels[meterIdx]->setFaderValue (faderValues[meterIdx], notificationOption);
+    }
 }
 //==============================================================================
 
@@ -333,11 +335,11 @@ void MetersComponent::getFaderValues (NotificationOptions notificationOption /*=
     if (m_meterChannels.isEmpty()) return;
 
     // Set number of mixer gains to match the number of channels...
-    jassert (m_faderGains.size() == m_meterChannels.size());  // NOLINT
+    jassert (static_cast<int> (m_faderGains.size()) == m_meterChannels.size());  // NOLINT
     // if( static_cast<int>( m_mixerGains.size() ) != m_meters.size() ) m_mixerGains.resize( m_meters.size() );
 
     // Loop through all meters...
-    for (int channelIdx = 0; channelIdx < (int) m_meterChannels.size(); ++channelIdx)
+    for (int channelIdx = 0; channelIdx < static_cast<int> (m_meterChannels.size()); ++channelIdx)
     {
         // If the meter is active, get the value from the fader, otherwise a value of 0.0 is used...
         m_faderGains[(size_t) channelIdx] = (m_meterChannels[channelIdx]->isActive() ? m_meterChannels[channelIdx]->getFaderValue() : 0.0f);
@@ -432,11 +434,11 @@ void MetersComponent::setFadersEnabled (bool faderEnabled)
 }
 //==============================================================================
 
-void MetersComponent::flashFaders ()
+void MetersComponent::flashFaders()
 {
     for (auto* meter: m_meterChannels)
         meter->flashFader();
-    
+
     m_labelStrip.flashFader();
 }
 

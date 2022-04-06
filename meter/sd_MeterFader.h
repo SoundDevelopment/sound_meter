@@ -68,7 +68,7 @@ class Fader
      * @return True, if the meter is visible, otherwise the fader is hidden.
      * @see setVisible, setEnabled, isEnabled
     */
-    [[nodiscard]] bool isVisible() const;
+    [[nodiscard]] bool isVisible() const noexcept;
 
     /**
      * @brief Show or hide the fader.
@@ -84,7 +84,7 @@ class Fader
      * @return True, when the fader is enabled.
      * @see setEnabled, isVisible, setVisible
     */
-    [[nodiscard]] bool isEnabled() const;
+    [[nodiscard]] bool isEnabled() const noexcept;
 
     /**
      * @brief Enable or disable the 'fader' overlay.
@@ -92,7 +92,7 @@ class Fader
      * @param enabled True, when the fader needs to be enabled.
      * @see isEnabled, isActive, setActive
     */
-    void enable (bool enabled = true);
+    void enable (bool enabled = true) noexcept;
 
     /**
      * @brief Set the fader bounds.
@@ -108,7 +108,7 @@ class Fader
      * @return Bounds used by the fader.
      * @see setBounds
     */
-    [[nodiscard]] juce::Rectangle<int> getBounds() const;
+    [[nodiscard]] juce::Rectangle<int> getBounds() const noexcept;
 
     /**
      * @brief Get the value of the meter fader.
@@ -116,7 +116,7 @@ class Fader
      * @return The current fader value [0..1].
      * @see setValueFromPos, setValue
     */
-    [[nodiscard]] float getValue() const;
+    [[nodiscard]] float getValue() const noexcept;
 
     /**
      * @brief Set fader value.
@@ -144,7 +144,7 @@ class Fader
      *
      * @return True, if the fader is currently fading out.
     */
-    [[nodiscard]] bool isFading() const { return m_isFading; }
+    [[nodiscard]] bool isFading() const noexcept { return m_isFading; }
 
     /**
      * @brief Draw the fader.
@@ -157,7 +157,7 @@ class Fader
     /**
      * @brief Check if the fader needs redrawing.
     */
-    [[nodiscard]] bool needsRedrawing() { return (m_drawnFaderValue != m_faderValue.load()) || isFading(); }
+    [[nodiscard]] bool needsRedrawing() noexcept { return (m_drawnFaderValue != m_faderValue.load()) || isFading(); }
 
  private:
     std::atomic<float>        m_faderValue { 1.0f };  // Fader value (between 0..1).

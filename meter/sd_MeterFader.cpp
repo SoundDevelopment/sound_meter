@@ -46,7 +46,7 @@ void Fader::flash()
 }
 //==============================================================================
 
-[[nodiscard]] bool Fader::isVisible() const
+[[nodiscard]] bool Fader::isVisible() const noexcept
 {
     return m_visible && m_enabled;
 }
@@ -81,7 +81,7 @@ void Fader::setBounds (const juce::Rectangle<int>& bounds)
 }
 //==============================================================================
 
-juce::Rectangle<int> Fader::getBounds() const
+juce::Rectangle<int> Fader::getBounds() const noexcept
 {
     return m_bounds;
 }
@@ -122,19 +122,19 @@ void Fader::draw (juce::Graphics& g, const juce::Colour& faderColour)
 }
 //==============================================================================
 
-bool Fader::isEnabled() const
+bool Fader::isEnabled() const noexcept
 {
     return m_enabled;
 }
 //==============================================================================
 
-void Fader::enable (bool enabled /*= true*/)
+void Fader::enable (bool enabled /*= true*/) noexcept
 {
     m_enabled = enabled;
 }
 //==============================================================================
 
-float Fader::getValue() const
+float Fader::getValue() const noexcept
 {
     return m_faderValue.load();
 }

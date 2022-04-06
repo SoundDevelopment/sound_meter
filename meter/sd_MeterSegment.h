@@ -86,14 +86,14 @@ class Segment
      *
      * @see setMeterBounds
     */
-    [[nodiscard]] juce::Rectangle<int> getSegmentBounds() const { return m_segmentBounds; }
+    [[nodiscard]] juce::Rectangle<int> getSegmentBounds() const noexcept { return m_segmentBounds; }
 
     /**
      * @brief Check if the segment needs to be redrawn (is dirty).
      *
      * @return True, if the segment needs to be redrawn.
     */
-    [[nodiscard]] bool isDirty() const { return m_dirty; }
+    [[nodiscard]] bool isDirty() const noexcept { return m_dirty; }
 
     /**
      * @brief Set the segment colour (and next colour).
