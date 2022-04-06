@@ -291,7 +291,7 @@ class MeterChannel
      * 
      * @see getChannelTypeWidth, nameFits, setChannelName
     */
-    [[nodiscard]] float getChannelNameWidth() const { return m_header.getNameWidth(); }
+    [[nodiscard]] float getChannelNameWidth() const noexcept { return m_header.getNameWidth(); }
 
     /**
      * @brief Get the width (in pixels) of the full type description in the 'header' part.
@@ -300,7 +300,7 @@ class MeterChannel
      * 
      * @see getChannelNameWidth, nameFits, setChannelType
     */
-    [[nodiscard]] float getChannelTypeWidth() const { return m_header.getTypeWidth(); }
+    [[nodiscard]] float getChannelTypeWidth() const noexcept { return m_header.getTypeWidth(); }
 
     /**
      * @brief Set the referred width (from other meters) used to decide what info to display.
@@ -444,7 +444,7 @@ class MeterChannel
      * @return True, if the meter is visible.
      * @see showFader, setFaderEnabled
     */
-    [[nodiscard]] bool isFaderVisible() const { return m_fader.isVisible(); }
+    [[nodiscard]] bool isFaderVisible() const noexcept { return m_fader.isVisible(); }
 
     /**
      * @brief Enable the 'fader' overlay.
@@ -469,7 +469,7 @@ class MeterChannel
      *
      * @return The current fader value [0..1].
     */
-    [[nodiscard]] float getFaderValue() const { return m_fader.getValue(); }
+    [[nodiscard]] float getFaderValue() const noexcept { return m_fader.getValue(); }
 
     /**
      * @brief Set fader value.
@@ -554,7 +554,7 @@ class MeterChannel
     juce::Colour m_peakColour          = juce::Colours::red;
 
     void                       setDirty (bool isDirty = true);
-    [[nodiscard]] bool         isDirty (const juce::Rectangle<int>& rectToCheck = {}) const;
+    [[nodiscard]] bool         isDirty (const juce::Rectangle<int>& rectToCheck = {}) const noexcept;
     void                       addDirty (const juce::Rectangle<int>& dirtyRect) noexcept { m_dirtyRect = m_dirtyRect.getUnion (dirtyRect); }
     void                       drawMeter (juce::Graphics& g);
     [[nodiscard]] juce::Colour getColourFromLnf (int colourId, const juce::Colour& fallbackColour) const;

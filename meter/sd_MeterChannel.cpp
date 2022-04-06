@@ -333,7 +333,7 @@ void MeterChannel::drawMeter (juce::Graphics& g)
 }
 //==============================================================================
 
-bool MeterChannel::isDirty (const juce::Rectangle<int>& rectToCheck /*= {}*/) const
+bool MeterChannel::isDirty (const juce::Rectangle<int>& rectToCheck /*= {}*/) const noexcept
 {
     if (rectToCheck.isEmpty()) return ! m_dirtyRect.isEmpty();
     return m_dirtyRect.intersects (rectToCheck);
@@ -359,7 +359,7 @@ void MeterChannel::refresh (const bool forceRefresh)
 
         if (! m_isLabelStrip)
         {
-            auto dirtyRect = m_level.calculateMeterLevel (callbackLevel);
+            const auto dirtyRect = m_level.calculateMeterLevel (callbackLevel);
             addDirty (dirtyRect);
         }
 

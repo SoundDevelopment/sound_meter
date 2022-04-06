@@ -75,7 +75,7 @@ void Fader::setVisible (bool showFader /*= true*/)
 }
 //==============================================================================
 
-void Fader::setBounds (const juce::Rectangle<int>& bounds)
+void Fader::setBounds (const juce::Rectangle<int>& bounds) noexcept
 {
     m_bounds = bounds;
 }
@@ -105,7 +105,7 @@ void Fader::draw (juce::Graphics& g, const juce::Colour& faderColour)
     // If it's fading, calculate it's alpha...
     if (timeSinceStartFade < kFaderFadeTime_ms)
     {
-        const float fadePortion = 2.0f;
+        constexpr float fadePortion = 2.0f;
         jassert (kFaderFadeTime_ms > 0.0f);
         alpha      = juce::jlimit (0.0f, 1.0f, fadePortion - ((timeSinceStartFade * fadePortion) / kFaderFadeTime_ms)) * kFaderAlphaMax;
         m_isFading = alpha > 0.0f;
@@ -165,7 +165,7 @@ void Fader::setValueFromPos (const int position, NotificationOptions notificatio
 }
 //==============================================================================
 
-[[nodiscard]] int Fader::getTimeSinceStartFade() const
+int Fader::getTimeSinceStartFade() const
 {
     return static_cast<int> (juce::Time::getMillisecondCounter()) - m_fadeStart;
 }

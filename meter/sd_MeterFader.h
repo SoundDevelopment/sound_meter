@@ -100,7 +100,7 @@ class Fader
      * @param bounds Bounds to use for the fader.
      * @see getBounds
     */
-    void setBounds (const juce::Rectangle<int>& bounds);
+    void setBounds (const juce::Rectangle<int>& bounds) noexcept;
 
     /**
      * @brief Get the fader bounds.

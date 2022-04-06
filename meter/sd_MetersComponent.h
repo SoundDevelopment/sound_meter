@@ -293,7 +293,7 @@ class MetersComponent
      * 
      * @param enabled When set to true, the meters panel will be displayed.
     */
-    void setEnabled (bool enabled = true);
+    void enable (bool enabled = true);
 
     /**
      * @brief Show tick-marks (divider lines) on the meter.

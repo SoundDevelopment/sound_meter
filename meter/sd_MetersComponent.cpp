@@ -201,7 +201,7 @@ void MetersComponent::resized()
     else
     {
         // Use the dimensions of the 'meter' part combined with the 'value' part...
-        auto labelStripBounds = m_meterChannels[0]->getLabelStripBounds();
+        const auto labelStripBounds = m_meterChannels[0]->getLabelStripBounds();
         if (m_labelStripPosition == LabelStripPosition::right)
             m_labelStrip.setBounds (panelBounds.removeFromRight (labelStripWidth).withY (labelStripBounds.getY()).withHeight (labelStripBounds.getHeight()));
         else if (m_labelStripPosition == LabelStripPosition::left)
@@ -384,14 +384,14 @@ bool MetersComponent::areAllMetersInactive()
 
 void MetersComponent::toggleMute()
 {
-    bool allChannelsInactive = areAllMetersInactive();
+    const bool allChannelsInactive = areAllMetersInactive();
     muteAll (! allChannelsInactive);
 }
 //==============================================================================
 
 void MetersComponent::muteAll (bool mute /*= true */)
 {
-    bool allChannelsInactive = areAllMetersInactive();
+    const bool allChannelsInactive = areAllMetersInactive();
     if (mute == allChannelsInactive) return;  // All meters already muted.
 
     for (auto* meter: m_meterChannels)
@@ -589,7 +589,7 @@ void MetersComponent::setOptions (Options meterOptions)
 }
 //==============================================================================
 
-void MetersComponent::setEnabled (bool enabled /*= true*/)
+void MetersComponent::enable (bool enabled /*= true*/)
 {
     m_options.enabled = enabled;
 
