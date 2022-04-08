@@ -325,7 +325,7 @@ void MetersComponent::setFaderValues (const std::vector<float>& faderValues, Not
 {
     for (int meterIdx = 0; meterIdx < m_meterChannels.size(); ++meterIdx)
     {
-        if (meterIdx < faderValues.size()) m_meterChannels[meterIdx]->setFaderValue (faderValues[meterIdx], notificationOption);
+        if (meterIdx < static_cast<int>( faderValues.size())) m_meterChannels[meterIdx]->setFaderValue (faderValues[meterIdx], notificationOption);
     }
 }
 //==============================================================================
@@ -486,7 +486,7 @@ void MetersComponent::setChannelFormat (const juce::AudioChannelSet& channelForm
         }
         else
         {
-            const auto  numChannelsToAdd = (channelFormat.size() - numFaderGains);
+            const size_t numChannelsToAdd = channelFormat.size() - static_cast<size_t>( numFaderGains );
             const float lastGain         = m_faderGains.back();
             const float lastBufferedGain = m_faderGainsBuffer.back();
 
