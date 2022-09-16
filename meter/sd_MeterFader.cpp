@@ -157,7 +157,7 @@ void Fader::enable (bool enabled /*= true*/) noexcept
 }
 //==============================================================================
 
-bool Fader::setValue (float value, [[maybe_unused]] NotificationOptions notificationOption /*= NotificationOptions::Notify*/)
+bool Fader::setValue (float value, NotificationOptions notificationOption /*= NotificationOptions::Notify*/)
 {
     if (! m_enabled) return false;
     if (m_faderValue.load() == value) return false;

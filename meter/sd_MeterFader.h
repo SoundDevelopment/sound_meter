@@ -127,7 +127,7 @@ class Fader
      * 
      * @see setValueFromPos, getValue
     */
-    bool setValue (float value, [[maybe_unused]] NotificationOptions notificationOption = NotificationOptions::notify);
+    bool setValue (float value, NotificationOptions notificationOption = NotificationOptions::notify);
 
     /**
      * @brief Set fader value according to a supplied mouse position.
@@ -153,27 +153,27 @@ class Fader
      * @param faderColour Fader colour to use.
     */
     void draw (juce::Graphics& g, const juce::Colour& faderColour);
-    
+
     /**
      * @brief Actually draw the fader part.
      * 
      * This function get's called or an overridden LookAndFeel method.
      * 
      * @param[in,out] g The juce graphics context to use.
-     * @param bounds  The bounds available to the fader part.
+     * @param bounds    The bounds available to the fader part.
      * @param value     The value of the fader.
      * @param alpha     The alpha component of the fader (to enable fading).
     */
-    void drawFader (juce::Graphics& g, juce::Rectangle<int> bounds, float value, juce::Colour faderColour );
+    void drawFader (juce::Graphics& g, juce::Rectangle<int> bounds, float value, juce::Colour faderColour);
 
  private:
-    std::atomic<float>                         m_faderValue { 1.0f };  // Fader value (between 0..1).
-    [[maybe_unused]] SoundMeter::MeterChannel* m_parentMeter = nullptr;
-    bool                                       m_visible     = false;
-    bool                                       m_enabled     = false;
-    bool                                       m_isFading    = false;
-    int                                        m_fadeStart   = 0;
-    juce::Rectangle<int>                       m_bounds {};
+    std::atomic<float>        m_faderValue { 1.0f };  // Fader value (between 0..1).
+    SoundMeter::MeterChannel* m_parentMeter { nullptr };
+    bool                      m_visible { false };
+    bool                      m_enabled { false };
+    bool                      m_isFading { false };
+    int                       m_fadeStart { 0 };
+    juce::Rectangle<int>      m_bounds {};
 
     [[nodiscard]] int getTimeSinceStartFade() const noexcept;
 
