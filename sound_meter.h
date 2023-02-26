@@ -59,8 +59,9 @@ END_JUCE_MODULE_DECLARATION
 
 *******************************************************************************/
 
-#ifndef SOUND_METER_HEADER_H
-#define SOUND_METER_HEADER_H
+#pragma once
+
+#define SD_SOUND_METER_H_INCLUDED
 
 /** Config: SDTK_ENABLE_FADER
     Enable a fader, to be overlayed on top of the meter.
@@ -81,5 +82,3 @@ END_JUCE_MODULE_DECLARATION
 #include "meter/sd_MeterHeader.h"
 #include "meter/sd_MeterChannel.h"
 #include "meter/sd_MetersComponent.h"
-
-#endif  //SOUND_METER_HEADER_H

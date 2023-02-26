@@ -160,10 +160,7 @@ class Fader
     [[nodiscard]] bool needsRedrawing() noexcept { return (m_drawnFaderValue != m_faderValue.load()) || isFading(); }
 
  private:
-    std::atomic<float>        m_faderValue { 1.0f };  // Fader value (between 0..1).
-    float                     m_drawnFaderValue { 1.0f };
-
-   /**
+    /**
      * @brief Actually draw the fader part.
      * 
      * This function get's called or an overridden LookAndFeel method.
@@ -175,8 +172,8 @@ class Fader
     */
     void drawFader (juce::Graphics& g, juce::Rectangle<int> bounds, float value, juce::Colour faderColour);
 
- private:
     std::atomic<float>        m_faderValue { 1.0f };  // Fader value (between 0..1).
+    float                     m_drawnFaderValue { 1.0f };
     SoundMeter::MeterChannel* m_parentMeter { nullptr };
     bool                      m_visible { false };
     bool                      m_enabled { false };
