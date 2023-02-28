@@ -30,8 +30,7 @@
     ==============================================================================
 */
 
-#ifndef SD_SOUND_METER_LEVEL_H
-#define SD_SOUND_METER_LEVEL_H
+#pragma once
 
 
 namespace sd
@@ -45,7 +44,7 @@ namespace SoundMeter
 */
 class Level
 {
- public:
+public:
     /**
      * @brief Constructor.
     */
@@ -288,6 +287,9 @@ class Level
     */
     void resetMouseOverValue() noexcept { m_mouseOverValue = false; }
 
+    /** @brief Get the dirty part of the meter.*/
+    [[nodiscard]] juce::Rectangle<int> getDirtyBounds() const;
+
     /**
      * @brief Draws the meter.
      * 
@@ -295,7 +297,7 @@ class Level
      * 
      * @see drawInactiveMeter, drawPeakValue, drawPeakHold, drawTickMarks, drawLabels
     */
-    void drawMeter (juce::Graphics& g) const;
+    void drawMeter (juce::Graphics& g);
 
     /**
      * @brief Draw the 'meter' part in it's inactive (muted) state.
@@ -416,7 +418,7 @@ class Level
     */
     void useGradients (bool useGradients) noexcept { m_options.useGradient = useGradients; }
 
- private:
+private:
     Options m_options;
 
     // Meter levels...
@@ -429,6 +431,8 @@ class Level
     sd::SoundMeter::Segment m_normalSegment;
     sd::SoundMeter::Segment m_warningSegment;
     sd::SoundMeter::Segment m_peakSegment;
+
+    std::vector<DbSegment> m_dbSegments { { { -60.0f, 0.0f }, { 0.0f, 1.0f }, juce::Colours::yellow } };  // List of dB segments.
 
     juce::Rectangle<int> m_dirtyRect {};
 
@@ -457,5 +461,3 @@ class Level
 
 }  // namespace SoundMeter
 }  // namespace sd
-
-#endif /* SD_SOUND_METER_LEVEL_H */

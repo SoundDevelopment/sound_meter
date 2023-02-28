@@ -31,8 +31,7 @@
 */
 
 
-#ifndef SD_SOUND_METER_METERCHANNEL_H
-#define SD_SOUND_METER_METERCHANNEL_H
+#pragma once
 
 
 namespace sd
@@ -576,4 +575,3 @@ class MeterChannel
 
 }  // namespace SoundMeter
 }  // namespace sd
-#endif /* SD_SOUND_METER_METERCHANNEL_H */

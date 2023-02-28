@@ -30,21 +30,111 @@
     ==============================================================================
 */
 
-#ifndef SD_SOUND_METER_SEGMENT_H
-#define SD_SOUND_METER_SEGMENT_H
+#pragma once
 
+#include <juce_graphics/juce_graphics.h>
 
 namespace sd
 {
+
 namespace SoundMeter
 {
+
+class DbSegment
+{
+public:
+    static constexpr auto kMinLevel { -96.0f };
+    static constexpr auto kMaxLevel { 0.0f };
+
+    DbSegment (juce::Range<float> levelRange, juce::Range<float> meterRange, juce::Colour colour)
+      : m_levelRange (levelRange), m_meterRange (meterRange), m_colour (colour)
+    {
+        jassert (m_levelRange.getLength() > 0.0f);
+    }
+
+    void draw (juce::Graphics& g)
+    {
+        m_isDirty = false;
+        if (m_drawnBounds.isEmpty())
+            return;
+
+        g.setColour (m_colour);
+        g.fillRect (m_drawnBounds);
+    }
+
+    void setLevel (float level_db)
+    {
+        if (m_currentLevel == level_db)
+            return;
+        m_currentLevel = level_db;
+        updateLevelBounds();
+    }
+
+
+    void setMeterBounds (juce::Rectangle<int> meterBounds)
+    {
+        const auto segmentBounds = meterBounds.withY (meterBounds.getY() + meterBounds.proportionOfHeight (m_meterRange.getStart()))
+                                     .withHeight (meterBounds.proportionOfHeight (m_meterRange.getLength()));
+        if (segmentBounds == m_segmentBounds)
+            return;
+
+        m_segmentBounds = segmentBounds;
+        updateLevelBounds();
+    }
+
+    /** @brief Get the bounding box of this segment.*/
+    [[nodiscard]] juce::Rectangle<int> getSegmentBounds() const noexcept { return m_segmentBounds; }
+
+    void updateLevelBounds()
+    {
+        if (m_segmentBounds.isEmpty())
+            return;
+
+        const auto levelRatio = std::clamp ((m_currentLevel - m_levelRange.getStart()) / m_levelRange.getLength(), 0.0f, 1.0f);
+
+        const auto levelBounds = m_segmentBounds.withTop (m_segmentBounds.getY() + m_segmentBounds.proportionOfHeight (1.0f - levelRatio));
+        if (m_drawnBounds == levelBounds)
+            return;
+
+        m_drawnBounds = levelBounds;
+        m_isDirty     = true;
+    }
+
+    [[nodiscard]] bool isDirty() const noexcept { return m_isDirty; }
+
+    void setColours (const juce::Colour& segmentColour, const juce::Colour& nextColour)
+    {
+        m_colour     = segmentColour;
+        m_nextColour = nextColour;
+    }
+
+    void setUseGradients (bool useGradients) noexcept { m_useGradients = useGradients; }
+
+
+private:
+    juce::Range<float>   m_levelRange { kMinLevel, kMaxLevel };
+    juce::Range<float>   m_meterRange { 0.0f, 1.0f };
+    juce::Rectangle<int> m_segmentBounds {};
+    juce::Rectangle<int> m_drawnBounds {};
+
+    float        m_currentLevel = kMinLevel;
+    bool         m_useGradients = false;
+    bool         m_isDirty      = false;
+    juce::Colour m_colour       = juce::Colours::red;
+    juce::Colour m_nextColour   = m_colour.brighter();
+
+    juce::ColourGradient m_gradientFill {};
+
+    JUCE_LEAK_DETECTOR (DbSegment)
+};
+
 
 /**
  * @brief Individual meter segment.
 */
-class Segment
+class Segment final
 {
- public:
+public:
     /**
      * @brief Draw the segment.
      * 
@@ -54,30 +144,39 @@ class Segment
     void draw (juce::Graphics& g, bool useGradient) const;
 
     /**
-     * @brief Set the level for the segment.
+     * @brief Set the input level.
      * 
      * This also checks if the segment needs to be redrawn (is dirty).
      * 
-     * @param level The meter level.
+     * @param level The meter level in decibels.
     */
-    void setLevel (float level);
+    void setLevel (float level_db);
 
     /**
      * @brief Set the range of the segment.
      * 
-     * @param newStartLevel Start of the segment (in amp [0..1]).
-     * @param newStopLevel  End of the segment (in amp [0..1]).
+     * @param newStartLevel Start of the segment (in decibels).
+     * @param newStopLevel  End of the segment (in decibels).
     */
-    void setRange (float newStartLevel, float newStopLevel);
+    void setRange (float newStartLevel_db, float newStopLevel_db);
 
     /**
      * @brief Set the bounds of the full level part (all segments).
      * 
      * @param bounds The bounds of the level part (all segments).
      * 
-     * @see getSegmentBounds
+     * @see getSegmentBounds, setSegmentBounds
     */
     void setMeterBounds (const juce::Rectangle<int>& bounds);
+
+    /**
+     * @brief Set the bounds of the segment.
+     * 
+     * @return The bounds of the segment.
+     *
+     * @see setMeterBounds,getSegmentBounds
+    */
+    void setSegmentBounds (juce::Rectangle<int> segmentBounds) noexcept { m_segmentBounds = segmentBounds; }
 
     /**
      * @brief Get the bounds of the segment.
@@ -105,7 +204,7 @@ class Segment
     */
     void setColours (const juce::Colour& segmentColour, const juce::Colour& nextColour);
 
- private:
+private:
     float m_startLevel      = 0.0f;
     float m_stopLevel       = 1.0f;
     float m_currentLevel    = 0.0f;
@@ -113,10 +212,10 @@ class Segment
     float m_levelMultiplier = 0.0f;
     bool  m_dirty           = false;
 
-    juce::Colour         m_segmentColour = juce::Colours::red;
-    juce::Colour         m_nextColour    = m_segmentColour.brighter();
-    juce::ColourGradient m_gradientFill;
+    juce::Colour m_segmentColour = juce::Colours::red;
+    juce::Colour m_nextColour    = m_segmentColour.brighter();
 
+    juce::ColourGradient m_gradientFill {};
     juce::Rectangle<int> m_meterBounds {};
     juce::Rectangle<int> m_segmentBounds {};
 
@@ -127,5 +226,3 @@ class Segment
 
 }  // namespace SoundMeter
 }  // namespace sd
-
-#endif /* SD_SOUND_METER_SEGMENT_H */

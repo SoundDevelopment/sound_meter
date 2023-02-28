@@ -31,8 +31,7 @@
 */
 
 
-#ifndef SD_SOUND_METER_HELPERS_H
-#define SD_SOUND_METER_HELPERS_H
+#pragma once
 
 
 namespace sd
@@ -46,29 +45,30 @@ namespace SoundMeter
 */
 namespace Constants
 {
-static constexpr auto kMinWidth                = 2;        ///< Minimum meter width (in pixels).
-static constexpr auto kMaxWidth                = 500;      ///< Maximum meter width (in pixels).
-static constexpr auto kPeakHoldHeight          = 2;        ///< Height of the peak hold strip (in pixels).
-static constexpr auto kDefaultHeaderHeight     = 25;       ///< Default height of the 'header' part (in pixels).
-static constexpr auto kDefaultHeaderLabelWidth = 30;       ///< Default 'header' label width (in pixels).
-static constexpr auto kDefaultHeaderFontHeight = 12.0f;    ///< Default height of the font used in the 'header' part (in pixels).
-static constexpr auto kLabelStripTextPadding   = 2;        ///< Padding around the text in a label strip (in pixels).
-static constexpr auto kLabelStripLeftPadding   = 5;        ///< Padding (in pixels) on the left side of the label strip (which can double as a master fader).
-static constexpr auto kFaderRightPadding       = 1;        ///< Padding (in pixels) on the right side of the channel faders.
-static constexpr auto kMaxLevel_db             = 0.0f;     ///< Maximum meter level (in db).
-static constexpr auto kMinDecay_ms             = 100.0f;   ///< Minimum meter decay speed (in milliseconds).
-static constexpr auto kMaxDecay_ms             = 4000.0f;  ///< Maximum meter decay speed (in milliseconds).
-static constexpr auto kDefaultDecay_ms         = 1000.0f;  ///< Default meter decay speed (in milliseconds).
-static constexpr auto kTickMarkHeight          = 2;        ///< Height of a tick mark (in pixels).
-static constexpr auto kFaderFadeTime_ms        = 2500;     ///< Fader fade out time (in milliseconds).
-static constexpr auto kFaderSensitivity        = 10.0f;    ///< Fader sensitivity value. Must be a positive value > 0.
-static constexpr auto kFaderAlphaMax           = 0.3f;     ///< Maximum transparency (alpha) of the fader overlay.
-static constexpr auto kWarningLevel_db         = -9.0f;    ///< Dividing level between 'normal' and 'warning' segments (in decibels).
-static constexpr auto kPeakLevel_db            = -3.0f;    ///< Dividing level between 'warning' and 'peak' segments (in decibels).
-static constexpr auto kMinModeHeightThreshold = 150;  ///< Meter minimum mode height threshold in pixels (min. mod is just the meter. not value, ticks or fader).
-static constexpr auto kMinModeWidthThreshold  = 15;   ///< Meter minimum mode width threshold in pixels (min. mod is just the meter. not value, ticks or fader).
-static constexpr auto kMetersPanelId          = "meters_panel";  ///< ID (name) of all components in the meters panel.
-static constexpr auto kLabelStripId           = "label_strip";   ///< ID (name) of the label-strip (master fader).
+static constexpr auto kMinWidth                = 2;               ///< Minimum meter width (in pixels).
+static constexpr auto kMaxWidth                = 500;             ///< Maximum meter width (in pixels).
+static constexpr auto kPeakHoldHeight          = 2;               ///< Height of the peak hold strip (in pixels).
+static constexpr auto kDefaultHeaderHeight     = 25;              ///< Default height of the 'header' part (in pixels).
+static constexpr auto kDefaultHeaderLabelWidth = 30;              ///< Default 'header' label width (in pixels).
+static constexpr auto kDefaultHeaderFontHeight = 12.0f;           ///< Default height of the font used in the 'header' part (in pixels).
+static constexpr auto kLabelStripTextPadding   = 2;               ///< Padding around the text in a label strip (in pixels).
+static constexpr auto kLabelStripLeftPadding   = 5;               ///< Padding (in pixels) on the left side of the label strip (which can double as a master fader).
+static constexpr auto kFaderRightPadding       = 1;               ///< Padding (in pixels) on the right side of the channel faders.
+static constexpr auto kMaxLevel_db             = 0.0f;            ///< Maximum meter level (in db).      
+static constexpr auto kMinLevel_db             = -96.0f;          ///< Minimum meter level (in db).
+static constexpr auto kMinDecay_ms             = 100.0f;          ///< Minimum meter decay speed (in milliseconds).
+static constexpr auto kMaxDecay_ms             = 4000.0f;         ///< Maximum meter decay speed (in milliseconds).
+static constexpr auto kDefaultDecay_ms         = 1000.0f;         ///< Default meter decay speed (in milliseconds).
+static constexpr auto kTickMarkHeight          = 2;               ///< Height of a tick mark (in pixels).
+static constexpr auto kFaderFadeTime_ms        = 2500;            ///< Fader fade out time (in milliseconds).
+static constexpr auto kFaderSensitivity        = 10.0f;           ///< Fader sensitivity value. Must be a positive value > 0.
+static constexpr auto kFaderAlphaMax           = 0.3f;            ///< Maximum transparency (alpha) of the fader overlay.
+static constexpr auto kWarningLevel_db         = -9.0f;           ///< Dividing level between 'normal' and 'warning' segments (in decibels).
+static constexpr auto kPeakLevel_db            = -3.0f;           ///< Dividing level between 'warning' and 'peak' segments (in decibels).
+static constexpr auto kMinModeHeightThreshold  = 150;             ///< Meter minimum mode height threshold in pixels (min. mod is just the meter. not value, ticks or fader).
+static constexpr auto kMinModeWidthThreshold   = 15;              ///< Meter minimum mode width threshold in pixels (min. mod is just the meter. not value, ticks or fader).
+static constexpr auto kMetersPanelId           = "meters_panel";  ///< ID (name) of all components in the meters panel.
+static constexpr auto kLabelStripId            = "label_strip";   ///< ID (name) of the label-strip (master fader).
 }  // namespace Constants
 
 /**
@@ -110,6 +110,7 @@ struct Options
     bool  tickMarksEnabled  = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
     bool  tickMarksOnTop    = false;  ///< Show the tick-marks below the level or above the level (level might obscure the tick-marks if loud enough).
     std::vector<float> tickMarks = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };  ///< Tick-mark position in db.
+    
 };
 
 /**
@@ -150,6 +151,3 @@ namespace Helpers
 }  // namespace SoundMeter
 
 }  // namespace sd
-
-
-#endif /* SD_SOUND_METER_HELPERS_H */
