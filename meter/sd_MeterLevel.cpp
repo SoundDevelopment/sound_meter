@@ -1,3 +1,4 @@
+#include "sd_MeterLevel.h"
 /*
     ==============================================================================
     
@@ -41,8 +42,10 @@ namespace SoundMeter
 
 void Level::drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColour) const
 {
-    if (! m_valueVisible) return;
-    if (m_valueBounds.isEmpty()) return;
+    if (!m_valueVisible)
+        return;
+    if (m_valueBounds.isEmpty())
+        return;
 
     // Draw PEAK value...
     const auto peak = getPeakHoldLevel();
@@ -61,7 +64,8 @@ void Level::drawPeakHold (juce::Graphics& g, const juce::Colour& peakHoldColour)
 {
     using namespace Constants;
 
-    if (! m_options.showPeakHoldIndicator) return;
+    if (!m_options.showPeakHoldIndicator)
+        return;
 
     // Calculate peak hold y coordinate...
     const int y = m_meterBounds.getY() + static_cast<int> (m_meterBounds.getHeight() * (1.0f - m_peakHoldLevel));
@@ -74,18 +78,33 @@ void Level::drawPeakHold (juce::Graphics& g, const juce::Colour& peakHoldColour)
 }
 //==============================================================================
 
-void Level::drawMeter (juce::Graphics& g) const
+juce::Rectangle<int> Level::getDirtyBounds() const
 {
-    m_normalSegment.draw (g, m_options.useGradient);
-    m_warningSegment.draw (g, m_options.useGradient);
-    m_peakSegment.draw (g, m_options.useGradient);
+    juce::Rectangle<int> dirtyBounds {};
+    for (const auto& segment: m_dbSegments)
+        dirtyBounds = dirtyBounds.getUnion (segment.getSegmentBounds());
+
+    return dirtyBounds;
+}
+//==============================================================================
+
+void Level::drawMeter (juce::Graphics& g)
+{
+    for (auto& segment: m_dbSegments)
+    {
+        segment.draw (g);
+    }
+    // m_normalSegment.draw (g, m_options.useGradient);
+    // m_warningSegment.draw (g, m_options.useGradient);
+    // m_peakSegment.draw (g, m_options.useGradient);
 }
 //==============================================================================
 
 void Level::drawInactiveMeter (juce::Graphics& g, const juce::Colour& textColour) const
 {
     // Check if there is space enough to write the 'MUTE' text...
-    if (m_meterBounds.getWidth() < (g.getCurrentFont().getHeight())) return;
+    if (m_meterBounds.getWidth() < (g.getCurrentFont().getHeight()))
+        return;
 
     g.saveState();
     g.addTransform (juce::AffineTransform::rotation (juce::MathConstants<float>::halfPi, static_cast<float> (m_meterBounds.getCentreX()),
@@ -99,7 +118,8 @@ void Level::drawInactiveMeter (juce::Graphics& g, const juce::Colour& textColour
 
 void Level::drawTickMarks (juce::Graphics& g, const juce::Colour& tickColour) const
 {
-    if (! m_tickMarksVisible || ! m_options.tickMarksEnabled) return;
+    if (!m_tickMarksVisible || !m_options.tickMarksEnabled)
+        return;
 
     g.setColour (tickColour);
 
@@ -114,7 +134,8 @@ void Level::drawTickMarks (juce::Graphics& g, const juce::Colour& tickColour) co
 
 void Level::drawLabels (juce::Graphics& g, const juce::Colour& textColour) const
 {
-    if (! m_tickMarksVisible) return;
+    if (!m_tickMarksVisible)
+        return;
 
     g.setColour (textColour);
     const float fontsize = juce::jlimit (1.0f, 15.0f, m_meterBounds.getHeight() / 4.0f);  // Set font size proportionally. NOLINT
@@ -170,10 +191,17 @@ juce::Rectangle<int> Level::calculateMeterLevel (float newLevel)
     m_warningSegment.setLevel (m_meterLevel);
     m_peakSegment.setLevel (m_meterLevel);
 
+    auto dbLevel = juce::Decibels::gainToDecibels (m_meterLevel);
+    for (auto& segment: m_dbSegments)
+        segment.setLevel (dbLevel);
+
     m_dirtyRect = {};
-    if (m_normalSegment.isDirty()) m_dirtyRect = m_normalSegment.getSegmentBounds();
-    if (m_warningSegment.isDirty()) m_dirtyRect = m_dirtyRect.getUnion (m_warningSegment.getSegmentBounds());
-    if (m_peakSegment.isDirty()) m_dirtyRect = m_dirtyRect.getUnion (m_peakSegment.getSegmentBounds());
+    if (m_normalSegment.isDirty())
+        m_dirtyRect = m_normalSegment.getSegmentBounds();
+    if (m_warningSegment.isDirty())
+        m_dirtyRect = m_dirtyRect.getUnion (m_warningSegment.getSegmentBounds());
+    if (m_peakSegment.isDirty())
+        m_dirtyRect = m_dirtyRect.getUnion (m_peakSegment.getSegmentBounds());
 
     return m_dirtyRect;
 }
@@ -189,7 +217,7 @@ void Level::setOptions (const Options& meterOptions)
     useGradients (meterOptions.useGradient);
     setRefreshRate (meterOptions.refreshRate);
     showPeakHold (meterOptions.showPeakHoldIndicator);
-    enableValue( meterOptions.valueEnabled);
+    enableValue (meterOptions.valueEnabled);
 
     m_options = meterOptions;
 }
@@ -197,7 +225,8 @@ void Level::setOptions (const Options& meterOptions)
 
 void Level::setRefreshRate (float refreshRate_hz)
 {
-    if (refreshRate_hz <= 0.0f) return;
+    if (refreshRate_hz <= 0.0f)
+        return;
 
     m_options.refreshRate = refreshRate_hz;
     m_refreshPeriod_ms    = (1.0f / refreshRate_hz) * 1000.0f;
@@ -215,7 +244,8 @@ void Level::setDecay (float decay_ms)
 void Level::defineSegments (const float warningSegment_db, const float peakSegment_db)
 {
     jassert (peakSegment_db > warningSegment_db);  // NOLINT
-    if (peakSegment_db <= warningSegment_db) return;
+    if (peakSegment_db <= warningSegment_db)
+        return;
 
     const auto warningSegmentLevel = juce::Decibels::decibelsToGain (warningSegment_db);
     const auto peakSegmentLevel    = juce::Decibels::decibelsToGain (peakSegment_db);
@@ -236,19 +266,21 @@ void Level::reset()
 
 float Level::getDecayedLevel (const float callbackLevel)
 {
-    // Measure time passed...
     const auto currentTime = static_cast<int> (juce::Time::getMillisecondCounter());
-    const auto timePassed  = static_cast<int> (juce::Time::getMillisecondCounter()) - m_previousRefreshTime;
+    const auto timePassed  = currentTime - static_cast<int> (m_previousRefreshTime);
 
     // A new frame is not needed yet, return the current value...
-    if (timePassed < m_refreshPeriod_ms) return m_meterLevel;
+    if (timePassed < m_refreshPeriod_ms)
+        return m_meterLevel;
 
     m_previousRefreshTime = currentTime;
 
     // More time has passed then the meter decay. The meter has fully decayed...
-    if (timePassed > m_options.decayTime_ms) return callbackLevel;
+    if (timePassed > m_options.decayTime_ms)
+        return callbackLevel;
 
-    if (m_meterLevel == callbackLevel) return callbackLevel;
+    if (m_meterLevel == callbackLevel)
+        return callbackLevel;
 
     // Convert that to refreshed frames...
     auto numberOfFramePassed = static_cast<int> (std::round ((timePassed * m_options.refreshRate) / 1000.0f));
@@ -257,7 +289,8 @@ float Level::getDecayedLevel (const float callbackLevel)
     for (int frame = 0; frame < numberOfFramePassed; ++frame)
         level = callbackLevel + (m_decayCoeff * (level - callbackLevel));
 
-    if (std::abs (level - callbackLevel) < kMinMeter_db) level = callbackLevel;
+    if (std::abs (level - callbackLevel) < kMinMeter_db)
+        level = callbackLevel;
 
     return level;
 }
@@ -269,6 +302,9 @@ void Level::setMeterBounds (const juce::Rectangle<int>& bounds)
     m_normalSegment.setMeterBounds (bounds);
     m_warningSegment.setMeterBounds (bounds);
     m_peakSegment.setMeterBounds (bounds);
+
+    for (auto& segment: m_dbSegments)
+        segment.setMeterBounds (bounds);
 }
 //==============================================================================
 
@@ -281,7 +317,7 @@ void Level::calculateDecayCoeff()
 
 bool Level::isMouseOverValue (const int y)
 {
-    m_mouseOverValue = (y >= m_valueBounds.getY() && ! m_valueBounds.isEmpty());
+    m_mouseOverValue = (y >= m_valueBounds.getY() && !m_valueBounds.isEmpty());
     return m_mouseOverValue;
 }
 

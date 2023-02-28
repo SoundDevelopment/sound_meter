@@ -82,7 +82,8 @@ void MeterChannel::flashFader()
 
 void MeterChannel::notifyParent()
 {
-    if (onFaderMove) onFaderMove (this);
+    if (onFaderMove)
+        onFaderMove (this);
 }
 //==============================================================================
 
@@ -91,8 +92,10 @@ void MeterChannel::notifyParent()
 
 [[nodiscard]] juce::Colour MeterChannel::getColourFromLnf (int colourId, const juce::Colour& fallbackColour) const
 {
-    if (isColourSpecified (colourId)) return findColour (colourId);
-    if (getLookAndFeel().isColourSpecified (colourId)) return getLookAndFeel().findColour (colourId);
+    if (isColourSpecified (colourId))
+        return findColour (colourId);
+    if (getLookAndFeel().isColourSpecified (colourId))
+        return getLookAndFeel().findColour (colourId);
 
     return fallbackColour;
 }
@@ -100,9 +103,11 @@ void MeterChannel::notifyParent()
 
 [[nodiscard]] bool MeterChannel::autoSetMinimalMode (int proposedWidth, int proposedHeight)
 {
-    bool minimalMode = ! nameFits ("Lfe", proposedWidth);
-    if (proposedWidth < Constants::kMinModeWidthThreshold) minimalMode = true;
-    if (proposedHeight < Constants::kMinModeHeightThreshold) minimalMode = true;
+    bool minimalMode = !nameFits ("Lfe", proposedWidth);
+    if (proposedWidth < Constants::kMinModeWidthThreshold)
+        minimalMode = true;
+    if (proposedHeight < Constants::kMinModeHeightThreshold)
+        minimalMode = true;
 
     setMinimalMode (minimalMode);
 
@@ -125,13 +130,14 @@ void MeterChannel::useGradients (bool useGradients)
 
 void MeterChannel::setMinimalMode (bool minimalMode)
 {
-    if (! m_options.useMinimalMode) return;
+    if (!m_options.useMinimalMode)
+        return;
 
     m_minimalMode = minimalMode;
-    showTickMarks (! m_minimalMode);      // ... show tick marks if it's not too narrow for ID and not in minimum mode.
-    showHeader (! m_minimalMode);         // ... show channel ID if it's not too narrow for ID and not in minimum mode.
-    showTickMarks (! m_minimalMode);      // ... show tick marks if it's not too narrow for ID and not in minimum mode.
-    m_level.showValue (! m_minimalMode);  // ... show peak value if it's not too narrow for ID and not in minimum mode.
+    showTickMarks (!m_minimalMode);      // ... show tick marks if it's not too narrow for ID and not in minimum mode.
+    showHeader (!m_minimalMode);         // ... show channel ID if it's not too narrow for ID and not in minimum mode.
+    showTickMarks (!m_minimalMode);      // ... show tick marks if it's not too narrow for ID and not in minimum mode.
+    m_level.showValue (!m_minimalMode);  // ... show peak value if it's not too narrow for ID and not in minimum mode.
     setDirty();
 }
 //==============================================================================
@@ -171,7 +177,8 @@ void MeterChannel::setColours()
 void MeterChannel::enableHeader (bool headerEnabled)
 {
     m_header.setEnabled (headerEnabled);
-    if (headerEnabled) m_header.setVisible (true);
+    if (headerEnabled)
+        m_header.setVisible (true);
     addDirty (m_header.getBounds());
 }
 //==============================================================================
@@ -186,7 +193,8 @@ void MeterChannel::showHeader (bool headerVisible)
 void MeterChannel::enableValue (bool valueEnabled /*= true*/)
 {
     m_level.enableValue (valueEnabled);
-    if (valueEnabled) m_level.showValue (true);
+    if (valueEnabled)
+        m_level.showValue (true);
     addDirty (m_level.getValueBounds());
 }
 //==============================================================================
@@ -249,16 +257,18 @@ void MeterChannel::resized()
     m_header.setBounds (m_header.getBounds().withHeight (0));          // Set header height to a default of 0.
 
     // channel IDs.
-    if (m_header.isVisible()) m_header.setBounds (meterBounds.removeFromTop (Constants::kDefaultHeaderHeight));
+    if (m_header.isVisible())
+        m_header.setBounds (meterBounds.removeFromTop (Constants::kDefaultHeaderHeight));
 
     // Resize channel name and value...
-    if (! m_isLabelStrip)  // Label strips do not have channel names or peak values.
+    if (!m_isLabelStrip)  // Label strips do not have channel names or peak values.
     {
         if (auto* font = m_header.getFont())
         {
             // Draw peak value.
             const bool wideEnoughForValue = font->getStringWidth ("-99.99") <= meterBounds.getWidth();
-            if (m_level.isPeakValueVisible() && wideEnoughForValue) m_level.setValueBounds (meterBounds.removeFromBottom (Constants::kDefaultHeaderHeight));
+            if (m_level.isPeakValueVisible() && wideEnoughForValue)
+                m_level.setValueBounds (meterBounds.removeFromBottom (Constants::kDefaultHeaderHeight));
         }
     }
 
@@ -271,9 +281,11 @@ void MeterChannel::resized()
 
 void MeterChannel::paint (juce::Graphics& g)
 {
-    if (getLocalBounds().isEmpty()) return;
+    if (getLocalBounds().isEmpty())
+        return;
 
-    if (auto* font = m_header.getFont()) g.setFont (*font);
+    if (auto* font = m_header.getFont())
+        g.setFont (*font);
 
         // Draw the 'HEADER' part of the meter...
 #if SDTK_ENABLE_FADER
@@ -286,7 +298,7 @@ void MeterChannel::paint (juce::Graphics& g)
     if (m_isLabelStrip)
     {
         // If not active, fill an inactive background.
-        if (! m_active)
+        if (!m_active)
         {
             g.setColour (m_inactiveColour);
             g.fillRect (m_level.getMeterBounds());
@@ -317,25 +329,29 @@ void MeterChannel::drawMeter (juce::Graphics& g)
     g.fillRect (m_level.getMeterBounds());
 
     // Draw TICK-marks below the level...
-    if (! m_tickMarksOnTop) m_level.drawTickMarks (g, m_tickColour);
+    if (!m_tickMarksOnTop)
+        m_level.drawTickMarks (g, m_tickColour);
 
     // Draw meter BAR SEGMENTS (normal, warning, peak)...
     m_active ? m_level.drawMeter (g) : m_level.drawInactiveMeter (g, m_textColour.darker (0.7f));
 
     // Draw TICK-marks on top of the level...
-    if (m_tickMarksOnTop) m_level.drawTickMarks (g, m_tickColour);
+    if (m_tickMarksOnTop)
+        m_level.drawTickMarks (g, m_tickColour);
 
     // Draw peak hold level VALUE...
     m_level.drawPeakValue (g, m_textValueColour);
 
     // Draw peak HOLD line...
-    if (m_active) m_level.drawPeakHold (g, m_peakColour);
+    if (m_active)
+        m_level.drawPeakHold (g, m_peakColour);
 }
 //==============================================================================
 
 bool MeterChannel::isDirty (const juce::Rectangle<int>& rectToCheck /*= {}*/) const noexcept
 {
-    if (rectToCheck.isEmpty()) return ! m_dirtyRect.isEmpty();
+    if (rectToCheck.isEmpty())
+        return !m_dirtyRect.isEmpty();
     return m_dirtyRect.intersects (rectToCheck);
 }
 //==============================================================================
@@ -343,7 +359,8 @@ bool MeterChannel::isDirty (const juce::Rectangle<int>& rectToCheck /*= {}*/) co
 void MeterChannel::setDirty (bool isDirty /*= true*/)
 {
     m_dirtyRect = { 0, 0, 0, 0 };
-    if (isDirty) m_dirtyRect = getLocalBounds();
+    if (isDirty)
+        m_dirtyRect = getLocalBounds();
 }
 //==============================================================================
 
@@ -354,17 +371,21 @@ void MeterChannel::refresh (const bool forceRefresh)
         // Get input level...
         const auto callbackLevel = m_level.getInputLevel();
 
-        // Check if the value part needs to be redrawn....
-        if (callbackLevel > m_level.getPeakHoldLevel() && m_level.isPeakValueVisible()) addDirty (m_level.getValueBounds());
+        addDirty (m_level.getDirtyBounds());
 
-        if (! m_isLabelStrip)
+        // Check if the value part needs to be redrawn....
+        //if (callbackLevel > m_level.getPeakHoldLevel() && m_level.isPeakValueVisible())
+        //    addDirty (m_level.getValueBounds());
+
+        if (!m_isLabelStrip)
         {
             const auto dirtyRect = m_level.calculateMeterLevel (callbackLevel);
             addDirty (dirtyRect);
         }
 
 #if SDTK_ENABLE_FADER
-        if (m_fader.needsRedrawing()) addDirty (m_level.getMeterBounds());  // Repaint if the faders are being moved/faded out...
+        if (m_fader.needsRedrawing())
+            addDirty (m_level.getMeterBounds());  // Repaint if the faders are being moved/faded out...
 #endif
     }
 
@@ -372,7 +393,7 @@ void MeterChannel::refresh (const bool forceRefresh)
     if (forceRefresh)
         repaint();
     else if (isDirty())
-        repaint (m_dirtyRect);
+        repaint (m_dirtyRect);  // TODO: - [mh] Fix this...
 }
 
 #pragma endregion
@@ -384,11 +405,13 @@ void MeterChannel::refresh (const bool forceRefresh)
 
 void MeterChannel::setActive (bool isActive, NotificationOptions notify /*= NotificationOptions::dontNotify*/)
 {
-    if (m_active == isActive) return;
+    if (m_active == isActive)
+        return;
     m_active = isActive;
 
 #if SDTK_ENABLE_FADER
-    if (notify == NotificationOptions::notify) notifyParent();
+    if (notify == NotificationOptions::notify)
+        notifyParent();
 #else
     juce::ignoreUnused (notify);
 #endif
@@ -460,7 +483,8 @@ void MeterChannel::showFader (const bool faderVisible /*= true */)
     m_fader.setVisible (faderVisible);
 
     // If slider needs to be DE-ACTIVATED...
-    if (! faderVisible || ! m_fader.isEnabled()) resetMouseOvers();
+    if (!faderVisible || !m_fader.isEnabled())
+        resetMouseOvers();
     addDirty (m_fader.getBounds());
     refresh (false);
 }
@@ -470,7 +494,8 @@ void MeterChannel::setFaderValue (const float value, NotificationOptions notific
 {
     if (m_fader.setValue (value, notificationOption))
     {
-        if (mustShowFader && ! m_fader.isVisible()) flashFader();
+        if (mustShowFader && !m_fader.isVisible())
+            flashFader();
         addDirty (m_fader.getBounds());
         refresh (false);
     }
@@ -501,17 +526,18 @@ void MeterChannel::mouseDown (const juce::MouseEvent& event)
     if (event.mods == juce::ModifierKeys::leftButtonModifier && m_fader.isEnabled())
     {
         // Clicked on the METER part...
-        if (! m_header.isMouseOver (event.y) && ! m_level.isMouseOverValue (event.y) && m_fader.isVisible())
+        if (!m_header.isMouseOver (event.y) && !m_level.isMouseOverValue (event.y) && m_fader.isVisible())
         {
-            if (! isActive()) setActive (true);  // Activate if it was deactivated.
-            m_fader.setValueFromPos (event.y);   // Set the fader level at the value clicked.
+            if (!isActive())
+                setActive (true);               // Activate if it was deactivated.
+            m_fader.setValueFromPos (event.y);  // Set the fader level at the value clicked.
             addDirty (m_fader.getBounds());
         }
 
         // Clicked on the HEADER part...
         if (m_header.isMouseOver (event.y))
         {
-            setActive (! isActive(), NotificationOptions::notify);
+            setActive (!isActive(), NotificationOptions::notify);
         }
     }
 }
@@ -535,7 +561,8 @@ void MeterChannel::mouseMove (const juce::MouseEvent& event)
         setMouseCursor (juce::MouseCursor::PointingHandCursor);
         setTooltip ("Mute or un-mute channel");
     }
-    if (mouseOverHeaderChanged) addDirty (m_header.getBounds());  // Mouse over status has changed. Repaint.
+    if (mouseOverHeaderChanged)
+        addDirty (m_header.getBounds());  // Mouse over status has changed. Repaint.
 
     // Check if the mouse is over the value part...
     bool isMouseOverValue      = m_level.isMouseOverValue();
@@ -545,10 +572,11 @@ void MeterChannel::mouseMove (const juce::MouseEvent& event)
         setMouseCursor (juce::MouseCursor::PointingHandCursor);  // NOLINT
         setTooltip ("Double click to clear peak hold.");
     }
-    if (mouseOverValueChanged) addDirty (m_level.getValueBounds());
+    if (mouseOverValueChanged)
+        addDirty (m_level.getValueBounds());
 
     // Check if the mouse is over the meter part...
-    if (! m_header.isMouseOver() && ! m_level.isMouseOverValue())
+    if (!m_header.isMouseOver() && !m_level.isMouseOverValue())
     {
 
 #if SDTK_ENABLE_FADER
@@ -578,7 +606,7 @@ void MeterChannel::mouseDoubleClick (const juce::MouseEvent& event)
 {
     if (event.mods == juce::ModifierKeys::leftButtonModifier)
     {
-        if (! m_header.isMouseOver (event.y))
+        if (!m_header.isMouseOver (event.y))
         {
             if (m_level.isMouseOverValue (event.y))  // Double clicking on VALUE resets peak hold...
                 resetPeakHold();
@@ -595,8 +623,8 @@ void MeterChannel::mouseDoubleClick (const juce::MouseEvent& event)
 void MeterChannel::mouseDrag (const juce::MouseEvent& event)
 {
     // When left button down, the meter is active, the fader is active and the mouse is not over the 'info' area...
-    if (event.mods == juce::ModifierKeys::leftButtonModifier && isActive() && m_fader.isVisible() && ! m_header.isMouseOver (event.y)
-        && ! m_level.isMouseOverValue (event.y))
+    if (event.mods == juce::ModifierKeys::leftButtonModifier && isActive() && m_fader.isVisible() && !m_header.isMouseOver (event.y)
+        && !m_level.isMouseOverValue (event.y))
     {
         m_fader.setValueFromPos (event.y);
         addDirty (m_level.getMeterBounds());

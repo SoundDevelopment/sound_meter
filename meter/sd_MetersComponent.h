@@ -30,9 +30,11 @@
     ==============================================================================
 */
 
+#pragma once
 
-#ifndef SD_SOUND_METERS_PANEL_H
-#define SD_SOUND_METERS_PANEL_H
+#include <juce_core/juce_core.h>
+#include <juce_graphics/juce_graphics.h>
+
 
 /**
  * @brief Namespace containing all concerning the sound_meter module.
@@ -472,5 +474,3 @@ class MetersComponent
 
 }  // namespace SoundMeter
 }  // namespace sd
-
-#endif /* SD_SOUND_METERS_PANEL_H */
