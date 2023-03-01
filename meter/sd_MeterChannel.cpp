@@ -234,9 +234,9 @@ void MeterChannel::enableTickMarks (bool enabled)
 
 //==============================================================================
 
-void MeterChannel::showPeakHold (bool showPeakHold /*= true*/)
+void MeterChannel::enablePeakHold (bool enablePeakHold /*= true*/)
 {
-    m_level.showPeakHold (showPeakHold);
+    m_level.enablePeakHold (enablePeakHold);
     setDirty();
 }
 //==============================================================================
@@ -340,10 +340,6 @@ void MeterChannel::drawMeter (juce::Graphics& g)
 
     // Draw peak hold level VALUE...
     m_level.drawPeakValue (g, m_textValueColour);
-
-    // Draw peak HOLD line...
-    if (m_active)
-        m_level.drawPeakHold (g, m_peakColour);
 }
 //==============================================================================
 
@@ -367,16 +363,8 @@ void MeterChannel::refresh (const bool forceRefresh)
 {
     if (m_active)
     {
-        // Get input level...
-        const auto callbackLevel = m_level.getInputLevel();
-        m_level.calculateMeterLevel (callbackLevel);
-
+        m_level.refreshMeterLevel();
         addDirty (m_level.getDirtyBounds());
-
-        // Check if the value part needs to be redrawn....
-        //if (callbackLevel > m_level.getPeakHoldLevel() && m_level.isPeakValueVisible())
-        //    addDirty (m_level.getValueBounds());
-
 
 #if SDTK_ENABLE_FADER
         if (m_fader.needsRedrawing())
@@ -388,7 +376,7 @@ void MeterChannel::refresh (const bool forceRefresh)
     if (forceRefresh)
         repaint();
     else if (isDirty())
-        repaint (m_dirtyRect);  // TODO: - [mh] Fix this...
+        repaint (m_dirtyRect);
 }
 
 #pragma endregion
@@ -464,10 +452,9 @@ void MeterChannel::setChannelName (const juce::String& channelName)
 }
 //==============================================================================
 
-void MeterChannel::defineSegments (float warningSegment_db, float peakSegment_db)
+void MeterChannel::defineSegments (const std::vector<SegmentOptions>& segmentsOptions)
 {
- //   m_level.defineSegments (warningSegment_db, peakSegment_db);
-
+    m_level.defineSegments (segmentsOptions);
     setDirty (true);
 }
 //==============================================================================

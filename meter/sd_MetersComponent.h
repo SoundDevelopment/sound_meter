@@ -224,15 +224,13 @@ class MetersComponent
     void useInternalTiming (bool useInternalTiming);
 
     /**
-     * @brief Set the levels dividing the different segments of the meter.
+     * @brief Set the segments the meter is made out of.
      *
-     * The meter has 3 segments. Normal, warning and peak. 
-     * The peak segment level supplied need to be larger then the warning segment level. 
+     * All segments have a level range, a range within the meter and a colour (or gradient).
      *
-     * @param warningSegment_db The level (in dB) dividing the normal and warning segments of the meter.
-     * @param peakSegment_db    The level (in dB) dividing the warning and peak segments of the meter.
+     * @param segmentsOptions The segments options to create the segments with.
     */
-    void defineSegments (float warningSegment_db, float peakSegment_db);
+    void defineSegments (const std::vector<SegmentOptions>& segmentsOptions);
 
     /**
      * @brief Set meter decay rate.

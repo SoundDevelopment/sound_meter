@@ -1,4 +1,3 @@
-#include "sd_MeterLevel.h"
 /*
     ==============================================================================
     
@@ -32,7 +31,9 @@
 */
 
 
-namespace sd
+#include "sd_MeterLevel.h"
+
+namespace sd  // NOLINT
 {
 
 namespace SoundMeter
@@ -48,43 +49,29 @@ void Level::drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColou
         return;
 
     // Draw PEAK value...
-    const auto peak = getPeakHoldLevel();
-    if (m_valueBounds.getHeight() == Constants::kDefaultHeaderHeight && peak > kMin99Db)  // If active, present and enough space is available.
+    const auto peak_db = getPeakHoldLevel();
+    if (m_valueBounds.getHeight() == Constants::kDefaultHeaderHeight && peak_db > Constants::kMinLevel_db)  // If active, present and enough space is available.
     {
-        const float peak_db   = juce::Decibels::gainToDecibels (peak);
-        const int   precision = peak_db <= -10.0f ? 1 : 2;  // Set precision depending on peak value. NOLINT
-
+        const int precision = peak_db <= -10.0f ? 1 : 2;  // Set precision depending on peak value. NOLINT
         g.setColour (textValueColour);
         g.drawFittedText (juce::String (peak_db, precision), m_valueBounds, juce::Justification::centred, 1);
     }
 }
 //==============================================================================
 
-void Level::drawPeakHold (juce::Graphics& g, const juce::Colour& peakHoldColour) const
-{
-    //using namespace Constants;
-
-    //if (!m_options.showPeakHoldIndicator)
-    //    return;
-
-    //// Calculate peak hold y coordinate...
-    //const int y = m_meterBounds.getY() + static_cast<int> (m_meterBounds.getHeight() * (1.0f - m_peakHoldLevel));
-
-    //if (y + kPeakHoldHeight < m_meterBounds.getHeight())
-    //{
-    //    g.setColour (peakHoldColour);
-    //    g.fillRect (m_meterBounds.getX(), y, m_meterBounds.getWidth(), kPeakHoldHeight);
-    //}
-}
-//==============================================================================
-
-juce::Rectangle<int> Level::getDirtyBounds() const
+juce::Rectangle<int> Level::getDirtyBounds()
 {
     juce::Rectangle<int> dirtyBounds {};
-    for (const auto& segment: m_dbSegments)
+    for (const auto& segment: m_segments)
     {
         if (segment.isDirty())
             dirtyBounds = dirtyBounds.getUnion (segment.getSegmentBounds());
+    }
+
+    if (m_peakHoldDirty)
+    {
+        dirtyBounds     = dirtyBounds.getUnion (m_valueBounds);
+        m_peakHoldDirty = false;
     }
 
     return dirtyBounds;
@@ -93,13 +80,8 @@ juce::Rectangle<int> Level::getDirtyBounds() const
 
 void Level::drawMeter (juce::Graphics& g)
 {
-    for (auto& segment: m_dbSegments)
-    {
+    for (auto& segment: m_segments)
         segment.draw (g);
-    }
-    // m_normalSegment.draw (g, m_options.useGradient);
-    // m_warningSegment.draw (g, m_options.useGradient);
-    // m_peakSegment.draw (g, m_options.useGradient);
 }
 //==============================================================================
 
@@ -163,10 +145,17 @@ void Level::setTickMarks (const std::vector<float>& ticks)
 }
 //==============================================================================
 
+void Level::useGradients (bool gradientsUsed) noexcept
+{
+    for (auto& segment: m_segments)
+        segment.useGradients (gradientsUsed);
+}
+//==============================================================================
+
 float Level::getInputLevel()
 {
     m_inputLevelRead.store (true);
-    return juce::jlimit (-m_maxLevel, m_maxLevel, m_inputLevel.load());
+    return juce::jlimit (Constants::kMinLevel_db, Constants::kMaxLevel_db, juce::Decibels::gainToDecibels (m_inputLevel.load()));
 }
 //==============================================================================
 
@@ -177,27 +166,28 @@ void Level::setInputLevel (float newLevel)
 }
 //==============================================================================
 
-void Level::calculateMeterLevel (float newLevel)
+void Level::refreshMeterLevel()
 {
-    m_meterLevel = (newLevel > m_meterLevel ? newLevel : getDecayedLevel (newLevel));
+    const auto newLevel_db = getInputLevel();
+    m_meterLevel_db        = (newLevel_db > m_meterLevel_db ? newLevel_db : getDecayedLevel (newLevel_db));
 
-    auto dbLevel = juce::Decibels::gainToDecibels (m_meterLevel);
-    for (auto& segment: m_dbSegments)
-        segment.setLevel (dbLevel);
+    if (m_meterLevel_db > getPeakHoldLevel())
+        m_peakHoldDirty = true;
+
+    for (auto& segment: m_segments)
+        segment.setLevel (m_meterLevel_db);
 }
 //==============================================================================
 
 void Level::setOptions (const Options& meterOptions)
 {
     setDecay (meterOptions.decayTime_ms);
-    defineSegments (meterOptions.segmentOptions);
     setTickMarks (meterOptions.tickMarks);
     enableTickMarks (meterOptions.tickMarksEnabled);
     setDecay (meterOptions.decayTime_ms);
-    useGradients (meterOptions.useGradient);
     setRefreshRate (meterOptions.refreshRate);
-    showPeakHold (meterOptions.showPeakHoldIndicator);
     enableValue (meterOptions.valueEnabled);
+    defineSegments (meterOptions.segmentOptions);
 
     m_options = meterOptions;
 }
@@ -221,74 +211,89 @@ void Level::setDecay (float decay_ms)
 }
 //==============================================================================
 
+void Level::enablePeakHold (bool isVisible) noexcept
+{
+    for (auto& segment: m_segments)
+        segment.enablePeakHold (isVisible);
+}
+//==============================================================================
+
 void Level::defineSegments (const std::vector<SegmentOptions>& segmentsOptions)
 {
-    m_dbSegments.clear();
+    m_segments.clear();
     for (const auto& segmentOptions: segmentsOptions)
-        m_dbSegments.emplace_back (segmentOptions);
+        m_segments.emplace_back (segmentOptions);
+}
+//==============================================================================
+
+bool Level::isPeakHoldEnabled() const noexcept
+{
+    if (m_segments.empty())
+        return false;
+    return m_segments[0].getOptions().enablePeakHold;
 }
 //==============================================================================
 
 void Level::reset()
 {
     m_inputLevel.store (0.0f);
-    m_meterLevel          = 0.0f;
+    m_meterLevel_db       = Constants::kMinLevel_db;
     m_previousRefreshTime = 0;
 }
 //==============================================================================
 
-float Level::getDecayedLevel (const float callbackLevel)
+float Level::getDecayedLevel (const float newLevel_db)
 {
     const auto currentTime = static_cast<int> (juce::Time::getMillisecondCounter());
-    const auto timePassed  = currentTime - static_cast<int> (m_previousRefreshTime);
+    const auto timePassed  = static_cast<float> (currentTime - static_cast<int> (m_previousRefreshTime));
 
     // A new frame is not needed yet, return the current value...
     if (timePassed < m_refreshPeriod_ms)
-        return m_meterLevel;
+        return m_meterLevel_db;
 
     m_previousRefreshTime = currentTime;
 
     // More time has passed then the meter decay. The meter has fully decayed...
     if (timePassed > m_options.decayTime_ms)
-        return callbackLevel;
+        return newLevel_db;
 
-    if (m_meterLevel == callbackLevel)
-        return callbackLevel;
+    if (m_meterLevel_db == newLevel_db)
+        return newLevel_db;
 
     // Convert that to refreshed frames...
-    auto numberOfFramePassed = static_cast<int> (std::round ((timePassed * m_options.refreshRate) / 1000.0f));
+    auto numberOfFramePassed = static_cast<int> (std::round ((timePassed * m_options.refreshRate) / 1000.0f));  // NOLINT
 
-    auto level = m_meterLevel;
+    auto level_db = m_meterLevel_db;
     for (int frame = 0; frame < numberOfFramePassed; ++frame)
-        level = callbackLevel + (m_decayCoeff * (level - callbackLevel));
+        level_db = newLevel_db + (m_decayCoeff * (level_db - newLevel_db));
 
-    if (std::abs (level - callbackLevel) < kMinMeter_db)
-        level = callbackLevel;
+    if (std::abs (level_db - newLevel_db) < Constants::kMinLevel_db)
+        level_db = newLevel_db;
 
-    return level;
+    return level_db;
 }
 //==============================================================================
 
 void Level::resetPeakHold()
 {
-    for (auto& segment: m_dbSegments)
+    for (auto& segment: m_segments)
         segment.resetPeakHold();
 }
 //==============================================================================
 
 float Level::getPeakHoldLevel() const noexcept
 {
-    if (m_dbSegments.empty())
+    if (m_segments.empty())
         return Constants::kMinLevel_db;
 
-    return m_dbSegments[0].getPeakHold();
+    return m_segments[0].getPeakHold();
 }
 //==============================================================================
 
 void Level::setMeterBounds (const juce::Rectangle<int>& bounds)
 {
     m_meterBounds = bounds;
-    for (auto& segment: m_dbSegments)
+    for (auto& segment: m_segments)
         segment.setMeterBounds (bounds);
 }
 //==============================================================================
