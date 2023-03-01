@@ -127,7 +127,7 @@ struct Options
     std::vector<float>          tickMarks      = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };  ///< Tick-mark position in db. NOLINT
     std::vector<SegmentOptions> segmentOptions = { { { -60.0f, -20.0f }, { 0.0f, 0.5f }, juce::Colours::white, true, juce::Colours::green },   // NOLINT
                                                    { { -20.0f, -6.0f }, { 0.5f, 0.75f }, juce::Colours::white, true, juce::Colours::yellow },  // NOLINT
-                                                   { { -6.0f, 0.0f }, { 0.75f, 1.0f }, juce::Colours::white, true, juce::Colours::red } };     // NOLINT
+                                                   { { -6.0f, 0.0f }, { 0.75f, 1.0f }, juce::Colours::white, true, juce::Colours::red } };     // NOLINT   
 };
 
 

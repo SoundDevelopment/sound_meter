@@ -129,6 +129,8 @@ void Segment::updatePeakHoldBounds()
 }
 //==============================================================================
 
+inline void Segment::setTickMarks (const std::vector<float>& ticks) { }
+
 void Segment::resetPeakHold() noexcept
 {
     m_peakHoldBounds.setHeight (0);

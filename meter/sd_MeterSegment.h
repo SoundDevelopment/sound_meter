@@ -42,11 +42,15 @@ namespace sd  // NOLINT
 namespace SoundMeter
 {
 
+
 class Segment
 {
 public:
     /** @brief Construct a segment using the supplied options.*/
     explicit Segment (SegmentOptions options);
+
+    /** @brief Set the level in decibels.*/
+    void setLevel (float level_db);
 
     /** @brief Draw the segment.*/
     void draw (juce::Graphics& g);
@@ -57,8 +61,8 @@ public:
     /** @brief Get the bounding box of this segment.*/
     [[nodiscard]] juce::Rectangle<int> getSegmentBounds() const noexcept { return m_segmentBounds; }
 
-    /** @brief Set the level in decibels.*/
-    void setLevel (float level_db);
+    /** @brief Set the tick marks to be drawn on the segment.*/
+    void setTickMarks (const std::vector<float>& ticks_db);
 
     /** @brief Reset the peak hold.*/
     void resetPeakHold() noexcept;
@@ -83,6 +87,7 @@ public:
 
 private:
     SegmentOptions       m_options {};
+    std::vector<float>&  m_ticks_db {};
     juce::Rectangle<int> m_segmentBounds {};
     juce::Rectangle<int> m_drawnBounds {};
     juce::Rectangle<int> m_peakHoldBounds {};
