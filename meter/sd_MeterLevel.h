@@ -396,6 +396,7 @@ public:
 private:
     Options              m_options;
     std::vector<Segment> m_segments {};  // List of meter segments.
+    float                m_minLevel_db { Constants::kMaxLevel_db };
 
     // Meter levels...
     std::atomic<float> m_inputLevel { 0.0f };  // Audio peak level.

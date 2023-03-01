@@ -155,7 +155,7 @@ void Level::useGradients (bool gradientsUsed) noexcept
 float Level::getInputLevel()
 {
     m_inputLevelRead.store (true);
-    return juce::jlimit (Constants::kMinLevel_db, Constants::kMaxLevel_db, juce::Decibels::gainToDecibels (m_inputLevel.load()));
+    return juce::jlimit (m_minLevel_db, Constants::kMaxLevel_db, juce::Decibels::gainToDecibels (m_inputLevel.load()));
 }
 //==============================================================================
 
@@ -222,7 +222,10 @@ void Level::defineSegments (const std::vector<SegmentOptions>& segmentsOptions)
 {
     m_segments.clear();
     for (const auto& segmentOptions: segmentsOptions)
+    {
         m_segments.emplace_back (segmentOptions);
+        m_minLevel_db = std::min (m_minLevel_db, segmentOptions.levelRange.getStart());
+    }
 }
 //==============================================================================
 
@@ -278,6 +281,7 @@ void Level::resetPeakHold()
 {
     for (auto& segment: m_segments)
         segment.resetPeakHold();
+    m_peakHoldDirty = true;
 }
 //==============================================================================
 
