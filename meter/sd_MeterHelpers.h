@@ -33,8 +33,10 @@
 
 #pragma once
 
+#include <juce_graphics/juce_graphics.h>
 
-namespace sd
+
+namespace sd  // NOLINT
 {
 namespace SoundMeter
 {
@@ -45,30 +47,30 @@ namespace SoundMeter
 */
 namespace Constants
 {
-static constexpr auto kMinWidth                = 2;               ///< Minimum meter width (in pixels).
-static constexpr auto kMaxWidth                = 500;             ///< Maximum meter width (in pixels).
-static constexpr auto kPeakHoldHeight          = 2;               ///< Height of the peak hold strip (in pixels).
-static constexpr auto kDefaultHeaderHeight     = 25;              ///< Default height of the 'header' part (in pixels).
-static constexpr auto kDefaultHeaderLabelWidth = 30;              ///< Default 'header' label width (in pixels).
-static constexpr auto kDefaultHeaderFontHeight = 12.0f;           ///< Default height of the font used in the 'header' part (in pixels).
-static constexpr auto kLabelStripTextPadding   = 2;               ///< Padding around the text in a label strip (in pixels).
-static constexpr auto kLabelStripLeftPadding   = 5;               ///< Padding (in pixels) on the left side of the label strip (which can double as a master fader).
-static constexpr auto kFaderRightPadding       = 1;               ///< Padding (in pixels) on the right side of the channel faders.
-static constexpr auto kMaxLevel_db             = 0.0f;            ///< Maximum meter level (in db).      
-static constexpr auto kMinLevel_db             = -96.0f;          ///< Minimum meter level (in db).
-static constexpr auto kMinDecay_ms             = 100.0f;          ///< Minimum meter decay speed (in milliseconds).
-static constexpr auto kMaxDecay_ms             = 4000.0f;         ///< Maximum meter decay speed (in milliseconds).
-static constexpr auto kDefaultDecay_ms         = 1000.0f;         ///< Default meter decay speed (in milliseconds).
-static constexpr auto kTickMarkHeight          = 2;               ///< Height of a tick mark (in pixels).
-static constexpr auto kFaderFadeTime_ms        = 2500;            ///< Fader fade out time (in milliseconds).
-static constexpr auto kFaderSensitivity        = 10.0f;           ///< Fader sensitivity value. Must be a positive value > 0.
-static constexpr auto kFaderAlphaMax           = 0.3f;            ///< Maximum transparency (alpha) of the fader overlay.
-static constexpr auto kWarningLevel_db         = -9.0f;           ///< Dividing level between 'normal' and 'warning' segments (in decibels).
-static constexpr auto kPeakLevel_db            = -3.0f;           ///< Dividing level between 'warning' and 'peak' segments (in decibels).
-static constexpr auto kMinModeHeightThreshold  = 150;             ///< Meter minimum mode height threshold in pixels (min. mod is just the meter. not value, ticks or fader).
-static constexpr auto kMinModeWidthThreshold   = 15;              ///< Meter minimum mode width threshold in pixels (min. mod is just the meter. not value, ticks or fader).
-static constexpr auto kMetersPanelId           = "meters_panel";  ///< ID (name) of all components in the meters panel.
-static constexpr auto kLabelStripId            = "label_strip";   ///< ID (name) of the label-strip (master fader).
+static constexpr auto kMinWidth                = 2;        ///< Minimum meter width (in pixels).
+static constexpr auto kMaxWidth                = 500;      ///< Maximum meter width (in pixels).
+static constexpr auto kPeakHoldHeight          = 2;        ///< Height of the peak hold strip (in pixels).
+static constexpr auto kDefaultHeaderHeight     = 25;       ///< Default height of the 'header' part (in pixels).
+static constexpr auto kDefaultHeaderLabelWidth = 30;       ///< Default 'header' label width (in pixels).
+static constexpr auto kDefaultHeaderFontHeight = 12.0f;    ///< Default height of the font used in the 'header' part (in pixels).
+static constexpr auto kLabelStripTextPadding   = 2;        ///< Padding around the text in a label strip (in pixels).
+static constexpr auto kLabelStripLeftPadding   = 5;        ///< Padding (in pixels) on the left side of the label strip (which can double as a master fader).
+static constexpr auto kFaderRightPadding       = 1;        ///< Padding (in pixels) on the right side of the channel faders.
+static constexpr auto kMaxLevel_db             = 0.0f;     ///< Maximum meter level (in db).
+static constexpr auto kMinLevel_db             = -96.0f;   ///< Minimum meter level (in db).
+static constexpr auto kMinDecay_ms             = 100.0f;   ///< Minimum meter decay speed (in milliseconds).
+static constexpr auto kMaxDecay_ms             = 4000.0f;  ///< Maximum meter decay speed (in milliseconds).
+static constexpr auto kDefaultDecay_ms         = 1000.0f;  ///< Default meter decay speed (in milliseconds).
+static constexpr auto kTickMarkHeight          = 2;        ///< Height of a tick mark (in pixels).
+static constexpr auto kFaderFadeTime_ms        = 2500;     ///< Fader fade out time (in milliseconds).
+static constexpr auto kFaderSensitivity        = 10.0f;    ///< Fader sensitivity value. Must be a positive value > 0.
+static constexpr auto kFaderAlphaMax           = 0.3f;     ///< Maximum transparency (alpha) of the fader overlay.
+static constexpr auto kWarningLevel_db         = -9.0f;    ///< Dividing level between 'normal' and 'warning' segments (in decibels).
+static constexpr auto kPeakLevel_db            = -3.0f;    ///< Dividing level between 'warning' and 'peak' segments (in decibels).
+static constexpr auto kMinModeHeightThreshold = 150;  ///< Meter minimum mode height threshold in pixels (min. mod is just the meter. not value, ticks or fader).
+static constexpr auto kMinModeWidthThreshold = 15;    ///< Meter minimum mode width threshold in pixels (min. mod is just the meter. not value, ticks or fader).
+static constexpr auto kMetersPanelId         = "meters_panel";  ///< ID (name) of all components in the meters panel.
+static constexpr auto kLabelStripId          = "label_strip";   ///< ID (name) of the label-strip (master fader).
 }  // namespace Constants
 
 /**
@@ -91,6 +93,25 @@ struct Padding
     int bottom = 0;  ///< Space between meter and bottom border (in pixels).
 };
 
+/** @brief Options defining the meter segments. */
+struct SegmentOptions
+{
+    /**
+    * @brief Construct a meter segment.
+    *
+    * @param levelRange
+    * @param meterRange The range of the segment in the meter (0.0f - 1.0f, with 0.0f being the bottom of the meter).
+    * @param colour     The colour of the segment.
+    */
+    juce::Range<float> levelRange { Constants::kMinLevel_db, Constants::kMaxLevel_db };  //  The range of the segment in decibels.
+    juce::Range<float> meterRange { 0.0f, 1.0f };  // The range of the segment in the meter (0.0f - 1.0f, with 0.0f being the bottom of the meter).
+    juce::Colour       peakHoldColour { juce::Colours::white };  // The colour of peak hold bar.
+    bool               showPeakHold { true };
+    juce::Colour       segmentColour { juce::Colours::yellow };  // The colour of the segment.
+    bool               useGradients { false };
+    juce::Colour       nextSegmentColour { segmentColour.brighter() };  // The second colour of the segment (for use in gradients).
+};
+
 /**
  * @brief All meter options for appearance and functionality.
 */
@@ -106,12 +127,15 @@ struct Options
     float warningSegment_db = Constants::kWarningLevel_db;  ///< Boundary level from normal to warning segment.
     float peakSegment_db    = Constants::kPeakLevel_db;     ///< Boundary level from warning to peak segment.
     float decayTime_ms      = Constants::kDefaultDecay_ms;  ///< Meter decay in milliseconds.
-    float refreshRate       = 24.0f;                        ///< Meter refresh rate when using internal timing.
+    float refreshRate       = 24.0f;                        ///< Meter refresh rate when using internal timing. NOLINT
     bool  tickMarksEnabled  = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
     bool  tickMarksOnTop    = false;  ///< Show the tick-marks below the level or above the level (level might obscure the tick-marks if loud enough).
-    std::vector<float> tickMarks = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };  ///< Tick-mark position in db.
-    
+    std::vector<float>          tickMarks      = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };  ///< Tick-mark position in db. NOLINT
+    std::vector<SegmentOptions> segmentOptions = { { { -60.0f, -20.0f }, { 0.0f, 0.5f }, juce::Colours::white, true, juce::Colours::green },   // NOLINT
+                                                   { { -20.0f, -6.0f }, { 0.5f, 0.75f }, juce::Colours::white, true, juce::Colours::yellow },  // NOLINT
+                                                   { { -6.0f, 0.0f }, { 0.75f, 1.0f }, juce::Colours::white, true, juce::Colours::red } };     // NOLINT
 };
+
 
 /**
  * @brief Type indicating whether to notify the listeners or not.
