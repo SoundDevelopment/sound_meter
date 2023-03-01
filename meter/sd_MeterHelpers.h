@@ -65,8 +65,6 @@ static constexpr auto kTickMarkHeight          = 2;        ///< Height of a tick
 static constexpr auto kFaderFadeTime_ms        = 2500;     ///< Fader fade out time (in milliseconds).
 static constexpr auto kFaderSensitivity        = 10.0f;    ///< Fader sensitivity value. Must be a positive value > 0.
 static constexpr auto kFaderAlphaMax           = 0.3f;     ///< Maximum transparency (alpha) of the fader overlay.
-static constexpr auto kWarningLevel_db         = -9.0f;    ///< Dividing level between 'normal' and 'warning' segments (in decibels).
-static constexpr auto kPeakLevel_db            = -3.0f;    ///< Dividing level between 'warning' and 'peak' segments (in decibels).
 static constexpr auto kMinModeHeightThreshold = 150;  ///< Meter minimum mode height threshold in pixels (min. mod is just the meter. not value, ticks or fader).
 static constexpr auto kMinModeWidthThreshold = 15;    ///< Meter minimum mode width threshold in pixels (min. mod is just the meter. not value, ticks or fader).
 static constexpr auto kMetersPanelId         = "meters_panel";  ///< ID (name) of all components in the meters panel.
@@ -106,7 +104,7 @@ struct SegmentOptions
     juce::Range<float> levelRange { Constants::kMinLevel_db, Constants::kMaxLevel_db };  //  The range of the segment in decibels.
     juce::Range<float> meterRange { 0.0f, 1.0f };  // The range of the segment in the meter (0.0f - 1.0f, with 0.0f being the bottom of the meter).
     juce::Colour       peakHoldColour { juce::Colours::white };  // The colour of peak hold bar.
-    bool               showPeakHold { true };
+    bool               enablePeakHold { true };
     juce::Colour       segmentColour { juce::Colours::yellow };  // The colour of the segment.
     bool               useGradients { false };
     juce::Colour       nextSegmentColour { segmentColour.brighter() };  // The second colour of the segment (for use in gradients).
@@ -117,19 +115,15 @@ struct SegmentOptions
 */
 struct Options
 {
-    bool  enabled               = true;  ///< Enable the meter.
-    bool  headerEnabled         = true;  ///< Enable the 'header' part of the meter.
-    bool  valueEnabled          = true;  ///< Enable the 'value' part of the meter.
-    bool  faderEnabled          = true;  ///< Enable the fader (overlay-ed over the meter). Only works if fader have been enabled in the module.
-    bool  useGradient           = true;  ///< Use gradients to fill the meter or hard segment boundaries.
-    bool  showPeakHoldIndicator = true;  ///< Show the peak hold indicator (a line that marks the highest level up to now).
-    bool  useMinimalMode    = true;  ///< Automatically adapt the meter to use the most of the space available (by hiding header, value, tick-marks, etc...).
-    float warningSegment_db = Constants::kWarningLevel_db;  ///< Boundary level from normal to warning segment.
-    float peakSegment_db    = Constants::kPeakLevel_db;     ///< Boundary level from warning to peak segment.
-    float decayTime_ms      = Constants::kDefaultDecay_ms;  ///< Meter decay in milliseconds.
-    float refreshRate       = 24.0f;                        ///< Meter refresh rate when using internal timing. NOLINT
-    bool  tickMarksEnabled  = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
-    bool  tickMarksOnTop    = false;  ///< Show the tick-marks below the level or above the level (level might obscure the tick-marks if loud enough).
+    bool  enabled          = true;  ///< Enable the meter.
+    bool  headerEnabled    = true;  ///< Enable the 'header' part of the meter.
+    bool  valueEnabled     = true;  ///< Enable the 'value' part of the meter.
+    bool  faderEnabled     = true;  ///< Enable the fader (overlay-ed over the meter). Only works if fader have been enabled in the module.
+    bool  useMinimalMode   = true;  ///< Automatically adapt the meter to use the most of the space available (by hiding header, value, tick-marks, etc...).
+    float decayTime_ms     = Constants::kDefaultDecay_ms;  ///< Meter decay in milliseconds.
+    float refreshRate      = 24.0f;                        ///< Meter refresh rate when using internal timing. NOLINT
+    bool  tickMarksEnabled = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
+    bool  tickMarksOnTop   = false;  ///< Show the tick-marks below the level or above the level (level might obscure the tick-marks if loud enough).
     std::vector<float>          tickMarks      = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };  ///< Tick-mark position in db. NOLINT
     std::vector<SegmentOptions> segmentOptions = { { { -60.0f, -20.0f }, { 0.0f, 0.5f }, juce::Colours::white, true, juce::Colours::green },   // NOLINT
                                                    { { -20.0f, -6.0f }, { 0.5f, 0.75f }, juce::Colours::white, true, juce::Colours::yellow },  // NOLINT

@@ -32,12 +32,13 @@
 */
 
 
-namespace sd
+namespace sd  // NOLINT
 {
 namespace SoundMeter
 {
 
 #include "sd_MeterSegment.h"
+
 
 Segment::Segment (SegmentOptions options) : m_options (options)
 {
@@ -57,7 +58,7 @@ void SoundMeter::Segment::draw (juce::Graphics& g)
         g.fillRect (m_drawnBounds);
     }
 
-    if (m_options.showPeakHold && !m_peakHoldBounds.isEmpty())
+    if (m_options.enablePeakHold && !m_peakHoldBounds.isEmpty())
     {
         g.setColour (m_options.peakHoldColour);
         g.fillRect (m_peakHoldBounds);
@@ -112,7 +113,6 @@ void Segment::updateLevelBounds()
 
 void Segment::updatePeakHoldBounds()
 {
-    // Create peak hold indicator...
     juce::Rectangle<int> peakHoldBounds {};
     if (m_peakHoldLevel_db > m_options.levelRange.getStart() && m_peakHoldLevel_db <= m_options.levelRange.getEnd())
     {
@@ -131,8 +131,8 @@ void Segment::updatePeakHoldBounds()
 
 void Segment::resetPeakHold() noexcept
 {
-    m_peakHoldLevel_db = Constants::kMinLevel_db;
     m_peakHoldBounds.setHeight (0);
+    m_peakHoldLevel_db    = Constants::kMinLevel_db;
     m_drawnPeakHoldBounds = m_peakHoldBounds;
     m_isDirty             = true;
 }
@@ -143,6 +143,7 @@ void Segment::setColours (const juce::Colour& segmentColour, const juce::Colour&
     m_options.segmentColour     = segmentColour;
     m_options.nextSegmentColour = nextSegmentColour;
 }
+
 //==============================================================================
 
 }  // namespace SoundMeter

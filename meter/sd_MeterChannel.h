@@ -33,8 +33,15 @@
 
 #pragma once
 
+#include "sd_MeterHelpers.h"
 
-namespace sd
+#include <juce_audio_basics/juce_audio_basics.h>
+#include <juce_audio_processors/juce_audio_processors.h>
+#include <juce_core/juce_core.h>
+#include <juce_gui_basics/juce_gui_basics.h>
+
+
+namespace sd  // NOLINT
 {
 namespace SoundMeter
 {
@@ -50,7 +57,7 @@ class MeterChannel
   : public juce::Component
   , public juce::SettableTooltipClient
 {
- public:
+public:
     using ChannelType = juce::AudioChannelSet::ChannelType;
     using Ptr         = juce::Component::SafePointer<MeterChannel>;
 
@@ -165,32 +172,30 @@ class MeterChannel
     void setIsLabelStrip (bool isLabelStrip = false) noexcept { m_isLabelStrip = isLabelStrip; }
 
     /**
-     * @brief Set the levels dividing the different segments of the meter. 
+     * @brief Set the segments the meter is made out of.
      *
-     * The meter has 3 segments. Normal, warning and peak. 
-     * The peak segment level supplied need to be larger then the warning segment level. 
+     * All segments have a level range, a range within the meter and a colour (or gradient).
      *
-     * @param warningSegment_db Sets the level (in db) dividing the normal and warning segments of the meter.
-     * @param peakSegment_db    Sets the level (in db) dividing the warning and peak segments of the meter.
+     * @param segmentsOptions The segments options to create the segments with.
     */
-    void defineSegments (float warningSegment_db, float peakSegment_db);
+    void defineSegments (const std::vector<SegmentOptions>& segmentsOptions);
 
     /**
      * @brief Reset the peak hold.
      *
      * Resets the peak hold indicator and value.
      *
-     * @see showPeakHold
+     * @see enablePeakHold
     */
     void resetPeakHold();
 
     /**
-     * @brief Show the peak hold indicator.
+     * @brief Enable (or disable) the peak hold indicator.
      *
-     * @param showPeakHold When set true, the peak hold indicator will be shown.
+     * @param enablePeakHold When set true, the peak hold indicator will be shown.
      * @see showPeakValue, resetPeakHold
     */
-    void showPeakHold (bool showPeakHold = true);
+    void enablePeakHold (bool enablePeakHold = true);
 
     /**
      * @brief Show the peak 'value' part of the meter.
@@ -199,7 +204,7 @@ class MeterChannel
      * It's the same level as the peak hold bar.
      *
      * @param showPeakValue When set true, shows the 'value' level (in dB) part below the meter.
-     * @see showPeakHold, resetPeakHold, enableValue
+     * @see enablePeakHold, resetPeakHold, enableValue
     */
     void showValue (bool showValue = true);
 
@@ -211,7 +216,7 @@ class MeterChannel
      * It's the same level as the peak hold bar.
      *
      * @param valueEnabled When set true, the 'value' level (in dB) part below the meter will be enabled.
-     * @see showPeakHold, resetPeakHold, showValue
+     * @see enablePeakHold, resetPeakHold, showValue
     */
     void enableValue (bool valueEnabled = true);
 
@@ -524,7 +529,7 @@ class MeterChannel
         inactiveColourId       = 0x1a03213   ///< Inactive (muted) colour.
     };
 
- private:
+private:
     Header  m_header;   ///< 'Header' part of the meter with info relating to the meter (name, channel type, info rect, index in a sequence of multiple meters).
     Level   m_level;    ///< 'Meter' part of the meter. Actually displaying the level.
     Options m_options;  ///< 'Meter' options.

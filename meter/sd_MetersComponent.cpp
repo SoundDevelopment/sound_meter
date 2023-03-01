@@ -635,7 +635,6 @@ void MetersComponent::showTickMarks (bool showTickMarks)
 
 void MetersComponent::useGradients (bool useGradients)
 {
-    m_options.useGradient = useGradients;
     for (auto* meter: m_meterChannels)
         meter->useGradients (useGradients);
 }
@@ -677,15 +676,12 @@ void MetersComponent::enableValue (bool valueEnabled)
 }
 //==============================================================================
 
-void MetersComponent::defineSegments (float warningSegment_db, float peakSegment_db)
+void MetersComponent::defineSegments (const std::vector<SegmentOptions>& segmentsOptions)
 {
-    m_options.warningSegment_db = warningSegment_db;
-    m_options.peakSegment_db    = peakSegment_db;
-
     for (auto* meter: m_meterChannels)
     {
         if (meter)
-            meter->defineSegments (warningSegment_db, peakSegment_db);
+            meter->defineSegments (segmentsOptions);
     }
 }
 //==============================================================================

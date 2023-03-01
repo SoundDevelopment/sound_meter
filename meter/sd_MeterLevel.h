@@ -32,10 +32,14 @@
 
 #pragma once
 
+#include "sd_MeterHelpers.h"
+#include "sd_MeterSegment.h"
+
+#include <juce_audio_basics/juce_audio_basics.h>
+#include <juce_core/juce_core.h>
 #include <juce_graphics/juce_graphics.h>
 
-
-namespace sd
+namespace sd  // NOLINT
 {
 namespace SoundMeter
 {
@@ -46,7 +50,7 @@ struct Options;
  * @brief Class responsible for anything relating to the 'meter' and peak 'value' parts.
  * This also includes the peak hold indicator and the tick-marks.
 */
-class Level
+class Level final
 {
 public:
     /**
@@ -76,7 +80,7 @@ public:
     /**
      * @brief Get's the meter's input level.
      * 
-     * @return The meter's input level (in amp).
+     * @return The meter's input level (in decibels).
      * 
      * @see setInputLevel
     */
@@ -88,11 +92,9 @@ public:
      * Calculate the meter's level including ballistics.
      * Instant attack, but decayed release.
      * 
-     * @param newLevel The level to use as input for the meter's ballistics.
-     * 
      * @see getMeterLevel, setDecay
     */
-    void calculateMeterLevel (float newLevel);
+    void refreshMeterLevel ();
 
     /**
      * @brief Get the actual meter's level (including ballistics).
@@ -100,11 +102,11 @@ public:
      * Get the decayed meter level.
      * Instant attack, but decayed release.
      * 
-     * @return The actual meter's level with ballistics.
+     * @return The actual meter's level (in decibels) with ballistics.
      * 
      * @see setMeterLevel, setDecay
     */
-    [[nodiscard]] float getMeterLevel() const noexcept { return m_meterLevel; }
+    [[nodiscard]] float getMeterLevel() const noexcept { return m_meterLevel_db; }
 
     /**
      * @brief Set the meter's options.
@@ -157,9 +159,9 @@ public:
      * 
      * @param isVisible When true, the peak hold indicator is shown.
      * 
-     * @see isPeakHoldVisible, resetPeakHold
+     * @see isPeakHoldEnabled, resetPeakHold
     */
-    void showPeakHold (bool isVisible) noexcept { m_options.showPeakHoldIndicator = isVisible; }
+    void enablePeakHold (bool isVisible) noexcept;
 
     /**
      * @brief Set the segments the meter is made out of.
@@ -175,9 +177,9 @@ public:
      *
      * @return True if the peak hold indicator is visible.
      *
-     * @see showPeakHold, resetPeakHold
+     * @see enablePeakHold, resetPeakHold
     */
-    [[nodiscard]] bool isPeakHoldVisible() const noexcept { return m_options.showPeakHoldIndicator; }
+    [[nodiscard]] bool isPeakHoldEnabled() const noexcept;
 
     /**
      * @brief Enable the peak 'value' part of the meter.
@@ -218,14 +220,14 @@ public:
 
     /**
      * @brief Reset the peak hold level.
-     * @see getPeakHoldLevel, isPeakValueVisible, setPeakValueVisible, showPeakHold, showValue, isPeakHoldVisible
+     * @see getPeakHoldLevel, isPeakValueVisible, setPeakValueVisible, enablePeakHold, showValue, isPeakHoldEnabled
     */
     void resetPeakHold();
 
     /**
      * @brief Get the current peak hold level.
      * @return The current peak hold level (in decibels).
-     * @see resetPeakHold, isPeakValueVisible, setPeakValueVisible, setPeakHoldVisible, isPeakHoldVisible
+     * @see resetPeakHold, isPeakValueVisible, setPeakValueVisible, setPeakHoldVisible, isPeakHoldEnabled
     */
     [[nodiscard]] float getPeakHoldLevel() const noexcept;
 
@@ -268,7 +270,7 @@ public:
      * @param y The y coordinate (relative to the meter bounds) to use to determine if the mouse if over the 'value' part of the meter.
      * @return True, if the mouse cursor is over the 'value' part of the meter.
     */
-    bool isMouseOverValue (const int y);
+    bool isMouseOverValue (int y);
 
     /**
      * @brief Check if the mouse cursor is over the 'value' part of the meter.
@@ -283,7 +285,7 @@ public:
     void resetMouseOverValue() noexcept { m_mouseOverValue = false; }
 
     /** @brief Get the dirty part of the meter.*/
-    [[nodiscard]] juce::Rectangle<int> getDirtyBounds() const;
+    [[nodiscard]] juce::Rectangle<int> getDirtyBounds();
 
     /**
      * @brief Draws the meter.
@@ -312,15 +314,6 @@ public:
      * @see drawMeter, drawInactiveMeter, drawInactiveMeter, drawPeakHold, drawTickMarks, drawLabels
     */
     void drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColour) const;
-
-    /**
-     * @brief Draw the peak hold indicator.
-     * @param[in,out] g        The juce graphics context to use.
-     * @param colour           The colour of the peak hold indicator.
-     * 
-     * @see drawMeter, drawInactiveMeter, drawInactiveMeter, drawPeakValue, drawTickMarks, drawLabels
-    */
-    void drawPeakHold (juce::Graphics& g, const juce::Colour& colour) const;
 
     /**
      * @brief Draw the tick-marks.
@@ -352,13 +345,9 @@ public:
     {
         /**
         * @brief Constructor.
-        * @param dbValue Value of the tick-mark (in dB).
+        * @param value_db Value of the tick-mark (in dB).
        */
-        explicit Tick (float dbValue)
-        {
-            decibels = dbValue;
-            gain     = juce::Decibels::decibelsToGain (dbValue);
-        }
+        explicit Tick (float value_db) : decibels (value_db), gain (juce::Decibels::decibelsToGain (value_db)) { }
         float gain     = 0;  ///< Value of the tick mark (in amp).
         float decibels = 0;  ///< Value of the tick mark (in dB).
     };
@@ -400,22 +389,18 @@ public:
 
     /**
      * @brief Use gradients in stead of hard segment boundaries.
-     * @param useGradients When set to true, uses smooth gradients. False gives hard segment boundaries.
+     * @param gradientsUsed When set to true, smooth gradients will be used. False gives hard segment boundaries.
     */
-    void useGradients (bool useGradients) noexcept { m_options.useGradient = useGradients; }
+    void useGradients (bool gradientsUsed) noexcept;
 
 private:
-    Options m_options;
+    Options              m_options;
+    std::vector<Segment> m_segments {};  // List of meter segments.
 
     // Meter levels...
     std::atomic<float> m_inputLevel { 0.0f };  // Audio peak level.
     std::atomic<bool>  m_inputLevelRead { false };
-    float              m_meterLevel { 0.0f };  // Current meter level.
-
-
-    std::vector<Segment> m_dbSegments {};  // List of meter segments.
-
-    juce::Rectangle<int> m_dirtyRect {};
+    float              m_meterLevel_db { Constants::kMinLevel_db };  // Current meter level.
 
     juce::Rectangle<int> m_valueBounds;  // Bounds of the value area.
     juce::Rectangle<int> m_meterBounds;  // Bounds of the meter area.
@@ -423,21 +408,19 @@ private:
     std::vector<Tick> m_tickMarks {};  // List of user definable tick marks (in db).
 
     bool        m_tickMarksVisible    = true;
+    bool        m_peakHoldDirty       = false;
     bool        m_valueVisible        = false;
     bool        m_mouseOverValue      = false;
     float       m_decayCoeff          = 0.0f;
-    float       m_refreshPeriod_ms    = (1.0f / m_options.refreshRate) * 1000.0f;
+    float       m_refreshPeriod_ms    = (1.0f / m_options.refreshRate) * 1000.0f;  // NOLINT
     int         m_previousRefreshTime = 0;
-    const float kMin99Db              = juce::Decibels::decibelsToGain (-99.0f);
-    const float kMinMeter_db          = juce::Decibels::decibelsToGain (-65.0f);
-    const float m_maxLevel            = juce::Decibels::decibelsToGain (Constants::kMaxLevel_db);  // Maximum meter level.
 
     //==============================================================================
-    [[nodiscard]] float getDecayedLevel (const float callbackLevel);
+    [[nodiscard]] float getDecayedLevel (float newLevel_db);
     void                calculateDecayCoeff();
 
     // clang-format on
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Level)
+    JUCE_LEAK_DETECTOR (Level)
 };
 
 }  // namespace SoundMeter

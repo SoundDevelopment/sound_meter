@@ -30,7 +30,7 @@
     ==============================================================================
 */
 
-#pragma once // NOLINT
+#pragma once  // NOLINT
 
 #include "sd_MeterHelpers.h"
 
@@ -73,7 +73,13 @@ public:
     void setColours (const juce::Colour& segmentColour, const juce::Colour& nextSegmentColour);
 
     /** @brief Enable or disable the use of a gradient colour fill. */
-    void setUseGradients (bool useGradients) noexcept { m_options.useGradients = useGradients; }
+    void useGradients (bool gradientsUsed) noexcept { m_options.useGradients = gradientsUsed; }
+
+    /** @brief Enable or disable the peak hold indicator. */
+    void enablePeakHold (bool peakHoldEnabled) noexcept { m_options.enablePeakHold = peakHoldEnabled; }
+
+    /** @brief Get segment options.*/
+    const SegmentOptions& getOptions() const noexcept { return m_options; }
 
 private:
     SegmentOptions       m_options {};
@@ -85,6 +91,7 @@ private:
     float m_currentLevel_db  = Constants::kMinLevel_db;
     float m_peakHoldLevel_db = Constants::kMinLevel_db;
     bool  m_isDirty          = false;
+    bool  m_isPeakHoldDirty  = false;
 
     juce::ColourGradient m_gradientFill {};
 
