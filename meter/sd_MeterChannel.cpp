@@ -170,7 +170,6 @@ void MeterChannel::setColours()
     auto normalColour  = getColourFromLnf (normalColourId, juce::Colours::darkolivegreen);
     auto warningColour = getColourFromLnf (warningColourId, juce::Colours::yellow);
     m_peakColour       = getColourFromLnf (peakColourId, juce::Colours::red);
-    m_level.setColours (normalColour, warningColour, m_peakColour);
 }
 //==============================================================================
 
@@ -370,6 +369,7 @@ void MeterChannel::refresh (const bool forceRefresh)
     {
         // Get input level...
         const auto callbackLevel = m_level.getInputLevel();
+        m_level.calculateMeterLevel (callbackLevel);
 
         addDirty (m_level.getDirtyBounds());
 
@@ -377,11 +377,6 @@ void MeterChannel::refresh (const bool forceRefresh)
         //if (callbackLevel > m_level.getPeakHoldLevel() && m_level.isPeakValueVisible())
         //    addDirty (m_level.getValueBounds());
 
-        if (!m_isLabelStrip)
-        {
-            const auto dirtyRect = m_level.calculateMeterLevel (callbackLevel);
-            addDirty (dirtyRect);
-        }
 
 #if SDTK_ENABLE_FADER
         if (m_fader.needsRedrawing())
@@ -437,7 +432,7 @@ void MeterChannel::setFont (juce::Font* font)
 
 void MeterChannel::resetPeakHold()
 {
-    m_level.resetPeakHoldLevel();
+    m_level.resetPeakHold();
     setDirty();
 }
 //==============================================================================

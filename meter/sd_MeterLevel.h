@@ -89,11 +89,10 @@ public:
      * Instant attack, but decayed release.
      * 
      * @param newLevel The level to use as input for the meter's ballistics.
-     * @return The part of the meter that needs to be redrawn (refreshed).
      * 
      * @see getMeterLevel, setDecay
     */
-    [[nodiscard]] juce::Rectangle<int> calculateMeterLevel (float newLevel);
+    void calculateMeterLevel (float newLevel);
 
     /**
      * @brief Get the actual meter's level (including ballistics).
@@ -158,7 +157,7 @@ public:
      * 
      * @param isVisible When true, the peak hold indicator is shown.
      * 
-     * @see isPeakHoldVisible, resetPeakHoldLevel
+     * @see isPeakHoldVisible, resetPeakHold
     */
     void showPeakHold (bool isVisible) noexcept { m_options.showPeakHoldIndicator = isVisible; }
 
@@ -176,7 +175,7 @@ public:
      *
      * @return True if the peak hold indicator is visible.
      *
-     * @see showPeakHold, resetPeakHoldLevel
+     * @see showPeakHold, resetPeakHold
     */
     [[nodiscard]] bool isPeakHoldVisible() const noexcept { return m_options.showPeakHoldIndicator; }
 
@@ -189,7 +188,7 @@ public:
      *
      * @param valueEnabled When set true, the 'value' level (in dB) part below the meter will be enabled.
      * 
-     * @see isPeakValueVisible, resetPeakHoldLevel, setValueVisible
+     * @see isPeakValueVisible, resetPeakHold, setValueVisible
     */
     void enableValue (bool valueEnabled) noexcept { m_options.valueEnabled = valueEnabled; }
 
@@ -201,7 +200,7 @@ public:
      *
      * @param isVisible When set true, shows the 'value' level (in dB) part below the meter.
      *
-     * @see isPeakValueVisible, resetPeakHoldLevel, enableValue
+     * @see isPeakValueVisible, resetPeakHold, enableValue
     */
     void showValue (bool isVisible) noexcept { m_valueVisible = isVisible; }
 
@@ -213,28 +212,22 @@ public:
      * 
      * @return True, if the peak hold 'value' part is visible.
      *
-     * @see showValue, resetPeakHoldLevel
+     * @see showValue, resetPeakHold
     */
     [[nodiscard]] bool isPeakValueVisible() const noexcept { return m_valueVisible && m_options.valueEnabled; }
 
     /**
      * @brief Reset the peak hold level.
-     * 
-     * Set's the peak hold level to 0.
-     * 
      * @see getPeakHoldLevel, isPeakValueVisible, setPeakValueVisible, showPeakHold, showValue, isPeakHoldVisible
     */
-    void resetPeakHoldLevel() noexcept { m_peakHoldLevel = 0.0f; }
+    void resetPeakHold();
 
     /**
      * @brief Get the current peak hold level.
-     * 
-     * Set's the peak hold level to 0.
-     * 
-     * @return The current peak hold level (in amp).
-     * @see resetPeakHoldLevel, isPeakValueVisible, setPeakValueVisible, setPeakHoldVisible, isPeakHoldVisible
+     * @return The current peak hold level (in decibels).
+     * @see resetPeakHold, isPeakValueVisible, setPeakValueVisible, setPeakHoldVisible, isPeakHoldVisible
     */
-    [[nodiscard]] float getPeakHoldLevel() const noexcept { return m_peakHoldLevel; }
+    [[nodiscard]] float getPeakHoldLevel() const noexcept;
 
     /**
      * @brief Set the bounds of the 'value' part of the meter.
@@ -406,15 +399,6 @@ public:
     void enableTickMarks (bool enabled) noexcept { m_options.tickMarksEnabled = enabled; }
 
     /**
-     * @brief Set the colours of the segments.
-     * 
-     * @param normalColour  Colour of the 'normal' segment.
-     * @param warningColour Colour of the 'warning' segment.
-     * @param peakColour    Colour of the 'peak' segment.
-    */
-    void setColours (const juce::Colour& normalColour, const juce::Colour& warningColour, const juce::Colour& peakColour);
-
-    /**
      * @brief Use gradients in stead of hard segment boundaries.
      * @param useGradients When set to true, uses smooth gradients. False gives hard segment boundaries.
     */
@@ -426,16 +410,10 @@ private:
     // Meter levels...
     std::atomic<float> m_inputLevel { 0.0f };  // Audio peak level.
     std::atomic<bool>  m_inputLevelRead { false };
-    float              m_peakHoldLevel { 0.0f };
     float              m_meterLevel { 0.0f };  // Current meter level.
 
-    // Meter segments...
-    sd::SoundMeter::Segment m_normalSegment;
-    sd::SoundMeter::Segment m_warningSegment;
-    sd::SoundMeter::Segment m_peakSegment;
 
-    // List of dB segments.
-    std::vector<DbSegment> m_dbSegments {  };
+    std::vector<Segment> m_dbSegments {};  // List of meter segments.
 
     juce::Rectangle<int> m_dirtyRect {};
 
