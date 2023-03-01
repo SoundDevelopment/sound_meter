@@ -32,11 +32,15 @@
 
 #pragma once
 
+#include <juce_graphics/juce_graphics.h>
+
 
 namespace sd
 {
 namespace SoundMeter
 {
+
+struct Options;
 
 /**
  * @brief Class responsible for anything relating to the 'meter' and peak 'value' parts.
@@ -159,15 +163,13 @@ public:
     void showPeakHold (bool isVisible) noexcept { m_options.showPeakHoldIndicator = isVisible; }
 
     /**
-     * @brief Set the levels dividing the different segments of the meter. 
+     * @brief Set the segments the meter is made out of.
      *
-     * The meter has 3 segments. Normal, warning and peak. 
-     * The peak segment level supplied need to be larger then the warning segment level. 
+     * All segments have a level range, a range within the meter and a colour (or gradient).
      *
-     * @param warningSegment_db Sets the level (in db) dividing the normal and warning segments of the meter.
-     * @param peakSegment_db    Sets the level (in db) dividing the warning and peak segments of the meter.
+     * @param segmentsOptions The segments options to create the segments with.
     */
-    void defineSegments (const float warningSegment_db, const float peakSegment_db);
+    void defineSegments (const std::vector<SegmentOptions>& segmentsOptions);
 
     /**
      * @brief Check if the peak hold indicator is visible.
@@ -432,7 +434,8 @@ private:
     sd::SoundMeter::Segment m_warningSegment;
     sd::SoundMeter::Segment m_peakSegment;
 
-    std::vector<DbSegment> m_dbSegments { { { -60.0f, 0.0f }, { 0.0f, 1.0f }, juce::Colours::yellow } };  // List of dB segments.
+    // List of dB segments.
+    std::vector<DbSegment> m_dbSegments {  };
 
     juce::Rectangle<int> m_dirtyRect {};
 

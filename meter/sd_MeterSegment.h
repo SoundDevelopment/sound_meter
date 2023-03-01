@@ -32,6 +32,8 @@
 
 #pragma once
 
+#include "sd_MeterHelpers.h"
+
 #include <juce_graphics/juce_graphics.h>
 
 namespace sd
@@ -43,27 +45,33 @@ namespace SoundMeter
 class DbSegment
 {
 public:
-    static constexpr auto kMinLevel { -96.0f };
-    static constexpr auto kMaxLevel { 0.0f };
-
-    DbSegment (juce::Range<float> levelRange, juce::Range<float> meterRange, juce::Colour colour)
-      : m_levelRange (levelRange), m_meterRange (meterRange), m_colour (colour)
+    DbSegment (SegmentOptions segmentOptions) : m_segmentOptions (segmentOptions)
     {
-        jassert (m_levelRange.getLength() > 0.0f);
+        // Check level range validity.
+        jassert (segmentOptions.levelRange.getLength() > 0.0f);  // NOLINT
+        // Check meter range validity (0.0f - 1.0f).
+        jassert (segmentOptions.meterRange.getStart() >= 0.0f && segmentOptions.meterRange.getEnd() <= 1.0f && segmentOptions.meterRange.getLength() > 0.0f);  // NOLINT
     }
 
     void draw (juce::Graphics& g)
     {
         m_isDirty = false;
-        if (m_drawnBounds.isEmpty())
-            return;
+        if (!m_drawnBounds.isEmpty())
+        {
+            g.setColour (m_segmentOptions.segmentColour);
+            g.fillRect (m_drawnBounds);
+        }
 
-        g.setColour (m_colour);
-        g.fillRect (m_drawnBounds);
+        if (m_segmentOptions.showPeakHold && !m_peakHoldBounds.isEmpty())
+        {
+            g.setColour (m_segmentOptions.peakHoldColour);
+            g.fillRect (m_peakHoldBounds);
+        }
     }
 
     void setLevel (float level_db)
     {
+        m_peakHoldLevel = std::max (m_peakHoldLevel, level_db);
         if (m_currentLevel == level_db)
             return;
         m_currentLevel = level_db;
@@ -73,8 +81,8 @@ public:
 
     void setMeterBounds (juce::Rectangle<int> meterBounds)
     {
-        const auto segmentBounds = meterBounds.withY (meterBounds.getY() + meterBounds.proportionOfHeight (m_meterRange.getStart()))
-                                     .withHeight (meterBounds.proportionOfHeight (m_meterRange.getLength()));
+        const auto segmentBounds = meterBounds.withY (meterBounds.getY() + meterBounds.proportionOfHeight (1.0f - m_segmentOptions.meterRange.getEnd()))
+                                     .withHeight (meterBounds.proportionOfHeight (m_segmentOptions.meterRange.getLength()));
         if (segmentBounds == m_segmentBounds)
             return;
 
@@ -90,13 +98,21 @@ public:
         if (m_segmentBounds.isEmpty())
             return;
 
-        const auto levelRatio = std::clamp ((m_currentLevel - m_levelRange.getStart()) / m_levelRange.getLength(), 0.0f, 1.0f);
-
+        const auto levelRatio  = std::clamp ((m_currentLevel - m_segmentOptions.levelRange.getStart()) / m_segmentOptions.levelRange.getLength(), 0.0f, 1.0f);
         const auto levelBounds = m_segmentBounds.withTop (m_segmentBounds.getY() + m_segmentBounds.proportionOfHeight (1.0f - levelRatio));
+
         if (m_drawnBounds == levelBounds)
             return;
-
         m_drawnBounds = levelBounds;
+
+        // Create peak hold indicator...
+        m_peakHoldBounds.setHeight (0);
+        if (m_segmentOptions.levelRange.contains (m_peakHoldLevel) || m_peakHoldLevel == m_segmentOptions.levelRange.getEnd() )
+        {
+            const auto peakHoldRatio = std::clamp ((m_peakHoldLevel - m_segmentOptions.levelRange.getStart()) / m_segmentOptions.levelRange.getLength(), 0.0f, 1.0f);
+            m_peakHoldBounds = m_segmentBounds.withTop (m_segmentBounds.getY() + m_segmentBounds.proportionOfHeight (1.0f - peakHoldRatio)).withHeight (2);
+        }
+
         m_isDirty     = true;
     }
 
@@ -104,24 +120,22 @@ public:
 
     void setColours (const juce::Colour& segmentColour, const juce::Colour& nextColour)
     {
-        m_colour     = segmentColour;
-        m_nextColour = nextColour;
+        m_segmentOptions.segmentColour     = segmentColour;
+        m_segmentOptions.nextSegmentColour = nextColour;
     }
 
-    void setUseGradients (bool useGradients) noexcept { m_useGradients = useGradients; }
+    void setUseGradients (bool useGradients) noexcept { m_segmentOptions.useGradients = useGradients; }
 
 
 private:
-    juce::Range<float>   m_levelRange { kMinLevel, kMaxLevel };
-    juce::Range<float>   m_meterRange { 0.0f, 1.0f };
+    SegmentOptions       m_segmentOptions {};
     juce::Rectangle<int> m_segmentBounds {};
     juce::Rectangle<int> m_drawnBounds {};
+    juce::Rectangle<int> m_peakHoldBounds {};
 
-    float        m_currentLevel = kMinLevel;
-    bool         m_useGradients = false;
-    bool         m_isDirty      = false;
-    juce::Colour m_colour       = juce::Colours::red;
-    juce::Colour m_nextColour   = m_colour.brighter();
+    float m_currentLevel  = Constants::kMinLevel_db;
+    float m_peakHoldLevel = Constants::kMinLevel_db;
+    bool  m_isDirty       = false;
 
     juce::ColourGradient m_gradientFill {};
 

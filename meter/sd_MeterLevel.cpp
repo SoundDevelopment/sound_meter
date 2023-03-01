@@ -62,19 +62,19 @@ void Level::drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColou
 
 void Level::drawPeakHold (juce::Graphics& g, const juce::Colour& peakHoldColour) const
 {
-    using namespace Constants;
+    //using namespace Constants;
 
-    if (!m_options.showPeakHoldIndicator)
-        return;
+    //if (!m_options.showPeakHoldIndicator)
+    //    return;
 
-    // Calculate peak hold y coordinate...
-    const int y = m_meterBounds.getY() + static_cast<int> (m_meterBounds.getHeight() * (1.0f - m_peakHoldLevel));
+    //// Calculate peak hold y coordinate...
+    //const int y = m_meterBounds.getY() + static_cast<int> (m_meterBounds.getHeight() * (1.0f - m_peakHoldLevel));
 
-    if (y + kPeakHoldHeight < m_meterBounds.getHeight())
-    {
-        g.setColour (peakHoldColour);
-        g.fillRect (m_meterBounds.getX(), y, m_meterBounds.getWidth(), kPeakHoldHeight);
-    }
+    //if (y + kPeakHoldHeight < m_meterBounds.getHeight())
+    //{
+    //    g.setColour (peakHoldColour);
+    //    g.fillRect (m_meterBounds.getX(), y, m_meterBounds.getWidth(), kPeakHoldHeight);
+    //}
 }
 //==============================================================================
 
@@ -210,7 +210,7 @@ juce::Rectangle<int> Level::calculateMeterLevel (float newLevel)
 void Level::setOptions (const Options& meterOptions)
 {
     setDecay (meterOptions.decayTime_ms);
-    defineSegments (meterOptions.warningSegment_db, meterOptions.peakSegment_db);
+    defineSegments (meterOptions.segmentOptions);
     setTickMarks (meterOptions.tickMarks);
     enableTickMarks (meterOptions.tickMarksEnabled);
     setDecay (meterOptions.decayTime_ms);
@@ -241,18 +241,11 @@ void Level::setDecay (float decay_ms)
 }
 //==============================================================================
 
-void Level::defineSegments (const float warningSegment_db, const float peakSegment_db)
+void Level::defineSegments (const std::vector<SegmentOptions>& segmentsOptions)
 {
-    jassert (peakSegment_db > warningSegment_db);  // NOLINT
-    if (peakSegment_db <= warningSegment_db)
-        return;
-
-    const auto warningSegmentLevel = juce::Decibels::decibelsToGain (warningSegment_db);
-    const auto peakSegmentLevel    = juce::Decibels::decibelsToGain (peakSegment_db);
-
-    m_normalSegment.setRange (0.0f, warningSegmentLevel);
-    m_warningSegment.setRange (warningSegmentLevel, peakSegmentLevel);
-    m_peakSegment.setRange (peakSegmentLevel, 1.0f);
+    m_dbSegments.clear();
+    for (const auto& segmentOptions: segmentsOptions)
+        m_dbSegments.emplace_back (segmentOptions);
 }
 //==============================================================================
 

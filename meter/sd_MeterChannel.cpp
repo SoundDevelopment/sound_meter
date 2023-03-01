@@ -471,7 +471,8 @@ void MeterChannel::setChannelName (const juce::String& channelName)
 
 void MeterChannel::defineSegments (float warningSegment_db, float peakSegment_db)
 {
-    m_level.defineSegments (warningSegment_db, peakSegment_db);
+ //   m_level.defineSegments (warningSegment_db, peakSegment_db);
+
     setDirty (true);
 }
 //==============================================================================
