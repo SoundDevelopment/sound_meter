@@ -30,210 +30,66 @@
     ==============================================================================
 */
 
-#pragma once
+#pragma once // NOLINT
 
 #include "sd_MeterHelpers.h"
 
 #include <juce_graphics/juce_graphics.h>
 
-namespace sd
+namespace sd  // NOLINT
 {
 
 namespace SoundMeter
 {
 
-class DbSegment
+class Segment
 {
 public:
-    DbSegment (SegmentOptions segmentOptions) : m_segmentOptions (segmentOptions)
-    {
-        // Check level range validity.
-        jassert (segmentOptions.levelRange.getLength() > 0.0f);  // NOLINT
-        // Check meter range validity (0.0f - 1.0f).
-        jassert (segmentOptions.meterRange.getStart() >= 0.0f && segmentOptions.meterRange.getEnd() <= 1.0f && segmentOptions.meterRange.getLength() > 0.0f);  // NOLINT
-    }
+    /** @brief Construct a segment using the supplied options.*/
+    explicit Segment (SegmentOptions options);
 
-    void draw (juce::Graphics& g)
-    {
-        m_isDirty = false;
-        if (!m_drawnBounds.isEmpty())
-        {
-            g.setColour (m_segmentOptions.segmentColour);
-            g.fillRect (m_drawnBounds);
-        }
+    /** @brief Draw the segment.*/
+    void draw (juce::Graphics& g);
 
-        if (m_segmentOptions.showPeakHold && !m_peakHoldBounds.isEmpty())
-        {
-            g.setColour (m_segmentOptions.peakHoldColour);
-            g.fillRect (m_peakHoldBounds);
-        }
-    }
-
-    void setLevel (float level_db)
-    {
-        m_peakHoldLevel = std::max (m_peakHoldLevel, level_db);
-        if (m_currentLevel == level_db)
-            return;
-        m_currentLevel = level_db;
-        updateLevelBounds();
-    }
-
-
-    void setMeterBounds (juce::Rectangle<int> meterBounds)
-    {
-        const auto segmentBounds = meterBounds.withY (meterBounds.getY() + meterBounds.proportionOfHeight (1.0f - m_segmentOptions.meterRange.getEnd()))
-                                     .withHeight (meterBounds.proportionOfHeight (m_segmentOptions.meterRange.getLength()));
-        if (segmentBounds == m_segmentBounds)
-            return;
-
-        m_segmentBounds = segmentBounds;
-        updateLevelBounds();
-    }
+    /** @brief Set the bounds of the total meter (all segments) */
+    void setMeterBounds (juce::Rectangle<int> meterBounds);
 
     /** @brief Get the bounding box of this segment.*/
     [[nodiscard]] juce::Rectangle<int> getSegmentBounds() const noexcept { return m_segmentBounds; }
 
-    void updateLevelBounds()
-    {
-        if (m_segmentBounds.isEmpty())
-            return;
+    /** @brief Set the level in decibels.*/
+    void setLevel (float level_db);
 
-        const auto levelRatio  = std::clamp ((m_currentLevel - m_segmentOptions.levelRange.getStart()) / m_segmentOptions.levelRange.getLength(), 0.0f, 1.0f);
-        const auto levelBounds = m_segmentBounds.withTop (m_segmentBounds.getY() + m_segmentBounds.proportionOfHeight (1.0f - levelRatio));
+    /** @brief Reset the peak hold.*/
+    void resetPeakHold() noexcept;
 
-        if (m_drawnBounds == levelBounds)
-            return;
-        m_drawnBounds = levelBounds;
+    /** @brief Get the peak hold level.*/
+    [[nodiscard]] float getPeakHold() const noexcept { return m_peakHoldLevel_db; }
 
-        // Create peak hold indicator...
-        m_peakHoldBounds.setHeight (0);
-        if (m_segmentOptions.levelRange.contains (m_peakHoldLevel) || m_peakHoldLevel == m_segmentOptions.levelRange.getEnd() )
-        {
-            const auto peakHoldRatio = std::clamp ((m_peakHoldLevel - m_segmentOptions.levelRange.getStart()) / m_segmentOptions.levelRange.getLength(), 0.0f, 1.0f);
-            m_peakHoldBounds = m_segmentBounds.withTop (m_segmentBounds.getY() + m_segmentBounds.proportionOfHeight (1.0f - peakHoldRatio)).withHeight (2);
-        }
-
-        m_isDirty     = true;
-    }
-
+    /** @brief Check if the segment needs to be re-drawn (dirty). */
     [[nodiscard]] bool isDirty() const noexcept { return m_isDirty; }
 
-    void setColours (const juce::Colour& segmentColour, const juce::Colour& nextColour)
-    {
-        m_segmentOptions.segmentColour     = segmentColour;
-        m_segmentOptions.nextSegmentColour = nextColour;
-    }
+    /** @brief Set the segment's colour (or colours when using a gradient).*/
+    void setColours (const juce::Colour& segmentColour, const juce::Colour& nextSegmentColour);
 
-    void setUseGradients (bool useGradients) noexcept { m_segmentOptions.useGradients = useGradients; }
-
+    /** @brief Enable or disable the use of a gradient colour fill. */
+    void setUseGradients (bool useGradients) noexcept { m_options.useGradients = useGradients; }
 
 private:
-    SegmentOptions       m_segmentOptions {};
+    SegmentOptions       m_options {};
     juce::Rectangle<int> m_segmentBounds {};
     juce::Rectangle<int> m_drawnBounds {};
     juce::Rectangle<int> m_peakHoldBounds {};
+    juce::Rectangle<int> m_drawnPeakHoldBounds {};
 
-    float m_currentLevel  = Constants::kMinLevel_db;
-    float m_peakHoldLevel = Constants::kMinLevel_db;
-    bool  m_isDirty       = false;
-
-    juce::ColourGradient m_gradientFill {};
-
-    JUCE_LEAK_DETECTOR (DbSegment)
-};
-
-
-/**
- * @brief Individual meter segment.
-*/
-class Segment final
-{
-public:
-    /**
-     * @brief Draw the segment.
-     * 
-     * @param[in,out] g   The juce graphics context.
-     * @param useGradient Set this to true when you want to use gradients for the meters.
-    */
-    void draw (juce::Graphics& g, bool useGradient) const;
-
-    /**
-     * @brief Set the input level.
-     * 
-     * This also checks if the segment needs to be redrawn (is dirty).
-     * 
-     * @param level The meter level in decibels.
-    */
-    void setLevel (float level_db);
-
-    /**
-     * @brief Set the range of the segment.
-     * 
-     * @param newStartLevel Start of the segment (in decibels).
-     * @param newStopLevel  End of the segment (in decibels).
-    */
-    void setRange (float newStartLevel_db, float newStopLevel_db);
-
-    /**
-     * @brief Set the bounds of the full level part (all segments).
-     * 
-     * @param bounds The bounds of the level part (all segments).
-     * 
-     * @see getSegmentBounds, setSegmentBounds
-    */
-    void setMeterBounds (const juce::Rectangle<int>& bounds);
-
-    /**
-     * @brief Set the bounds of the segment.
-     * 
-     * @return The bounds of the segment.
-     *
-     * @see setMeterBounds,getSegmentBounds
-    */
-    void setSegmentBounds (juce::Rectangle<int> segmentBounds) noexcept { m_segmentBounds = segmentBounds; }
-
-    /**
-     * @brief Get the bounds of the segment.
-     * 
-     * @return The bounds of the segment.
-     *
-     * @see setMeterBounds
-    */
-    [[nodiscard]] juce::Rectangle<int> getSegmentBounds() const noexcept { return m_segmentBounds; }
-
-    /**
-     * @brief Check if the segment needs to be redrawn (is dirty).
-     *
-     * @return True, if the segment needs to be redrawn.
-    */
-    [[nodiscard]] bool isDirty() const noexcept { return m_dirty; }
-
-    /**
-     * @brief Set the segment colour (and next colour).
-     * 
-     * The 'next' colour is 2nd colour to use in the gradient.
-     * 
-     * @param segmentColour Segment colour.
-     * @param nextColour    Next colour (used for gradient).
-    */
-    void setColours (const juce::Colour& segmentColour, const juce::Colour& nextColour);
-
-private:
-    float m_startLevel      = 0.0f;
-    float m_stopLevel       = 1.0f;
-    float m_currentLevel    = 0.0f;
-    int   m_currentLevel_px = 0;
-    float m_levelMultiplier = 0.0f;
-    bool  m_dirty           = false;
-
-    juce::Colour m_segmentColour = juce::Colours::red;
-    juce::Colour m_nextColour    = m_segmentColour.brighter();
+    float m_currentLevel_db  = Constants::kMinLevel_db;
+    float m_peakHoldLevel_db = Constants::kMinLevel_db;
+    bool  m_isDirty          = false;
 
     juce::ColourGradient m_gradientFill {};
-    juce::Rectangle<int> m_meterBounds {};
-    juce::Rectangle<int> m_segmentBounds {};
 
-    void calculateSegment();
+    void updateLevelBounds();
+    void updatePeakHoldBounds();
 
     JUCE_LEAK_DETECTOR (Segment)
 };

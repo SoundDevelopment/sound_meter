@@ -1,3 +1,4 @@
+#include "sd_MeterSegment.h"
 /*
     ==============================================================================
     
@@ -36,90 +37,113 @@ namespace sd
 namespace SoundMeter
 {
 
-void Segment::draw (juce::Graphics& g, bool useGradient) const
+#include "sd_MeterSegment.h"
+
+Segment::Segment (SegmentOptions options) : m_options (options)
 {
-    if (m_segmentBounds.isEmpty()) return;
-
-    // Get the actual 'level' rectangle...
-    const auto levelRect = m_segmentBounds.withTop (m_segmentBounds.getBottom() - m_currentLevel_px);
-
-    // Set the fill of the meters (solid zones or gradients)...
-    if (useGradient)
-        g.setGradientFill (m_gradientFill);
-    else
-        g.setColour (m_segmentColour);
-
-    // Actually draw the level...
-    g.fillRect (levelRect);
+    // Check level range validity.
+    jassert (options.levelRange.getLength() > 0.0f);  // NOLINT
+    // Check meter range validity (0.0f - 1.0f).
+    jassert (options.meterRange.getStart() >= 0.0f && options.meterRange.getEnd() <= 1.0f && options.meterRange.getLength() > 0.0f);  // NOLINT
 }
 //==============================================================================
 
-void Segment::setLevel (float level)
+void SoundMeter::Segment::draw (juce::Graphics& g)
 {
-    if (m_segmentBounds.isEmpty()) return;
-
-    // Store previous level drawn (to check later if the segment needs to be redrawn).
-    const auto previousLevel_px = m_currentLevel_px;
-
-    // Set the new level and calculate the amount of pixels it corresponds to...
-    m_currentLevel    = juce::jlimit (m_startLevel, m_stopLevel, level);
-    m_currentLevel_px = static_cast<int> (std::round ((m_currentLevel - m_startLevel) * m_levelMultiplier));
-
-    // If the level drawn needs to be update, make the segment 'dirty'.
-    m_dirty = (m_currentLevel_px != previousLevel_px);
-}
-//==============================================================================
-
-void Segment::setRange (float newStartLevel, float newStopLevel)
-{
-    const auto startLevel = juce::jlimit (0.0f, 1.0f, newStartLevel);
-    const auto stopLevel  = juce::jlimit (0.0f, 1.0f, newStopLevel);
-
-    if (startLevel >= stopLevel)
+    m_isDirty = false;
+    if (!m_drawnBounds.isEmpty())
     {
-        jassertfalse;  // NOLINT
-        return;
+        g.setColour (m_options.segmentColour);
+        g.fillRect (m_drawnBounds);
     }
 
-    m_startLevel = startLevel;
-    m_stopLevel  = stopLevel;
-
-    calculateSegment();
+    if (m_options.showPeakHold && !m_peakHoldBounds.isEmpty())
+    {
+        g.setColour (m_options.peakHoldColour);
+        g.fillRect (m_peakHoldBounds);
+        m_drawnPeakHoldBounds = m_peakHoldBounds;
+    }
 }
 //==============================================================================
 
-void Segment::setMeterBounds (const juce::Rectangle<int>& bounds)
+void Segment::setMeterBounds (juce::Rectangle<int> meterBounds)
 {
-    m_meterBounds = bounds;
-    calculateSegment();
+    const auto segmentBounds = meterBounds.withY (meterBounds.getY() + meterBounds.proportionOfHeight (1.0f - m_options.meterRange.getEnd()))
+                                 .withHeight (meterBounds.proportionOfHeight (m_options.meterRange.getLength()));
+    if (segmentBounds == m_segmentBounds)
+        return;
+
+    m_segmentBounds = segmentBounds;
+    updateLevelBounds();
 }
 //==============================================================================
 
-void Segment::calculateSegment()
+void Segment::setLevel (float level_db)
 {
-    if (m_meterBounds.isEmpty()) return;
+    if (level_db != m_currentLevel_db)
+    {
+        m_currentLevel_db = level_db;
+        updateLevelBounds();
+    }
 
-    // Calculate segment bounds...
-    m_segmentBounds = m_meterBounds.toFloat().getProportion<float> ({ 0.0f, 1.0f - m_stopLevel, 1.0f, m_stopLevel - m_startLevel }).toNearestIntEdges();
-
-    // Calculate level multiplier to optimize level drawing...
-    m_levelMultiplier = m_segmentBounds.getHeight() / (m_stopLevel - m_startLevel);
-
-    // Calculate gradient fill...
-    const juce::Point<float> gradientPoint1 = { 0.0f, static_cast<float> (m_segmentBounds.getBottom()) };
-    const juce::Point<float> gradientPoint2 = { 0.0f, static_cast<float> (m_segmentBounds.getY()) };
-    m_gradientFill                          = juce::ColourGradient (m_segmentColour, gradientPoint1, m_nextColour, gradientPoint2, false);
-
-    setLevel (m_currentLevel);
+    if (level_db > m_peakHoldLevel_db)
+    {
+        m_peakHoldLevel_db = level_db;
+        updatePeakHoldBounds();
+    }
 }
 //==============================================================================
 
-void Segment::setColours (const juce::Colour& segmentColour, const juce::Colour& nextColour)
+void Segment::updateLevelBounds()
 {
-    m_segmentColour = segmentColour;
-    m_nextColour    = nextColour;
-    calculateSegment();
+    if (m_segmentBounds.isEmpty())
+        return;
+
+    const auto levelRatio  = std::clamp ((m_currentLevel_db - m_options.levelRange.getStart()) / m_options.levelRange.getLength(), 0.0f, 1.0f);
+    const auto levelBounds = m_segmentBounds.withTop (m_segmentBounds.getY() + m_segmentBounds.proportionOfHeight (1.0f - levelRatio));
+
+    if (m_drawnBounds == levelBounds)
+        return;
+
+    m_drawnBounds = levelBounds;
+    m_isDirty     = true;
 }
+//==============================================================================
+
+void Segment::updatePeakHoldBounds()
+{
+    // Create peak hold indicator...
+    juce::Rectangle<int> peakHoldBounds {};
+    if (m_peakHoldLevel_db > m_options.levelRange.getStart() && m_peakHoldLevel_db <= m_options.levelRange.getEnd())
+    {
+        const auto peakHoldRatio = std::clamp ((m_peakHoldLevel_db - m_options.levelRange.getStart()) / m_options.levelRange.getLength(), 0.0f, 1.0f);
+        peakHoldBounds =
+          m_segmentBounds.withTop (m_segmentBounds.getY() + m_segmentBounds.proportionOfHeight (1.0f - peakHoldRatio)).withHeight (Constants::kPeakHoldHeight);
+    }
+
+    if (peakHoldBounds == m_drawnPeakHoldBounds)
+        return;
+
+    m_peakHoldBounds = peakHoldBounds;
+    m_isDirty        = true;
+}
+//==============================================================================
+
+void Segment::resetPeakHold() noexcept
+{
+    m_peakHoldLevel_db = Constants::kMinLevel_db;
+    m_peakHoldBounds.setHeight (0);
+    m_drawnPeakHoldBounds = m_peakHoldBounds;
+    m_isDirty             = true;
+}
+//==============================================================================
+
+void Segment::setColours (const juce::Colour& segmentColour, const juce::Colour& nextSegmentColour)
+{
+    m_options.segmentColour     = segmentColour;
+    m_options.nextSegmentColour = nextSegmentColour;
+}
+//==============================================================================
 
 }  // namespace SoundMeter
 }  // namespace sd

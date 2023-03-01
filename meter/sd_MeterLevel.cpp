@@ -82,7 +82,10 @@ juce::Rectangle<int> Level::getDirtyBounds() const
 {
     juce::Rectangle<int> dirtyBounds {};
     for (const auto& segment: m_dbSegments)
-        dirtyBounds = dirtyBounds.getUnion (segment.getSegmentBounds());
+    {
+        if (segment.isDirty())
+            dirtyBounds = dirtyBounds.getUnion (segment.getSegmentBounds());
+    }
 
     return dirtyBounds;
 }
@@ -174,36 +177,13 @@ void Level::setInputLevel (float newLevel)
 }
 //==============================================================================
 
-void Level::setColours (const juce::Colour& normalColour, const juce::Colour& warningColour, const juce::Colour& peakColour)
+void Level::calculateMeterLevel (float newLevel)
 {
-    m_normalSegment.setColours (normalColour, warningColour);
-    m_warningSegment.setColours (warningColour, peakColour);
-    m_peakSegment.setColours (peakColour, peakColour.darker());
-}
-//==============================================================================
-
-juce::Rectangle<int> Level::calculateMeterLevel (float newLevel)
-{
-    m_meterLevel    = (newLevel > m_meterLevel ? newLevel : getDecayedLevel (newLevel));
-    m_peakHoldLevel = std::max<float> (m_peakHoldLevel, newLevel);
-
-    m_normalSegment.setLevel (m_meterLevel);
-    m_warningSegment.setLevel (m_meterLevel);
-    m_peakSegment.setLevel (m_meterLevel);
+    m_meterLevel = (newLevel > m_meterLevel ? newLevel : getDecayedLevel (newLevel));
 
     auto dbLevel = juce::Decibels::gainToDecibels (m_meterLevel);
     for (auto& segment: m_dbSegments)
         segment.setLevel (dbLevel);
-
-    m_dirtyRect = {};
-    if (m_normalSegment.isDirty())
-        m_dirtyRect = m_normalSegment.getSegmentBounds();
-    if (m_warningSegment.isDirty())
-        m_dirtyRect = m_dirtyRect.getUnion (m_warningSegment.getSegmentBounds());
-    if (m_peakSegment.isDirty())
-        m_dirtyRect = m_dirtyRect.getUnion (m_peakSegment.getSegmentBounds());
-
-    return m_dirtyRect;
 }
 //==============================================================================
 
@@ -289,13 +269,25 @@ float Level::getDecayedLevel (const float callbackLevel)
 }
 //==============================================================================
 
+void Level::resetPeakHold()
+{
+    for (auto& segment: m_dbSegments)
+        segment.resetPeakHold();
+}
+//==============================================================================
+
+float Level::getPeakHoldLevel() const noexcept
+{
+    if (m_dbSegments.empty())
+        return Constants::kMinLevel_db;
+
+    return m_dbSegments[0].getPeakHold();
+}
+//==============================================================================
+
 void Level::setMeterBounds (const juce::Rectangle<int>& bounds)
 {
     m_meterBounds = bounds;
-    m_normalSegment.setMeterBounds (bounds);
-    m_warningSegment.setMeterBounds (bounds);
-    m_peakSegment.setMeterBounds (bounds);
-
     for (auto& segment: m_dbSegments)
         segment.setMeterBounds (bounds);
 }
