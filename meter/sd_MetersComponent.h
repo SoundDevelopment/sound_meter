@@ -32,18 +32,25 @@
 
 #pragma once
 
+
+#include "sd_MeterHelpers.h"
+
+#include <juce_audio_basics/juce_audio_basics.h>
 #include <juce_core/juce_core.h>
 #include <juce_graphics/juce_graphics.h>
+#include <juce_gui_basics/juce_gui_basics.h>
 
 
 /**
  * @brief Namespace containing all concerning the sound_meter module.
 */
-namespace sd
+namespace sd  // NOLINT
 {
 
 namespace SoundMeter
 {
+
+class MeterChannel;
 
 /**
  * @brief Component containing one or more meters.
@@ -55,7 +62,7 @@ class MetersComponent
   : public juce::Component
   , private juce::Timer
 {
- public:
+public:
     /**
      * @brief Constructor
     */
@@ -66,7 +73,7 @@ class MetersComponent
      * 
      * @param meterOptions The options to use with the meters and the label strip.
     */
-    MetersComponent (MeterOptions meterOptions);
+    MetersComponent (const MeterOptions& meterOptions);
 
     /**
      * @brief Constructor which accepts a channel format.
@@ -86,7 +93,7 @@ class MetersComponent
      * 
      * @param channelFormat The channel format to use to initialise the panel.
     */
-    MetersComponent (MeterOptions meterOptions, const juce::AudioChannelSet& channelFormat);
+    MetersComponent (const MeterOptions& meterOptions, const juce::AudioChannelSet& channelFormat);
 
     /** @brief Destructor.*/
     ~MetersComponent() override;
@@ -109,7 +116,7 @@ class MetersComponent
      * 
      * @see resetPeakHold, resetMeters
     */
-    void reset ();
+    void reset();
 
     /**
      * @brief Reset all meters.
@@ -118,7 +125,7 @@ class MetersComponent
      * @see reset, resetPeakHold
     */
     void resetMeters();
- 
+
     /**
      * @brief Clear the level of the meters.
     */
@@ -169,7 +176,7 @@ class MetersComponent
     * 
     * @see setNumChannels, setChannelFormat
    */
-    int getNumChannels() const noexcept { return m_meterChannels.size(); }
+    [[nodiscard]] int getNumChannels() const noexcept { return m_meterChannels.size(); }
 
     /**
      * @brief Get the default meters panel width.
@@ -180,7 +187,7 @@ class MetersComponent
      * 
      * @return The default panel width (in pixels).
     */
-    int getAutoSizedPanelWidth() const noexcept { return m_autoSizedPanelWidth; }
+    [[nodiscard]] int getAutoSizedPanelWidth() const noexcept { return m_autoSizedPanelWidth; }
 
     /**
      * @brief Set the channel names to display above the meters.
@@ -424,14 +431,14 @@ class MetersComponent
     /** @internal */
     void resized() override;
 
- private:
+private:
     // clang-format off
    
-   MeterOptions                          m_options               {};
+   MeterOptions                     m_meterOptions          {};
    
    using                            MetersType              = juce::OwnedArray<MeterChannel>;  
-   MetersType                       m_meterChannels;   
-   MeterChannel                     m_labelStrip;
+   MetersType                       m_meterChannels         {};   
+   MeterChannel                     m_labelStrip            {};
    LabelStripPosition               m_labelStripPosition    = LabelStripPosition::right;
    
    juce::AudioChannelSet            m_channelFormat         = juce::AudioChannelSet::stereo();

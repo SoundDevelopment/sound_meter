@@ -30,10 +30,11 @@
     ==============================================================================
 */
 
-#pragma once  // NOLINT
+#pragma once 
 
 #include "sd_MeterHelpers.h"
 
+#include <juce_core/juce_core.h>
 #include <juce_graphics/juce_graphics.h>
 
 namespace sd  // NOLINT
@@ -69,6 +70,16 @@ public:
 
     /** @brief Check if the segment needs to be re-drawn (dirty). */
     [[nodiscard]] bool isDirty() const noexcept { return m_isDirty; }
+
+    /**
+     * @brief Set whether this meter is a label strip. 
+     *
+     * A label strip only draws the value labels (at the tick-marks),
+     * but does not display any level.
+     *
+     * @param isLabelStrip when set, this meter behave like a label strip.
+    */
+    void setIsLabelStrip (bool isLabelStrip = false) noexcept { m_isLabelStrip = isLabelStrip; }
 
     /**
      * @brief Set the meter in 'minimal' mode.
@@ -107,6 +118,7 @@ private:
     float m_peakHoldLevel_db  = Constants::kMinLevel_db;
     bool  m_isDirty           = false;
     bool  m_minimalModeActive = false;
+    bool  m_isLabelStrip      = false;
 
 
     juce::ColourGradient m_gradientFill {};

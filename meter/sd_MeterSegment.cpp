@@ -31,12 +31,12 @@
 */
 
 
+#include "sd_MeterSegment.h"
+
 namespace sd  // NOLINT
 {
 namespace SoundMeter
 {
-
-#include "sd_MeterSegment.h"
 
 
 Segment::Segment (MeterOptions meterOptions, SegmentOptions segmentOptions)

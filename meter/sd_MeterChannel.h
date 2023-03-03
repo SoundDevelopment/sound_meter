@@ -55,7 +55,7 @@ namespace SoundMeter
 */
 class MeterChannel
   : public juce::Component
-  , public juce::SettableTooltipClient
+  , private juce::SettableTooltipClient
 {
 public:
     using ChannelType = juce::AudioChannelSet::ChannelType;
@@ -70,12 +70,13 @@ public:
      * @brief Parameterized constructor.
      * 
      * @param meterOptions  Meter options to use (defining appearance and functionality).
-     * @param padding       Padding to use (space between meter and the edge of the component).
+     * @param padding       The padding to use (space between meter and the edge of the component).
      * @param channelName   The channel name (set by the user).
      * @param isLabelStrip  When set to true, this meter will function as a label strip (with markers for levels at the tick-marks).
      * @param channelType   The channel type (left, right, center, etc...).
     */
-    MeterChannel (MeterOptions meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip = false, ChannelType channelType = ChannelType::unknown);
+    MeterChannel (const MeterOptions& meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip = false,
+                  ChannelType channelType = ChannelType::unknown);
 
 #if SDTK_ENABLE_FADER
     /**
@@ -141,7 +142,7 @@ public:
      *
      * @param meterOptions Meter options to use.
     */
-    void setOptions (MeterOptions meterOptions);
+    void setOptions (const MeterOptions& meterOptions);
 
     /**
      * @brief Activate or deactivate (mute) the meter.
@@ -507,9 +508,9 @@ public:
     };
 
 private:
-    Header m_header;  ///< 'Header' part of the meter with info relating to the meter (name, channel type, info rect, index in a sequence of multiple meters).
-    Level  m_level;   ///< 'Meter' part of the meter. Actually displaying the level.
-    MeterOptions m_options;  ///< 'Meter' options.
+    Header m_header {};  ///< 'Header' part of the meter with info relating to the meter (name, channel type, info rect, index in a sequence of multiple meters).
+    Level        m_level {};         ///< 'Meter' part of the meter. Actually displaying the level.
+    MeterOptions m_meterOptions {};  ///< 'Meter' options.
 
 #if SDTK_ENABLE_FADER
     Fader m_fader;

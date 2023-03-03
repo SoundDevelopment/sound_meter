@@ -42,8 +42,10 @@ namespace SoundMeter
 void Header::draw (juce::Graphics& g, bool meterActive, bool faderEnabled, const juce::Colour& muteColour, const juce::Colour& muteMouseOver,
                    const juce::Colour& textColour, const juce::Colour& inactiveColour)
 {
-    if (! isVisible()) return;
-    if (m_bounds.isEmpty()) return;
+    if (!isVisible())
+        return;
+    if (m_bounds.isEmpty())
+        return;
 
     // Draw channel names...
     juce::String headerText = getInfo();
@@ -68,7 +70,8 @@ void Header::draw (juce::Graphics& g, bool meterActive, bool faderEnabled, const
             g.setColour (inactiveColour.contrasting (0.8f));  // NOLINT
         }
     }
-    if (headerText.isNotEmpty()) g.drawFittedText (headerText, m_bounds, juce::Justification::centred, 1);
+    if (headerText.isNotEmpty())
+        g.drawFittedText (headerText, m_bounds, juce::Justification::centred, 1);
 }
 //==============================================================================
 
@@ -91,7 +94,8 @@ const juce::AudioChannelSet::ChannelType& Header::getType() const noexcept
 
 void Header::setName (const juce::String& name)
 {
-    if (name.isEmpty()) return;
+    if (name.isEmpty())
+        return;
 
     m_name = name;
 
@@ -101,7 +105,8 @@ void Header::setName (const juce::String& name)
 
 void Header::calculateInfoWidth()
 {
-    if (! m_font) return;
+    if (!m_font)
+        return;
 
     m_nameWidth = m_font->getStringWidthFloat (m_name);
     m_typeWidth = m_font->getStringWidthFloat (m_typeDescription);
@@ -159,7 +164,7 @@ const juce::Font* Header::getFont() const noexcept
 }
 //==============================================================================
 
-void Header::setFont ( juce::Font* font)
+void Header::setFont (juce::Font* font)
 {
     m_font = font;
     calculateInfoWidth();
@@ -168,7 +173,8 @@ void Header::setFont ( juce::Font* font)
 
 bool Header::textFits (const juce::String& text, const int widthAvailable) const
 {
-    if (! m_font) return false;
+    if (!m_font)
+        return false;
 
     return m_font->getStringWidthFloat (text) <= static_cast<float> (widthAvailable);
 }
