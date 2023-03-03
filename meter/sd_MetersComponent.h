@@ -271,16 +271,16 @@ class MetersComponent
     void enableHeader (bool headerEnabled);
 
     /**
-     * @brief Enable the 'value' part below the meters.
+     * @brief Show the 'value' part below the meters.
      * 
      * This will display the peak value, in decibels, below the meter.
      * The level displayed here matches the peak level indicator on the meter.
      * Double clicking will reset the peak hold value (as well as the indicator).
      * 
-     * @param valueEnabled When set to true, the 'value' part will be shown.
+     * @param showValue When set to true, the 'value' part will be shown.
      * @see enableHeader, resetPeakHold
     */
-    void enableValue (bool valueEnabled);
+    void showValue (bool showValue);
 
     /**
      * @brief Set the font to be used in the panel and it's meters.

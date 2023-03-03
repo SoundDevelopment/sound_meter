@@ -125,18 +125,6 @@ public:
     void useGradients (bool useGradients);
 
     /**
-     * @brief Enable the peak 'value' part of the meter.
-     *
-     * When enabled (and made visible with showValue) the
-     * peak 'value' part will be shown below the meter (in dB).
-     * It's the same level as the peak hold bar.
-     *
-     * @param valueEnabled When set true, the 'value' level (in dB) part below the meter will be enabled.
-     * @see enablePeakHold, resetPeakHold, showValue
-    */
-    void enableValue (bool valueEnabled = true);
-
-    /**
      * @brief Enable tick-marks (divider lines) on the meter.
      *
      * A tick mark is a horizontal line, dividing the meter. 
@@ -178,9 +166,9 @@ public:
      *
      * @param isVisible When set true, shows the 'value' level (in dB) part below the meter.
      *
-     * @see isPeakValueVisible, resetPeakHold, enableValue
+     * @see isPeakValueVisible, resetPeakHold, showValue
     */
-    void showValue (bool isVisible) noexcept { m_valueVisible = isVisible; }
+    void showValue (bool isVisible) noexcept;
 
     /**
      * @brief Check if the peak 'value' part is visible.
@@ -192,7 +180,7 @@ public:
      *
      * @see showValue, resetPeakHold
     */
-    [[nodiscard]] bool isPeakValueVisible() const noexcept { return m_valueVisible && m_meterOptions.valueEnabled; }
+    [[nodiscard]] bool isPeakValueVisible() const noexcept { return !m_valueBounds.isEmpty(); }
 
     /**
      * @brief Enable (or disable) the peak hold indicator.
@@ -354,16 +342,6 @@ public:
      * @see drawMeter, drawInactiveMeter, drawInactiveMeter, drawPeakHold, drawTickMarks, drawLabels
     */
     void drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColour) const;
-
-    /**
-     * @brief Draw the tick-marks.
-     * These are the lines dividing the meters at certain dB levels.
-     * @param[in,out] g        The juce graphics context to use.
-     * @param tickColour       Colour of the tick marks.
-     * 
-     * @see drawMeter, drawInactiveMeter, drawInactiveMeter, drawPeakValue, drawPeakHold, drawLabels
-    */
-    void drawTickMarks (juce::Graphics& g, const juce::Colour& tickColour) const;
 
     /**
      * @brief Draw the value labels at the tick marks.

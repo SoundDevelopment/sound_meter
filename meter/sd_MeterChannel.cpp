@@ -271,9 +271,6 @@ void MeterChannel::drawMeter (juce::Graphics& g)
     g.setColour (m_active ? m_backgroundColour : m_inactiveColour);
     g.fillRect (m_level.getMeterBounds());
 
-    // Draw TICK-marks below the level...
-    m_level.drawTickMarks (g, m_tickColour);
-
     // Draw meter BAR SEGMENTS (normal, warning, peak)...
     m_active ? m_level.drawMeter (g) : m_level.drawInactiveMeter (g, m_textColour.darker (0.7f));
 
