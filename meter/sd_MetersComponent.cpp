@@ -30,16 +30,18 @@
     ==============================================================================
 */
 
+#include "sd_MetersComponent.h"
+
 namespace sd
 {
 
 namespace SoundMeter
 {
 
-MetersComponent::MetersComponent() : MetersComponent (Options()) { }
+MetersComponent::MetersComponent() : MetersComponent (MeterOptions()) { }
 //==============================================================================
 
-MetersComponent::MetersComponent (Options meterOptions)
+MetersComponent::MetersComponent (MeterOptions meterOptions)
   : m_options (meterOptions),
     m_labelStrip (meterOptions, Padding (Constants::kLabelStripLeftPadding, 0, 0, 0), Constants::kLabelStripId, true, juce::AudioChannelSet::ChannelType::unknown)
 {
@@ -57,10 +59,10 @@ MetersComponent::MetersComponent (Options meterOptions)
 }
 //==============================================================================
 
-MetersComponent::MetersComponent (const juce::AudioChannelSet& channelFormat) : MetersComponent (Options(), channelFormat) { }
+MetersComponent::MetersComponent (const juce::AudioChannelSet& channelFormat) : MetersComponent (MeterOptions(), channelFormat) { }
 //==============================================================================
 
-MetersComponent::MetersComponent (Options meterOptions, const juce::AudioChannelSet& channelFormat) : MetersComponent (meterOptions)
+MetersComponent::MetersComponent (MeterOptions meterOptions, const juce::AudioChannelSet& channelFormat) : MetersComponent (meterOptions)
 {
     m_channelFormat = channelFormat;
 
@@ -598,7 +600,7 @@ void MetersComponent::setFont (const juce::Font& newFont)
 }
 //==============================================================================
 
-void MetersComponent::setOptions (Options meterOptions)
+void MetersComponent::setOptions (MeterOptions meterOptions)
 {
     m_options = meterOptions;
     for (auto* meter: m_meterChannels)
@@ -676,12 +678,12 @@ void MetersComponent::enableValue (bool valueEnabled)
 }
 //==============================================================================
 
-void MetersComponent::defineSegments (const std::vector<SegmentOptions>& segmentsOptions)
+void MetersComponent::setMeterSegments (const std::vector<SegmentOptions>& segmentsOptions)
 {
     for (auto* meter: m_meterChannels)
     {
         if (meter)
-            meter->defineSegments (segmentsOptions);
+            meter->setMeterSegments (segmentsOptions);
     }
 }
 //==============================================================================

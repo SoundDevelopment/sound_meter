@@ -39,6 +39,10 @@ namespace sd  // NOLINT
 namespace SoundMeter
 {
 
+Level::Level()
+{
+    setMeterSegments (m_segmentOptions);
+}
 //==============================================================================
 
 void Level::drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColour) const
@@ -103,12 +107,12 @@ void Level::drawInactiveMeter (juce::Graphics& g, const juce::Colour& textColour
 
 void Level::drawTickMarks (juce::Graphics& g, const juce::Colour& tickColour) const
 {
-    if (!m_tickMarksVisible || !m_options.tickMarksEnabled)
+    if (!m_tickMarksVisible || !m_meterOptions.tickMarksEnabled)
         return;
 
     g.setColour (tickColour);
 
-    for (const auto& tick: m_tickMarks)  // Loop through all ticks.
+    for (const auto& tick: m_tickMarks)
     {
         g.fillRect (m_meterBounds.getX(),
                     m_meterBounds.getY() + static_cast<int> (round ((m_meterBounds.getHeight() * (1.0f - tick.gain)) - (Constants::kTickMarkHeight / 2.0f))),  // NOLINT
@@ -134,21 +138,6 @@ void Level::drawLabels (juce::Graphics& g, const juce::Colour& textColour) const
 
         g.drawFittedText (juce::String (std::abs (tick.decibels)), labelrect.reduced (Constants::kLabelStripTextPadding, 0), juce::Justification::topLeft, 1);
     }
-}
-//==============================================================================
-
-void Level::setTickMarks (const std::vector<float>& ticks)
-{
-    m_tickMarks.clear();
-    for (const auto& tick: ticks)
-        m_tickMarks.emplace_back (Tick (tick));
-}
-//==============================================================================
-
-void Level::useGradients (bool gradientsUsed) noexcept
-{
-    for (auto& segment: m_segments)
-        segment.useGradients (gradientsUsed);
 }
 //==============================================================================
 
@@ -179,61 +168,31 @@ void Level::refreshMeterLevel()
 }
 //==============================================================================
 
-void Level::setOptions (const Options& meterOptions)
+void Level::setMeterOptions (const MeterOptions& meterOptions)
 {
-    setDecay (meterOptions.decayTime_ms);
-    setTickMarks (meterOptions.tickMarks);
-    enableTickMarks (meterOptions.tickMarksEnabled);
-    setDecay (meterOptions.decayTime_ms);
-    setRefreshRate (meterOptions.refreshRate);
-    enableValue (meterOptions.valueEnabled);
-    defineSegments (meterOptions.segmentOptions);
+    m_meterOptions = meterOptions;
 
-    m_options = meterOptions;
+    calculateDecayCoeff (meterOptions);
+    synchronizeMeterOptions();
 }
 //==============================================================================
 
-void Level::setRefreshRate (float refreshRate_hz)
-{
-    if (refreshRate_hz <= 0.0f)
-        return;
-
-    m_options.refreshRate = refreshRate_hz;
-    m_refreshPeriod_ms    = (1.0f / refreshRate_hz) * 1000.0f;
-    calculateDecayCoeff();
-}
-//==============================================================================
-
-void Level::setDecay (float decay_ms)
-{
-    m_options.decayTime_ms = juce::jlimit (Constants::kMinDecay_ms, Constants::kMaxDecay_ms, decay_ms);
-    calculateDecayCoeff();
-}
-//==============================================================================
-
-void Level::enablePeakHold (bool isVisible) noexcept
+void Level::synchronizeMeterOptions()
 {
     for (auto& segment: m_segments)
-        segment.enablePeakHold (isVisible);
+        segment.setMeterOptions (m_meterOptions);
 }
+
 //==============================================================================
 
-void Level::defineSegments (const std::vector<SegmentOptions>& segmentsOptions)
+void Level::setMeterSegments (const std::vector<SegmentOptions>& segmentsOptions)
 {
     m_segments.clear();
     for (const auto& segmentOptions: segmentsOptions)
     {
-        m_segments.emplace_back (segmentOptions);
+        m_segments.emplace_back (m_meterOptions, segmentOptions);
         m_minLevel_db = std::min (m_minLevel_db, segmentOptions.levelRange.getStart());
     }
-}
-//==============================================================================
-
-bool Level::isPeakHoldEnabled() const noexcept
-{
-    if (m_segments.empty())
-        return false;
-    return m_segments[0].getOptions().enablePeakHold;
 }
 //==============================================================================
 
@@ -242,6 +201,65 @@ void Level::reset()
     m_inputLevel.store (0.0f);
     m_meterLevel_db       = Constants::kMinLevel_db;
     m_previousRefreshTime = 0;
+}
+//==============================================================================
+
+void Level::useGradients (bool useGradients)
+{
+    m_meterOptions.useGradients = useGradients;
+    synchronizeMeterOptions();
+}
+//==============================================================================
+
+void Level::enableValue (bool valueEnabled)
+{
+    m_meterOptions.valueEnabled = valueEnabled;
+    synchronizeMeterOptions();
+}
+//==============================================================================
+
+void Level::showTickMarks (bool tickMarksEnabled)
+{
+    m_meterOptions.tickMarksEnabled = tickMarksEnabled;
+    synchronizeMeterOptions();
+}
+//==============================================================================
+
+void Level::showTickMarksOnTop (bool showTickMarksOnTop)
+{
+    m_meterOptions.tickMarksOnTop = showTickMarksOnTop;
+    synchronizeMeterOptions();
+}
+//==============================================================================
+
+void Level::setTickMarks (const std::vector<float>& tickMarks)
+{
+    m_meterOptions.tickMarks = tickMarks;
+    synchronizeMeterOptions();
+}
+//==============================================================================
+
+void Level::setMinimalMode (bool minimalMode)
+{
+    m_minimalModeActive = minimalMode;
+    for (auto& segment: m_segments)
+        segment.setMinimalMode (minimalMode);
+}
+//==============================================================================
+
+void Level::setRefreshRate (float refreshRate_hz)
+{
+    m_meterOptions.refreshRate = refreshRate_hz;
+    calculateDecayCoeff (m_meterOptions);
+    synchronizeMeterOptions();
+}
+//==============================================================================
+
+void Level::setDecay (float decay_ms)
+{
+    m_meterOptions.decayTime_ms = decay_ms;
+    calculateDecayCoeff (m_meterOptions);
+    synchronizeMeterOptions();
 }
 //==============================================================================
 
@@ -257,14 +275,14 @@ float Level::getDecayedLevel (const float newLevel_db)
     m_previousRefreshTime = currentTime;
 
     // More time has passed then the meter decay. The meter has fully decayed...
-    if (timePassed > m_options.decayTime_ms)
+    if (timePassed > m_meterOptions.decayTime_ms)
         return newLevel_db;
 
     if (m_meterLevel_db == newLevel_db)
         return newLevel_db;
 
     // Convert that to refreshed frames...
-    auto numberOfFramePassed = static_cast<int> (std::round ((timePassed * m_options.refreshRate) / 1000.0f));  // NOLINT
+    auto numberOfFramePassed = static_cast<int> (std::round ((timePassed * m_meterOptions.refreshRate) / 1000.0f));  // NOLINT
 
     auto level_db = m_meterLevel_db;
     for (int frame = 0; frame < numberOfFramePassed; ++frame)
@@ -274,6 +292,13 @@ float Level::getDecayedLevel (const float newLevel_db)
         level_db = newLevel_db;
 
     return level_db;
+}
+//==============================================================================
+
+void Level::enablePeakHold (bool enablePeakHold)
+{
+    m_meterOptions.enablePeakHold = enablePeakHold;
+    synchronizeMeterOptions();
 }
 //==============================================================================
 
@@ -297,15 +322,21 @@ float Level::getPeakHoldLevel() const noexcept
 void Level::setMeterBounds (const juce::Rectangle<int>& bounds)
 {
     m_meterBounds = bounds;
+    if (m_meterOptions.valueEnabled && !m_minimalModeActive)
+        m_meterBounds.removeFromBottom (Constants::kDefaultHeaderHeight);
     for (auto& segment: m_segments)
-        segment.setMeterBounds (bounds);
+        segment.setMeterBounds (m_meterBounds);
 }
 //==============================================================================
 
-void Level::calculateDecayCoeff()
+void Level::calculateDecayCoeff (const MeterOptions& meterOptions)
 {
+    m_meterOptions.decayTime_ms = juce::jlimit (Constants::kMinDecay_ms, Constants::kMaxDecay_ms, meterOptions.decayTime_ms);
+    m_meterOptions.refreshRate  = std::max (1.0f, meterOptions.refreshRate);
+    m_refreshPeriod_ms          = (1.0f / m_meterOptions.refreshRate) * 1000.0f;  // NOLINT
+
     // Rises to 99% of in value over duration of time constant.
-    m_decayCoeff = std::pow (0.01f, (1000.0f / (m_options.decayTime_ms * m_options.refreshRate)));  // NOLINT
+    m_decayCoeff = std::pow (0.01f, (1000.0f / (m_meterOptions.decayTime_ms * m_meterOptions.refreshRate)));  // NOLINT
 }
 //==============================================================================
 

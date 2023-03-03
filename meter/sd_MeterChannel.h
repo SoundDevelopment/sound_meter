@@ -75,7 +75,7 @@ public:
      * @param isLabelStrip  When set to true, this meter will function as a label strip (with markers for levels at the tick-marks).
      * @param channelType   The channel type (left, right, center, etc...).
     */
-    MeterChannel (Options meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip = false, ChannelType channelType = ChannelType::unknown);
+    MeterChannel (MeterOptions meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip = false, ChannelType channelType = ChannelType::unknown);
 
 #if SDTK_ENABLE_FADER
     /**
@@ -110,6 +110,22 @@ public:
     void setRefreshRate (float refreshRate_hz) { m_level.setRefreshRate (refreshRate_hz); }
 
     /**
+     * @brief Set meter decay.
+     *
+     * @param decay_ms Meter decay in milliseconds.
+     * @see getDecay, setRefreshRate
+    */
+    void setDecay (float decay_ms) { m_level.setDecay (decay_ms); }
+
+    /**
+     * @brief Get meter decay.
+     *
+     * @return Meter decay in milliseconds.
+     * @see setDecay, setRefreshRate
+    */
+    [[nodiscard]] float getDecay() const noexcept { return m_level.getDecay(); }
+
+    /**
      * @brief Set the input level from the audio engine. 
      *
      * Called from the audio thread!
@@ -125,7 +141,7 @@ public:
      *
      * @param meterOptions Meter options to use.
     */
-    void setOptions (Options meterOptions);
+    void setOptions (MeterOptions meterOptions);
 
     /**
      * @brief Activate or deactivate (mute) the meter.
@@ -146,22 +162,6 @@ public:
     [[nodiscard]] bool isActive() const noexcept { return m_active; }
 
     /**
-     * @brief Set meter decay.
-     *
-     * @param decay_ms Meter decay in milliseconds.
-     * @see getDecay, setRefreshRate
-    */
-    void setDecay (float decay_ms) { m_level.setDecay (decay_ms); }
-
-    /**
-     * @brief Get meter decay.
-     *
-     * @return Meter decay in milliseconds.
-     * @see setDecay, setRefreshRate
-    */
-    [[nodiscard]] float getDecay() const noexcept { return m_level.getDecay(); }
-
-    /**
      * @brief Set whether this meter is a label strip. 
      *
      * A label strip only draws the value labels (at the tick-marks),
@@ -178,7 +178,7 @@ public:
      *
      * @param segmentsOptions The segments options to create the segments with.
     */
-    void defineSegments (const std::vector<SegmentOptions>& segmentsOptions);
+    void setMeterSegments (const std::vector<SegmentOptions>& segmentsOptions);
 
     /**
      * @brief Reset the peak hold.
@@ -195,7 +195,7 @@ public:
      * @param enablePeakHold When set true, the peak hold indicator will be shown.
      * @see showPeakValue, resetPeakHold
     */
-    void enablePeakHold (bool enablePeakHold = true);
+    void enablePeakHold (bool enablePeakHold = true) { m_level.enablePeakHold (enablePeakHold); }
 
     /**
      * @brief Show the peak 'value' part of the meter.
@@ -218,7 +218,7 @@ public:
      * @param valueEnabled When set true, the 'value' level (in dB) part below the meter will be enabled.
      * @see enablePeakHold, resetPeakHold, showValue
     */
-    void enableValue (bool valueEnabled = true);
+    void enableValue (bool valueEnabled = true) { m_level.enableValue (valueEnabled); }
 
     /**
      * @brief Show the 'header' part of the meter.
@@ -320,17 +320,6 @@ public:
     void setReferredTypeWidth (float referredTypeWidth) noexcept { m_header.setReferredWidth (referredTypeWidth); }
 
     /**
-     * @brief Show tick-marks (divider lines) on the meter.
-     *
-     * A tick mark is a horizontal line, dividing the meter. 
-     * This is also the place the label strip will put it's text values.
-     *
-     * @param showTickMarks When set true, shows the tick-marks. 
-     * @see setTickMarks, enableTickMarks, showTickMarksOnTop
-    */
-    void showTickMarks (bool showTickMarks);
-
-    /**
      * @brief Enable tick-marks (divider lines) on the meter.
      *
      * A tick mark is a horizontal line, dividing the meter. 
@@ -338,10 +327,10 @@ public:
      * 
      * The tick-marks will be shown when they are enable and visible.
      *
-     * @param enabled When set true, the tick-marks are enabled. 
+     * @param tickMarksEnabled When set true, the tick-marks are enabled. 
      * @see showTickMarks, setTickMarks, showTickMarksOnTop
     */
-    void enableTickMarks (bool enabled);
+    void showTickMarks (bool tickMarksEnabled) { m_level.showTickMarks (tickMarksEnabled); }
 
     /**
      * @brief Show the tick-marks on top of the level or below it.
@@ -351,7 +340,7 @@ public:
      * 
      * @param showTickMarksOnTop Show the tick-marks on top of the level.
    */
-    void showTickMarksOnTop (bool showTickMarksOnTop);
+    void showTickMarksOnTop (bool showTickMarksOnTop) { m_level.showTickMarksOnTop (showTickMarksOnTop); }
 
     /**
      * @brief Set the level of the tick marks. 
@@ -359,10 +348,10 @@ public:
      * A tick mark is a horizontal line, dividing the meter. 
      * This is also the place the label strip will put it's text values.
      *
-     * @param ticks list of tick mark values (in amp).
-     * @see showTickMarks, showTickMarksOnTop, enableTickMarks
+     * @param tickMarks List of tick mark values (in decibels).
+     * @see showTickMarks, showTickMarksOnTop, showTickMarks
     */
-    void setTickMarks (const std::vector<float>& ticks);
+    void setTickMarks (const std::vector<float>& tickMarks) { m_level.setTickMarks (tickMarks); }
 
     /**
      * @brief Set the padding of the meter. 
@@ -425,7 +414,7 @@ public:
      * 
      * @param useGradients When set to true, uses smooth gradients. False gives hard segment boundaries.
     */
-    void useGradients (bool useGradients);
+    void useGradients (bool useGradients) { m_level.useGradients (useGradients); }
 
 #if SDTK_ENABLE_FADER
 
@@ -530,9 +519,9 @@ public:
     };
 
 private:
-    Header  m_header;   ///< 'Header' part of the meter with info relating to the meter (name, channel type, info rect, index in a sequence of multiple meters).
-    Level   m_level;    ///< 'Meter' part of the meter. Actually displaying the level.
-    Options m_options;  ///< 'Meter' options.
+    Header m_header;  ///< 'Header' part of the meter with info relating to the meter (name, channel type, info rect, index in a sequence of multiple meters).
+    Level  m_level;   ///< 'Meter' part of the meter. Actually displaying the level.
+    MeterOptions m_options;  ///< 'Meter' options.
 
 #if SDTK_ENABLE_FADER
     Fader m_fader;
@@ -541,7 +530,6 @@ private:
     bool                 m_active { true };
     bool                 m_isLabelStrip { false };
     bool                 m_minimalMode { false };
-    bool                 m_tickMarksOnTop { false };
     juce::Rectangle<int> m_dirtyRect {};
 
     Padding m_padding { 0, 0, 0, 0 };  ///< Space between meter and component's edge.
@@ -555,7 +543,6 @@ private:
     juce::Colour m_muteColour          = juce::Colours::red;
     juce::Colour m_muteMouseOverColour = juce::Colours::black;
     juce::Colour m_faderColour         = juce::Colours::blue.withAlpha (Constants::kFaderAlphaMax);
-    juce::Colour m_peakColour          = juce::Colours::red;
 
     void                       setDirty (bool isDirty = true);
     [[nodiscard]] bool         isDirty (const juce::Rectangle<int>& rectToCheck = {}) const noexcept;

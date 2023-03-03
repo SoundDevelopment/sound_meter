@@ -1,4 +1,3 @@
-#include "sd_MeterSegment.h"
 /*
     ==============================================================================
     
@@ -40,37 +39,85 @@ namespace SoundMeter
 #include "sd_MeterSegment.h"
 
 
-Segment::Segment (SegmentOptions options) : m_options (options)
+Segment::Segment (MeterOptions meterOptions, SegmentOptions segmentOptions)
 {
-    // Check level range validity.
-    jassert (options.levelRange.getLength() > 0.0f);  // NOLINT
-    // Check meter range validity (0.0f - 1.0f).
-    jassert (options.meterRange.getStart() >= 0.0f && options.meterRange.getEnd() <= 1.0f && options.meterRange.getLength() > 0.0f);  // NOLINT
+    setSegmentOptions (segmentOptions);
+    setMeterOptions (meterOptions);
 }
 //==============================================================================
 
-void SoundMeter::Segment::draw (juce::Graphics& g)
+void Segment::setMinimalMode (bool minimalMode)
+{
+    m_minimalModeActive = false;
+    if (m_meterOptions.useMinimalMode && minimalMode)
+        m_minimalModeActive = true;
+    m_isDirty = true;
+}
+//==============================================================================
+
+void Segment::setSegmentOptions (SegmentOptions segmentOptions) noexcept
+{
+    // Check level range validity.
+    jassert (segmentOptions.levelRange.getLength() > 0.0f);  // NOLINT
+    // Check meter range validity (0.0f - 1.0f).
+    jassert (segmentOptions.meterRange.getStart() >= 0.0f && segmentOptions.meterRange.getEnd() <= 1.0f && segmentOptions.meterRange.getLength() > 0.0f);  // NOLINT
+
+    m_segmentOptions = segmentOptions;
+
+    if (!m_meterBounds.isEmpty())
+        setMeterBounds (m_meterBounds);
+
+    m_isDirty = true;
+}
+//==============================================================================
+
+void Segment::draw (juce::Graphics& g)
 {
     m_isDirty = false;
+
+    if (!m_meterOptions.tickMarksOnTop)
+        drawTickMarks (g);
+
     if (!m_drawnBounds.isEmpty())
     {
-        g.setColour (m_options.segmentColour);
+        g.setColour (m_segmentOptions.segmentColour);
         g.fillRect (m_drawnBounds);
     }
 
-    if (m_options.enablePeakHold && !m_peakHoldBounds.isEmpty())
+    if (m_meterOptions.enablePeakHold && !m_peakHoldBounds.isEmpty())
     {
-        g.setColour (m_options.peakHoldColour);
+        g.setColour (m_meterOptions.peakHoldColour);
         g.fillRect (m_peakHoldBounds);
         m_drawnPeakHoldBounds = m_peakHoldBounds;
+    }
+
+    if (m_meterOptions.tickMarksOnTop)
+        drawTickMarks (g);
+}
+//==============================================================================
+
+void SoundMeter::Segment::drawTickMarks (juce::Graphics& g)
+{
+    if (m_minimalModeActive)
+        return;
+
+    g.setColour (m_meterOptions.tickMarkColour);
+    for (const auto& tickMark: m_tickMarks)
+    {
+        const auto tickMarkLevelRatio = (tickMark - m_segmentOptions.levelRange.getStart()) / m_segmentOptions.levelRange.getLength();
+        const auto tickMarkY          = m_segmentBounds.getY() + m_segmentBounds.getHeight() - (m_segmentBounds.getHeight() * tickMarkLevelRatio);
+        const auto tickMarkBounds     = juce::Rectangle<int> (m_segmentBounds.getX(), juce::roundToInt (tickMarkY) - Constants::kTickMarkHeight,
+                                                          m_segmentBounds.getWidth(), Constants::kTickMarkHeight);
+        g.fillRect (tickMarkBounds);
     }
 }
 //==============================================================================
 
 void Segment::setMeterBounds (juce::Rectangle<int> meterBounds)
 {
-    const auto segmentBounds = meterBounds.withY (meterBounds.getY() + meterBounds.proportionOfHeight (1.0f - m_options.meterRange.getEnd()))
-                                 .withHeight (meterBounds.proportionOfHeight (m_options.meterRange.getLength()));
+    m_meterBounds            = meterBounds;
+    const auto segmentBounds = meterBounds.withY (meterBounds.getY() + meterBounds.proportionOfHeight (1.0f - m_segmentOptions.meterRange.getEnd()))
+                                 .withHeight (meterBounds.proportionOfHeight (m_segmentOptions.meterRange.getLength()));
     if (segmentBounds == m_segmentBounds)
         return;
 
@@ -100,7 +147,7 @@ void Segment::updateLevelBounds()
     if (m_segmentBounds.isEmpty())
         return;
 
-    const auto levelRatio  = std::clamp ((m_currentLevel_db - m_options.levelRange.getStart()) / m_options.levelRange.getLength(), 0.0f, 1.0f);
+    const auto levelRatio  = std::clamp ((m_currentLevel_db - m_segmentOptions.levelRange.getStart()) / m_segmentOptions.levelRange.getLength(), 0.0f, 1.0f);
     const auto levelBounds = m_segmentBounds.withTop (m_segmentBounds.getY() + m_segmentBounds.proportionOfHeight (1.0f - levelRatio));
 
     if (m_drawnBounds == levelBounds)
@@ -114,9 +161,9 @@ void Segment::updateLevelBounds()
 void Segment::updatePeakHoldBounds()
 {
     juce::Rectangle<int> peakHoldBounds {};
-    if (m_peakHoldLevel_db > m_options.levelRange.getStart() && m_peakHoldLevel_db <= m_options.levelRange.getEnd())
+    if (m_peakHoldLevel_db > m_segmentOptions.levelRange.getStart() && m_peakHoldLevel_db <= m_segmentOptions.levelRange.getEnd())
     {
-        const auto peakHoldRatio = std::clamp ((m_peakHoldLevel_db - m_options.levelRange.getStart()) / m_options.levelRange.getLength(), 0.0f, 1.0f);
+        const auto peakHoldRatio = std::clamp ((m_peakHoldLevel_db - m_segmentOptions.levelRange.getStart()) / m_segmentOptions.levelRange.getLength(), 0.0f, 1.0f);
         peakHoldBounds =
           m_segmentBounds.withTop (m_segmentBounds.getY() + m_segmentBounds.proportionOfHeight (1.0f - peakHoldRatio)).withHeight (Constants::kPeakHoldHeight);
     }
@@ -129,8 +176,6 @@ void Segment::updatePeakHoldBounds()
 }
 //==============================================================================
 
-inline void Segment::setTickMarks (const std::vector<float>& ticks) { }
-
 void Segment::resetPeakHold() noexcept
 {
     m_peakHoldBounds.setHeight (0);
@@ -140,12 +185,20 @@ void Segment::resetPeakHold() noexcept
 }
 //==============================================================================
 
-void Segment::setColours (const juce::Colour& segmentColour, const juce::Colour& nextSegmentColour)
+void Segment::setMeterOptions (MeterOptions meterOptions) noexcept
 {
-    m_options.segmentColour     = segmentColour;
-    m_options.nextSegmentColour = nextSegmentColour;
-}
+    m_meterOptions = meterOptions;
 
+    // Find all tickMark-marks in this segment's range...
+    m_tickMarks.clear();
+    for (const auto& tickMark: meterOptions.tickMarks)
+    {
+        if (tickMark > m_segmentOptions.levelRange.getStart() && tickMark <= m_segmentOptions.levelRange.getEnd())
+            m_tickMarks.emplace_back (tickMark);
+    }
+
+    m_isDirty = true;
+}
 //==============================================================================
 
 }  // namespace SoundMeter

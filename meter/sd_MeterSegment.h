@@ -47,7 +47,7 @@ class Segment
 {
 public:
     /** @brief Construct a segment using the supplied options.*/
-    explicit Segment (SegmentOptions options);
+    Segment (MeterOptions meterOptions, SegmentOptions segmentOptions);
 
     /** @brief Set the level in decibels.*/
     void setLevel (float level_db);
@@ -61,9 +61,6 @@ public:
     /** @brief Get the bounding box of this segment.*/
     [[nodiscard]] juce::Rectangle<int> getSegmentBounds() const noexcept { return m_segmentBounds; }
 
-    /** @brief Set the tick marks to be drawn on the segment.*/
-    void setTickMarks (const std::vector<float>& ticks_db);
-
     /** @brief Reset the peak hold.*/
     void resetPeakHold() noexcept;
 
@@ -73,35 +70,50 @@ public:
     /** @brief Check if the segment needs to be re-drawn (dirty). */
     [[nodiscard]] bool isDirty() const noexcept { return m_isDirty; }
 
-    /** @brief Set the segment's colour (or colours when using a gradient).*/
-    void setColours (const juce::Colour& segmentColour, const juce::Colour& nextSegmentColour);
+    /**
+     * @brief Set the meter in 'minimal' mode.
+     * 
+     * In minimal mode, the meter is in it's cleanest state possible.
+     * This means no header, no tick-marks, no value, no faders and no indicator.
+     * 
+     * @param minimalMode When set to true, 'minimal' mode will be enabled.
+     * @see isMinimalModeActive, autoSetMinimalMode
+    */
+    void setMinimalMode (bool minimalMode);
 
-    /** @brief Enable or disable the use of a gradient colour fill. */
-    void useGradients (bool gradientsUsed) noexcept { m_options.useGradients = gradientsUsed; }
+    /** @brief Set the segment options, describing the range and colour of the segment. */
+    void setSegmentOptions (SegmentOptions segmentOptions) noexcept;
 
-    /** @brief Enable or disable the peak hold indicator. */
-    void enablePeakHold (bool peakHoldEnabled) noexcept { m_options.enablePeakHold = peakHoldEnabled; }
+    /** @brief Get the segment options, describing the range and colour of the segment. */
+    [[nodiscard]] SegmentOptions getSegmentOptions() const noexcept { return m_segmentOptions; }
+
+    /** @brief Set meter options. */
+    void setMeterOptions (MeterOptions meterOptions) noexcept;
 
     /** @brief Get segment options.*/
-    const SegmentOptions& getOptions() const noexcept { return m_options; }
+    [[nodiscard]] MeterOptions getMeterOptions() const { return m_meterOptions; }
 
 private:
-    SegmentOptions       m_options {};
-    std::vector<float>&  m_ticks_db {};
+    SegmentOptions       m_segmentOptions {};
+    MeterOptions         m_meterOptions {};
+    std::vector<float>   m_tickMarks {};
+    juce::Rectangle<int> m_meterBounds {};
     juce::Rectangle<int> m_segmentBounds {};
     juce::Rectangle<int> m_drawnBounds {};
     juce::Rectangle<int> m_peakHoldBounds {};
     juce::Rectangle<int> m_drawnPeakHoldBounds {};
 
-    float m_currentLevel_db  = Constants::kMinLevel_db;
-    float m_peakHoldLevel_db = Constants::kMinLevel_db;
-    bool  m_isDirty          = false;
-    bool  m_isPeakHoldDirty  = false;
+    float m_currentLevel_db   = Constants::kMinLevel_db;
+    float m_peakHoldLevel_db  = Constants::kMinLevel_db;
+    bool  m_isDirty           = false;
+    bool  m_minimalModeActive = false;
+
 
     juce::ColourGradient m_gradientFill {};
 
     void updateLevelBounds();
     void updatePeakHoldBounds();
+    void drawTickMarks (juce::Graphics& g);
 
     JUCE_LEAK_DETECTOR (Segment)
 };
