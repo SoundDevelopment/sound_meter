@@ -39,7 +39,7 @@ namespace SoundMeter
 {
 
 
-Segment::Segment (MeterOptions meterOptions, SegmentOptions segmentOptions)
+Segment::Segment (const MeterOptions& meterOptions, const SegmentOptions& segmentOptions)
 {
     setSegmentOptions (segmentOptions);
     setMeterOptions (meterOptions);
@@ -75,14 +75,27 @@ void Segment::draw (juce::Graphics& g)
 {
     m_isDirty = false;
 
+    if (m_isLabelStrip)
+    {
+        drawLabels (g);
+        return;
+    }
+
     if (!m_meterOptions.tickMarksOnTop)
         drawTickMarks (g);
 
     if (!m_drawnBounds.isEmpty())
     {
-        g.setColour (m_segmentOptions.segmentColour);
+        if (m_meterOptions.useGradients)
+            g.setGradientFill (m_gradientFill);
+        else
+            g.setColour (m_segmentOptions.segmentColour);
+
         g.fillRect (m_drawnBounds);
     }
+
+    if (m_meterOptions.tickMarksOnTop)
+        drawTickMarks (g);
 
     if (m_meterOptions.enablePeakHold && !m_peakHoldBounds.isEmpty())
     {
@@ -90,13 +103,10 @@ void Segment::draw (juce::Graphics& g)
         g.fillRect (m_peakHoldBounds);
         m_drawnPeakHoldBounds = m_peakHoldBounds;
     }
-
-    if (m_meterOptions.tickMarksOnTop)
-        drawTickMarks (g);
 }
 //==============================================================================
 
-void SoundMeter::Segment::drawTickMarks (juce::Graphics& g)
+void Segment::drawTickMarks (juce::Graphics& g)
 {
     if (m_minimalModeActive)
         return;
@@ -104,25 +114,57 @@ void SoundMeter::Segment::drawTickMarks (juce::Graphics& g)
     g.setColour (m_meterOptions.tickMarkColour);
     for (const auto& tickMark: m_tickMarks)
     {
-        const auto tickMarkLevelRatio = (tickMark - m_segmentOptions.levelRange.getStart()) / m_segmentOptions.levelRange.getLength();
-        const auto tickMarkY          = m_segmentBounds.getY() + m_segmentBounds.getHeight() - (m_segmentBounds.getHeight() * tickMarkLevelRatio);
-        const auto tickMarkBounds     = juce::Rectangle<int> (m_segmentBounds.getX(), juce::roundToInt (tickMarkY) - Constants::kTickMarkHeight,
-                                                          m_segmentBounds.getWidth(), Constants::kTickMarkHeight);
+        if (tickMark <= m_currentLevel_db)
+            continue;
+
+        const auto tickMarkLevelRatio = std::clamp ((tickMark - m_segmentOptions.levelRange.getStart()) / m_segmentOptions.levelRange.getLength(), 0.0f, 1.0f);
+        const auto tickMarkY          = m_segmentBounds.getY() + juce::roundToInt (m_segmentBounds.toFloat().proportionOfHeight (1.0f - tickMarkLevelRatio));
+        const auto tickMarkBounds     = juce::Rectangle<int> (m_segmentBounds.getX(), tickMarkY, m_segmentBounds.getWidth(), Constants::kTickMarkHeight);
         g.fillRect (tickMarkBounds);
     }
 }
 //==============================================================================
 
+void Segment::drawLabels (juce::Graphics& g) const
+{
+    g.setColour (m_meterOptions.textColour);
+    const float fontsize = juce::jlimit (1.0f, 15.0f, m_meterBounds.getHeight() / 4.0f);  // Set font size proportionally. NOLINT
+    g.setFont (fontsize);
+
+    for (const auto& tickMark: m_tickMarks)
+    {
+        const auto tickMarkLevelRatio = std::clamp ((tickMark - m_segmentOptions.levelRange.getStart()) / m_segmentOptions.levelRange.getLength(), 0.0f, 1.0f);
+        const auto tickMarkY          = m_segmentBounds.getY() + juce::roundToInt (m_segmentBounds.toFloat().proportionOfHeight (1.0f - tickMarkLevelRatio));
+        const auto labelBounds =
+          juce::Rectangle<int> (m_segmentBounds.getX(), tickMarkY - juce::roundToInt (fontsize / 2.0f), m_segmentBounds.getWidth(), static_cast<int> (fontsize));
+
+        g.drawFittedText (juce::String (std::abs (tickMark)), labelBounds.reduced (Constants::kLabelStripTextPadding, 0), juce::Justification::topLeft, 1);
+    }
+}
+//==============================================================================
+
+inline bool Segment::containsUpTo (juce::Range<float> levelRange, float levelDb)
+{
+    return levelDb > levelRange.getStart() && levelDb <= levelRange.getEnd();
+}
+//==============================================================================
+
 void Segment::setMeterBounds (juce::Rectangle<int> meterBounds)
 {
+    if (meterBounds == m_meterBounds)
+        return;
+
     m_meterBounds            = meterBounds;
     const auto segmentBounds = meterBounds.withY (meterBounds.getY() + meterBounds.proportionOfHeight (1.0f - m_segmentOptions.meterRange.getEnd()))
                                  .withHeight (meterBounds.proportionOfHeight (m_segmentOptions.meterRange.getLength()));
-    if (segmentBounds == m_segmentBounds)
-        return;
-
     m_segmentBounds = segmentBounds;
     updateLevelBounds();
+
+    if (m_meterOptions.useGradients)
+        m_gradientFill = juce::ColourGradient (m_segmentOptions.segmentColour, segmentBounds.toFloat().getBottomLeft(), m_segmentOptions.nextSegmentColour,
+                                               segmentBounds.toFloat().getTopLeft(), false);
+
+    m_isDirty = true;
 }
 //==============================================================================
 
@@ -147,8 +189,8 @@ void Segment::updateLevelBounds()
     if (m_segmentBounds.isEmpty())
         return;
 
-    const auto levelRatio  = std::clamp ((m_currentLevel_db - m_segmentOptions.levelRange.getStart()) / m_segmentOptions.levelRange.getLength(), 0.0f, 1.0f);
-    const auto levelBounds = m_segmentBounds.withTop (m_segmentBounds.getY() + m_segmentBounds.proportionOfHeight (1.0f - levelRatio));
+    const auto levelRatio = std::clamp ((m_currentLevel_db - m_segmentOptions.levelRange.getStart()) / m_segmentOptions.levelRange.getLength(), 0.0f, 1.0f);
+    const auto levelBounds = m_segmentBounds.withTop (m_segmentBounds.getY() + juce::roundToInt (m_segmentBounds.toFloat().proportionOfHeight (1.0f - levelRatio)));
 
     if (m_drawnBounds == levelBounds)
         return;
@@ -160,12 +202,16 @@ void Segment::updateLevelBounds()
 
 void Segment::updatePeakHoldBounds()
 {
-    juce::Rectangle<int> peakHoldBounds {};
-    if (m_peakHoldLevel_db > m_segmentOptions.levelRange.getStart() && m_peakHoldLevel_db <= m_segmentOptions.levelRange.getEnd())
+    auto peakHoldBounds = juce::Rectangle<int>();
+
+    if (Segment::containsUpTo (m_segmentOptions.levelRange, m_peakHoldLevel_db))
     {
         const auto peakHoldRatio = std::clamp ((m_peakHoldLevel_db - m_segmentOptions.levelRange.getStart()) / m_segmentOptions.levelRange.getLength(), 0.0f, 1.0f);
-        peakHoldBounds =
-          m_segmentBounds.withTop (m_segmentBounds.getY() + m_segmentBounds.proportionOfHeight (1.0f - peakHoldRatio)).withHeight (Constants::kPeakHoldHeight);
+        if (peakHoldRatio == 0.0f)
+            return;
+
+        const auto peakHoldY = m_segmentBounds.getY() + juce::roundToInt (m_segmentBounds.toFloat().proportionOfHeight (1.0f - peakHoldRatio));
+        peakHoldBounds       = m_segmentBounds.withTop (peakHoldY).withHeight (Constants::kPeakHoldHeight);
     }
 
     if (peakHoldBounds == m_drawnPeakHoldBounds)
@@ -185,7 +231,7 @@ void Segment::resetPeakHold() noexcept
 }
 //==============================================================================
 
-void Segment::setMeterOptions (MeterOptions meterOptions) noexcept
+void Segment::setMeterOptions (const MeterOptions& meterOptions)
 {
     m_meterOptions = meterOptions;
 
@@ -193,7 +239,7 @@ void Segment::setMeterOptions (MeterOptions meterOptions) noexcept
     m_tickMarks.clear();
     for (const auto& tickMark: meterOptions.tickMarks)
     {
-        if (tickMark > m_segmentOptions.levelRange.getStart() && tickMark <= m_segmentOptions.levelRange.getEnd())
+        if (Segment::containsUpTo (m_segmentOptions.levelRange, tickMark))
             m_tickMarks.emplace_back (tickMark);
     }
 

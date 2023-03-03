@@ -352,38 +352,11 @@ public:
     */
     void drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColour) const;
 
-    /**
-     * @brief Draw the value labels at the tick marks.
-     * These will be displayed if the meter is a labelStrip.
-     * @param[in,out] g        The juce graphics context to use.
-     * @param textColour       Colour of the label text.
-     * 
-     * @see drawMeter, drawInactiveMeter, drawInactiveMeter, drawPeakValue, drawPeakHold, drawTickMarks
-    */
-    void drawLabels (juce::Graphics& g, const juce::Colour& textColour) const;
-
-    /**
-     * @brief Tick-mark class.
-     * Data class for drawing tick-marks.
-     * These are the divider lines on the meter at certain
-     * dB levels.
-    */
-    struct Tick
-    {
-        /**
-        * @brief Constructor.
-        * @param value_db Value of the tick-mark (in dB).
-       */
-        explicit Tick (float value_db) : decibels (value_db), gain (juce::Decibels::decibelsToGain (value_db)) { }
-        float gain     = 0;  ///< Value of the tick mark (in amp).
-        float decibels = 0;  ///< Value of the tick mark (in dB).
-    };
-
 private:
     MeterOptions                m_meterOptions;
-    std::vector<SegmentOptions> m_segmentOptions = { { { -60.0f, -20.0f }, { 0.0f, 0.5f }, juce::Colours::green },   // NOLINT
-                                                     { { -20.0f, -6.0f }, { 0.5f, 0.75f }, juce::Colours::yellow },  // NOLINT
-                                                     { { -6.0f, 0.0f }, { 0.75f, 1.0f }, juce::Colours::red } };     // NOLINT
+    std::vector<SegmentOptions> m_segmentOptions = { { { -60.0f, -18.0f }, { 0.0f, 0.5f }, juce::Colours::green, juce::Colours::yellow },  // NOLINT
+                                                     { { -18.0f, -3.0f }, { 0.5f, 0.90f }, juce::Colours::yellow, juce::Colours::red },    // NOLINT
+                                                     { { -3.0f, 0.0f }, { 0.90f, 1.0f }, juce::Colours::red, juce::Colours::red } };       // NOLINT
 
     std::vector<Segment> m_segments {};  // List of meter segments.
     float                m_minLevel_db { Constants::kMaxLevel_db };
@@ -397,9 +370,6 @@ private:
     juce::Rectangle<int> m_meterBounds;  // Bounds of the meter area.   
     juce::Rectangle<int> m_levelBounds;  // Bounds of the level area.
 
-    std::vector<Tick> m_tickMarks {};  // List of user definable tick marks (in db).
-
-    // bool  m_tickMarksVisible    = true;
     bool  m_peakHoldDirty       = false;
     bool  m_mouseOverValue      = false;
     bool  m_minimalModeActive   = false;

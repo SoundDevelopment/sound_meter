@@ -30,7 +30,7 @@
     ==============================================================================
 */
 
-#pragma once 
+#pragma once
 
 #include "sd_MeterHelpers.h"
 
@@ -48,7 +48,7 @@ class Segment
 {
 public:
     /** @brief Construct a segment using the supplied options.*/
-    Segment (MeterOptions meterOptions, SegmentOptions segmentOptions);
+    Segment (const MeterOptions& meterOptions, const SegmentOptions& segmentOptions);
 
     /** @brief Set the level in decibels.*/
     void setLevel (float level_db);
@@ -72,24 +72,24 @@ public:
     [[nodiscard]] bool isDirty() const noexcept { return m_isDirty; }
 
     /**
-     * @brief Set whether this meter is a label strip. 
-     *
-     * A label strip only draws the value labels (at the tick-marks),
-     * but does not display any level.
-     *
-     * @param isLabelStrip when set, this meter behave like a label strip.
-    */
+             * @brief Set whether this meter is a label strip.
+             *
+             * A label strip only draws the value labels (at the tick-marks),
+             * but does not display any level.
+             *
+             * @param isLabelStrip when set, this meter behave like a label strip.
+            */
     void setIsLabelStrip (bool isLabelStrip = false) noexcept { m_isLabelStrip = isLabelStrip; }
 
     /**
-     * @brief Set the meter in 'minimal' mode.
-     * 
-     * In minimal mode, the meter is in it's cleanest state possible.
-     * This means no header, no tick-marks, no value, no faders and no indicator.
-     * 
-     * @param minimalMode When set to true, 'minimal' mode will be enabled.
-     * @see isMinimalModeActive, autoSetMinimalMode
-    */
+             * @brief Set the meter in 'minimal' mode.
+             *
+             * In minimal mode, the meter is in it's cleanest state possible.
+             * This means no header, no tick-marks, no value, no faders and no indicator.
+             *
+             * @param minimalMode When set to true, 'minimal' mode will be enabled.
+             * @see isMinimalModeActive, autoSetMinimalMode
+            */
     void setMinimalMode (bool minimalMode);
 
     /** @brief Set the segment options, describing the range and colour of the segment. */
@@ -99,7 +99,7 @@ public:
     [[nodiscard]] SegmentOptions getSegmentOptions() const noexcept { return m_segmentOptions; }
 
     /** @brief Set meter options. */
-    void setMeterOptions (MeterOptions meterOptions) noexcept;
+    void setMeterOptions (const MeterOptions& meterOptions);
 
     /** @brief Get segment options.*/
     [[nodiscard]] MeterOptions getMeterOptions() const { return m_meterOptions; }
@@ -113,6 +113,7 @@ private:
     juce::Rectangle<int> m_drawnBounds {};
     juce::Rectangle<int> m_peakHoldBounds {};
     juce::Rectangle<int> m_drawnPeakHoldBounds {};
+    juce::ColourGradient m_gradientFill {};
 
     float m_currentLevel_db   = Constants::kMinLevel_db;
     float m_peakHoldLevel_db  = Constants::kMinLevel_db;
@@ -121,11 +122,13 @@ private:
     bool  m_isLabelStrip      = false;
 
 
-    juce::ColourGradient m_gradientFill {};
-
     void updateLevelBounds();
     void updatePeakHoldBounds();
     void drawTickMarks (juce::Graphics& g);
+    void drawLabels (juce::Graphics& g) const;
+
+    [[nodiscard]] static bool containsUpTo (juce::Range<float> levelRange, float levelDb);
+
 
     JUCE_LEAK_DETECTOR (Segment)
 };

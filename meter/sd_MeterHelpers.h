@@ -114,12 +114,13 @@ struct MeterOptions
     float decayTime_ms     = Constants::kDefaultDecay_ms;  ///< Meter decay in milliseconds.
     float refreshRate      = 24.0f;                        ///< Meter refresh rate when using internal timing. NOLINT
     bool  tickMarksEnabled = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
-    bool  tickMarksOnTop   = true;  ///< Show the tick-marks below the level or above the level (level might obscure the tick-marks if loud enough).
+    bool  tickMarksOnTop   = true;   ///< Show the tick-marks below the level or above the level (level might obscure the tick-marks if loud enough).
     bool  useGradients     = false;  ///< Use gradients for the meter segments, in stead of solid colours.
     juce::Colour       peakHoldColour = juce::Colours::blueviolet;                 ///< The colour of peak hold bar.
     bool               enablePeakHold = true;                                      ///< Enable peak hold.
-    std::vector<float> tickMarks      = { -1.0f, -6.0f, -12.0f, -20.0f, -40.0f };  ///< Tick-mark position in db. NOLINT
-    juce::Colour       tickMarkColour = juce::Colours::grey;        ///< Tick-mark colour.  NOLINT
+    std::vector<float> tickMarks      = { 0.0f, -3.0f, -6.0f, -12.0f, -18.0f, -32.0f, -50.0f };  ///< Tick-mark position in db. NOLINT
+    juce::Colour       tickMarkColour = juce::Colours::grey;                       ///< Tick-mark colour.  NOLINT
+    juce::Colour       textColour     = juce::Colours::white;                      ///< Text colour.  NOLINT
 };
 
 
