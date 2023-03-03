@@ -204,21 +204,9 @@ public:
      * It's the same level as the peak hold bar.
      *
      * @param showPeakValue When set true, shows the 'value' level (in dB) part below the meter.
-     * @see enablePeakHold, resetPeakHold, enableValue
-    */
-    void showValue (bool showValue = true);
-
-    /**
-     * @brief Enable the peak 'value' part of the meter.
-     *
-     * When enabled (and made visible with showValue) the
-     * peak 'value' part will be shown below the meter (in dB).
-     * It's the same level as the peak hold bar.
-     *
-     * @param valueEnabled When set true, the 'value' level (in dB) part below the meter will be enabled.
      * @see enablePeakHold, resetPeakHold, showValue
     */
-    void enableValue (bool valueEnabled = true) { m_level.enableValue (valueEnabled); }
+    void showValue (bool showValue = true);
 
     /**
      * @brief Show the 'header' part of the meter.

@@ -664,15 +664,15 @@ void MetersComponent::enableHeader (bool headerEnabled)
 }
 //==============================================================================
 
-void MetersComponent::enableValue (bool valueEnabled)
+void MetersComponent::showValue (bool showValue)
 {
-    if (m_options.valueEnabled == valueEnabled)
+    if (m_options.valueEnabled == showValue)
         return;
 
-    m_labelStrip.enableValue (valueEnabled);
+    m_labelStrip.showValue (showValue);
 
     for (auto* meter: m_meterChannels)
-        meter->enableValue (valueEnabled);
+        meter->showValue (showValue);
 
     resized();
 }
