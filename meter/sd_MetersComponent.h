@@ -34,6 +34,7 @@
 
 
 #include "sd_MeterHelpers.h"
+#include "sd_MeterChannel.h"
 
 #include <juce_audio_basics/juce_audio_basics.h>
 #include <juce_core/juce_core.h>
@@ -73,7 +74,7 @@ public:
      * 
      * @param meterOptions The options to use with the meters and the label strip.
     */
-    MetersComponent (const MeterOptions& meterOptions);
+    explicit MetersComponent (const MeterOptions& meterOptions);
 
     /**
      * @brief Constructor which accepts a channel format.
@@ -201,7 +202,7 @@ public:
      * 
      * @param meterOptions The options to apply to the meters and label strip.
     */
-    void setOptions (MeterOptions meterOptions);
+    void setOptions (const MeterOptions& meterOptions);
 
     /**
      * @brief Set the refresh (redraw) rate of the meters.
@@ -266,16 +267,16 @@ public:
     void setLabelStripPosition (LabelStripPosition labelStripPosition);
 
     /**
-     * @brief Enable the 'header' part above the meters.
+     * @brief Show the 'header' part above the meters.
      * 
      * This will display the channel name (a custom one that the user can set)
      * or the channel type (left, right, center, etc...).
      * This also doubles as a mute button for the specific channel.
      * 
-     * @param headerEnabled When set to true, the 'header' part will be shown.
+     * @param showHeader When set to true, the 'header' part will be shown.
      * @see showValue, setChannelNames
     */
-    void enableHeader (bool headerEnabled);
+    void showHeader (bool showHeader);
 
     /**
      * @brief Show the 'value' part below the meters.
@@ -285,7 +286,7 @@ public:
      * Double clicking will reset the peak hold value (as well as the indicator).
      * 
      * @param showValue When set to true, the 'value' part will be shown.
-     * @see enableHeader, resetPeakHold
+     * @see showHeader, resetPeakHold
     */
     void showValue (bool showValue);
 
@@ -461,16 +462,16 @@ private:
    void                             notifyListeners         ();                                          // Notify the listeners the faders have been moved.
    void                             mouseEnter              (const juce::MouseEvent& event) override;
    void                             mouseExit               (const juce::MouseEvent& event) override;
-   void                             faderChanged            ( MeterChannel* sourceMeter);
+   void                             faderChanged            (MeterChannel* sourceMeter);
    
 #endif
 
    // Private methods...
    void                             timerCallback           () override { refresh(); }
    void                             setColours              ();
-   void                             createMeters            ( const juce::AudioChannelSet& channelFormat, const std::vector<juce::String>& channelNames );
+   void                             createMeters            (const juce::AudioChannelSet& channelFormat, const std::vector<juce::String>& channelNames);
    void                             deleteMeters            ();
-   [[nodiscard]] MeterChannel*      getMeterChannel         ( const int meterIndex );
+   [[nodiscard]] MeterChannel*      getMeterChannel         (int meterIndex);
 
 
     // clang-format on

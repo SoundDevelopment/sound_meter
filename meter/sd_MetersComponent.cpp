@@ -57,16 +57,15 @@ MetersComponent::MetersComponent (const MeterOptions& meterOptions)
 }
 //==============================================================================
 
-MetersComponent::MetersComponent() : MetersComponent (MeterOptions {}) { }
+MetersComponent::MetersComponent() : MetersComponent ({}, {}) { }
 //==============================================================================
 
 MetersComponent::MetersComponent (const juce::AudioChannelSet& channelFormat) : MetersComponent ({}, channelFormat) { }
 //==============================================================================
 
-MetersComponent::MetersComponent (const MeterOptions& meterOptions, const juce::AudioChannelSet& channelFormat) : MetersComponent (meterOptions)
+MetersComponent::MetersComponent (const MeterOptions& meterOptions, const juce::AudioChannelSet& channelFormat)
+  : m_meterOptions (meterOptions), m_channelFormat (channelFormat)
 {
-    m_channelFormat = channelFormat;
-
     createMeters (channelFormat, {});
 }
 //==============================================================================
@@ -149,7 +148,7 @@ void MetersComponent::paint (juce::Graphics& g)
     if (!m_meterOptions.enabled)
     {
         g.setColour (m_backgroundColour.contrasting (1.0f));
-        g.setFont (m_font.withHeight (14.0f));
+        g.setFont (m_font.withHeight (14.0f));                                                                        // NOLINT
         g.drawFittedText ("No audio device open for playback. ", getLocalBounds(), juce::Justification::centred, 5);  // NOLINT
     }
 }
@@ -157,25 +156,20 @@ void MetersComponent::paint (juce::Graphics& g)
 
 void MetersComponent::resized()
 {
-    using namespace Constants;
-
     // Get the number of meters present...
     const int numOfMeters = static_cast<int> (m_meterChannels.size());
-
     if (numOfMeters == 0)
         return;
 
-    // Get the meter bounds...
     auto       panelBounds = getLocalBounds();
     const auto panelHeight = panelBounds.getHeight();
     const auto panelWidth  = panelBounds.getWidth();
 
-    // By default show the MASTER strip.
-    auto labelStripWidth = (m_labelStripPosition != LabelStripPosition::none ? kDefaultHeaderLabelWidth : 0);
+    // By default show the MASTER strip...
+    auto labelStripWidth = (m_labelStripPosition != LabelStripPosition::none ? Constants::kDefaultHeaderLabelWidth : 0);
 
     // Calculate meter width from available width taking into account the extra width needed when showing the master strip...
-    auto meterWidth = juce::jlimit (kMinWidth, kMaxWidth, (panelWidth - labelStripWidth) / numOfMeters);
-
+    auto       meterWidth     = juce::jlimit (Constants::kMinWidth, Constants::kMaxWidth, (panelWidth - labelStripWidth) / numOfMeters);
     const bool minModeEnabled = m_meterChannels[0]->autoSetMinimalMode (meterWidth, panelHeight);
 
     // Don't show the label strip in minimum mode...
@@ -184,16 +178,16 @@ void MetersComponent::resized()
 
     // Re-calculate actual width (taking into account the min. mode)...
     if (m_labelStripPosition != LabelStripPosition::none)
-        meterWidth = juce::jlimit (kMinWidth, kMaxWidth, (panelWidth - labelStripWidth) / numOfMeters);
+        meterWidth = juce::jlimit (Constants::kMinWidth, Constants::kMaxWidth, (panelWidth - labelStripWidth) / numOfMeters);
 
     // Position all meters and adapt them to the current size...
     for (auto* meter: m_meterChannels)
     {
         meter->setMinimalMode (minModeEnabled);
         if (m_labelStripPosition == LabelStripPosition::right)
-            meter->setBounds (panelBounds.removeFromLeft (meterWidth));  // ... set it's width to m_meterWidth
+            meter->setBounds (panelBounds.removeFromLeft (meterWidth));
         else
-            meter->setBounds (panelBounds.removeFromRight (meterWidth));  // ... set it's width to m_meterWidth
+            meter->setBounds (panelBounds.removeFromRight (meterWidth));
 
 #if SDTK_ENABLE_FADER
         if (minModeEnabled)
@@ -601,7 +595,7 @@ void MetersComponent::setFont (const juce::Font& newFont)
 }
 //==============================================================================
 
-void MetersComponent::setOptions (MeterOptions meterOptions)
+void MetersComponent::setOptions (const MeterOptions& meterOptions)
 {
     m_meterOptions = meterOptions;
     for (auto* meter: m_meterChannels)
@@ -650,16 +644,16 @@ void MetersComponent::setLabelStripPosition (LabelStripPosition labelStripPositi
 }
 //==============================================================================
 
-void MetersComponent::enableHeader (bool headerEnabled)
+void MetersComponent::showHeader (bool showHeader)
 {
-    if (m_meterOptions.headerEnabled == headerEnabled)
+    if (m_meterOptions.headerEnabled == showHeader)
         return;
 
-    m_meterOptions.headerEnabled = headerEnabled;
-    m_labelStrip.enableHeader (headerEnabled);
+    m_meterOptions.headerEnabled = showHeader;
+    m_labelStrip.showHeader (showHeader);
 
     for (auto* meter: m_meterChannels)
-        meter->enableHeader (headerEnabled);
+        meter->showHeader (showHeader);
 
     resized();
 }
