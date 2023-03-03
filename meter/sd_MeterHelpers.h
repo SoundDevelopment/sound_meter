@@ -94,26 +94,16 @@ struct Padding
 /** @brief Options defining the meter segments. */
 struct SegmentOptions
 {
-    /**
-    * @brief Construct a meter segment.
-    *
-    * @param levelRange
-    * @param meterRange The range of the segment in the meter (0.0f - 1.0f, with 0.0f being the bottom of the meter).
-    * @param colour     The colour of the segment.
-    */
     juce::Range<float> levelRange { Constants::kMinLevel_db, Constants::kMaxLevel_db };  //  The range of the segment in decibels.
     juce::Range<float> meterRange { 0.0f, 1.0f };  // The range of the segment in the meter (0.0f - 1.0f, with 0.0f being the bottom of the meter).
-    juce::Colour       peakHoldColour { juce::Colours::white };  // The colour of peak hold bar.
-    bool               enablePeakHold { true };
-    juce::Colour       segmentColour { juce::Colours::yellow };  // The colour of the segment.
-    bool               useGradients { false };
+    juce::Colour       segmentColour { juce::Colours::yellow };         // The colour of the segment.
     juce::Colour       nextSegmentColour { segmentColour.brighter() };  // The second colour of the segment (for use in gradients).
 };
 
 /**
  * @brief All meter options for appearance and functionality.
 */
-struct Options
+struct MeterOptions
 {
     bool  enabled          = true;  ///< Enable the meter.
     bool  headerEnabled    = true;  ///< Enable the 'header' part of the meter.
@@ -123,11 +113,12 @@ struct Options
     float decayTime_ms     = Constants::kDefaultDecay_ms;  ///< Meter decay in milliseconds.
     float refreshRate      = 24.0f;                        ///< Meter refresh rate when using internal timing. NOLINT
     bool  tickMarksEnabled = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
-    bool  tickMarksOnTop   = false;  ///< Show the tick-marks below the level or above the level (level might obscure the tick-marks if loud enough).
-    std::vector<float>          tickMarks      = { -1.0f, -3.0f, -6.0f, -9.0f, -18.0f };  ///< Tick-mark position in db. NOLINT
-    std::vector<SegmentOptions> segmentOptions = { { { -60.0f, -20.0f }, { 0.0f, 0.5f }, juce::Colours::white, true, juce::Colours::green },   // NOLINT
-                                                   { { -20.0f, -6.0f }, { 0.5f, 0.75f }, juce::Colours::white, true, juce::Colours::yellow },  // NOLINT
-                                                   { { -6.0f, 0.0f }, { 0.75f, 1.0f }, juce::Colours::white, true, juce::Colours::red } };     // NOLINT   
+    bool  tickMarksOnTop   = true;  ///< Show the tick-marks below the level or above the level (level might obscure the tick-marks if loud enough).
+    bool  useGradients     = false;  ///< Use gradients for the meter segments, in stead of solid colours.
+    juce::Colour       peakHoldColour = juce::Colours::blueviolet;                 ///< The colour of peak hold bar.
+    bool               enablePeakHold = true;                                      ///< Enable peak hold.
+    std::vector<float> tickMarks      = { -1.0f, -6.0f, -12.0f, -20.0f, -40.0f };  ///< Tick-mark position in db. NOLINT
+    juce::Colour       tickMarkColour = juce::Colours::grey;        ///< Tick-mark colour.  NOLINT
 };
 
 

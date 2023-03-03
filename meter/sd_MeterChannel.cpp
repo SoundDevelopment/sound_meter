@@ -1,3 +1,4 @@
+#include "sd_MeterChannel.h"
 /*
     ==============================================================================
     
@@ -44,7 +45,7 @@ MeterChannel::MeterChannel()
 }
 //==============================================================================
 
-MeterChannel::MeterChannel (Options meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip /*= false*/, ChannelType channelType /*= ChannelType::unknown*/)
+MeterChannel::MeterChannel (MeterOptions meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip /*= false*/, ChannelType channelType /*= ChannelType::unknown*/)
   : MeterChannel()
 {
     setName (channelName);
@@ -115,13 +116,6 @@ void MeterChannel::notifyParent()
 }
 //==============================================================================
 
-void MeterChannel::useGradients (bool useGradients)
-{
-    m_level.useGradients (useGradients);
-    addDirty (m_level.getMeterBounds());
-}
-//==============================================================================
-
 [[nodiscard]] juce::Rectangle<int> MeterChannel::getLabelStripBounds() const
 {
     return m_level.getMeterBounds().getUnion (m_header.getBounds());
@@ -165,11 +159,6 @@ void MeterChannel::setColours()
     m_muteColour          = getColourFromLnf (mutedColourId, juce::Colours::red);
     m_muteMouseOverColour = getColourFromLnf (mutedMouseOverColourId, juce::Colours::black);
     m_faderColour         = getColourFromLnf (faderColourId, juce::Colours::blue.withAlpha (Constants::kFaderAlphaMax));
-
-    // Set segment colours...
-    auto normalColour  = getColourFromLnf (normalColourId, juce::Colours::darkolivegreen);
-    auto warningColour = getColourFromLnf (warningColourId, juce::Colours::yellow);
-    m_peakColour       = getColourFromLnf (peakColourId, juce::Colours::red);
 }
 //==============================================================================
 
@@ -189,54 +178,9 @@ void MeterChannel::showHeader (bool headerVisible)
 }
 //==============================================================================
 
-void MeterChannel::enableValue (bool valueEnabled /*= true*/)
-{
-    m_level.enableValue (valueEnabled);
-    if (valueEnabled)
-        m_level.showValue (true);
-    addDirty (m_level.getValueBounds());
-}
-//==============================================================================
-
 void MeterChannel::showValue (bool showValue /*= true*/)
 {
     m_level.showValue (showValue);
-    setDirty();
-}
-//==============================================================================
-
-void MeterChannel::showTickMarksOnTop (bool showTickMarksOnTop)
-{
-    m_tickMarksOnTop = showTickMarksOnTop;
-    addDirty (m_level.getMeterBounds());
-}
-//==============================================================================
-
-void MeterChannel::setTickMarks (const std::vector<float>& ticks)
-{
-    m_level.setTickMarks (ticks);
-    addDirty (m_level.getMeterBounds());
-}
-//==============================================================================
-
-void MeterChannel::showTickMarks (bool showTickMarks)
-{
-    m_level.showTickMarks (showTickMarks);
-    setDirty();
-}
-//==============================================================================
-
-void MeterChannel::enableTickMarks (bool enabled)
-{
-    m_level.enableTickMarks (enabled);
-    setDirty();
-}
-
-//==============================================================================
-
-void MeterChannel::enablePeakHold (bool enablePeakHold /*= true*/)
-{
-    m_level.enablePeakHold (enablePeakHold);
     setDirty();
 }
 //==============================================================================
@@ -328,15 +272,10 @@ void MeterChannel::drawMeter (juce::Graphics& g)
     g.fillRect (m_level.getMeterBounds());
 
     // Draw TICK-marks below the level...
-    if (!m_tickMarksOnTop)
-        m_level.drawTickMarks (g, m_tickColour);
+    m_level.drawTickMarks (g, m_tickColour);
 
     // Draw meter BAR SEGMENTS (normal, warning, peak)...
     m_active ? m_level.drawMeter (g) : m_level.drawInactiveMeter (g, m_textColour.darker (0.7f));
-
-    // Draw TICK-marks on top of the level...
-    if (m_tickMarksOnTop)
-        m_level.drawTickMarks (g, m_tickColour);
 
     // Draw peak hold level VALUE...
     m_level.drawPeakValue (g, m_textValueColour);
@@ -378,7 +317,7 @@ void MeterChannel::refresh (const bool forceRefresh)
     else if (isDirty())
         repaint (m_dirtyRect);
 }
-
+//==============================================================================
 #pragma endregion
 
 
@@ -425,14 +364,14 @@ void MeterChannel::resetPeakHold()
 }
 //==============================================================================
 
-void MeterChannel::setOptions (Options meterOptions)
+void MeterChannel::setOptions (MeterOptions meterOptions)
 {
     m_options = meterOptions;
 
     setVisible (meterOptions.enabled);
     setEnabled (meterOptions.enabled);
 
-    m_level.setOptions (meterOptions);
+    m_level.setMeterOptions (meterOptions);
 
     showTickMarksOnTop (meterOptions.tickMarksOnTop);
     enableHeader (meterOptions.headerEnabled);
@@ -452,9 +391,9 @@ void MeterChannel::setChannelName (const juce::String& channelName)
 }
 //==============================================================================
 
-void MeterChannel::defineSegments (const std::vector<SegmentOptions>& segmentsOptions)
+void MeterChannel::setMeterSegments (const std::vector<SegmentOptions>& segmentsOptions)
 {
-    m_level.defineSegments (segmentsOptions);
+    m_level.setMeterSegments (segmentsOptions);
     setDirty (true);
 }
 //==============================================================================

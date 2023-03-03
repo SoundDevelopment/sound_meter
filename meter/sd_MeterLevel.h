@@ -44,7 +44,7 @@ namespace sd  // NOLINT
 namespace SoundMeter
 {
 
-struct Options;
+struct MeterOptions;
 
 /**
  * @brief Class responsible for anything relating to the 'meter' and peak 'value' parts.
@@ -56,7 +56,7 @@ public:
     /**
      * @brief Constructor.
     */
-    Level() = default;
+    Level();
 
     /**
      * @brief Reset the meter (but not the peak hold).
@@ -94,7 +94,7 @@ public:
      * 
      * @see getMeterLevel, setDecay
     */
-    void refreshMeterLevel ();
+    void refreshMeterLevel();
 
     /**
      * @brief Get the actual meter's level (including ballistics).
@@ -115,71 +115,14 @@ public:
      *
      * @param meterOptions Meter options to use.
     */
-    void setOptions (const Options& meterOptions);
-
+    void setMeterOptions (const MeterOptions& meterOptions);
+  
     /**
-     * @brief Get the meter's refresh (redraw) rate.
-     *
-     * @return The refresh rate of the meter in Hz.
-     *
-     * @see setRefreshRate
-    */
-    [[nodiscard]] float getRefreshRate() const noexcept { return m_options.refreshRate; }
-
-    /**
-     * @brief Sets the meter's refresh rate. 
-     *
-     * Set this to optimize the meter's decay rate.
+     * @brief Use gradients in stead of hard segment boundaries.
      * 
-     * @param refreshRate_hz Refresh rate in Hz.
-     * @see setDecay, getDecay
+     * @param useGradients When set to true, uses smooth gradients. False gives hard segment boundaries.
     */
-    void setRefreshRate (float refreshRate_hz);
-
-    /**
-     * @brief Set meter decay.
-     *
-     * @param decay_ms Meter decay in milliseconds.
-     * 
-     * @see getDecay
-    */
-    void setDecay (float decay_ms);
-
-    /**
-     * @brief Get meter decay.
-     *
-     * @return Meter decay in milliseconds
-     * 
-     * @see setDecay
-    */
-    [[nodiscard]] float getDecay() const noexcept { return m_options.decayTime_ms; }
-
-    /**
-     * @brief Set's the visibility of the peak hold indicator.
-     * 
-     * @param isVisible When true, the peak hold indicator is shown.
-     * 
-     * @see isPeakHoldEnabled, resetPeakHold
-    */
-    void enablePeakHold (bool isVisible) noexcept;
-
-    /**
-     * @brief Set the segments the meter is made out of.
-     *
-     * All segments have a level range, a range within the meter and a colour (or gradient).
-     *
-     * @param segmentsOptions The segments options to create the segments with.
-    */
-    void defineSegments (const std::vector<SegmentOptions>& segmentsOptions);
-
-    /**
-     * @brief Check if the peak hold indicator is visible.
-     *
-     * @return True if the peak hold indicator is visible.
-     *
-     * @see enablePeakHold, resetPeakHold
-    */
-    [[nodiscard]] bool isPeakHoldEnabled() const noexcept;
+    void useGradients (bool useGradients);
 
     /**
      * @brief Enable the peak 'value' part of the meter.
@@ -189,10 +132,43 @@ public:
      * It's the same level as the peak hold bar.
      *
      * @param valueEnabled When set true, the 'value' level (in dB) part below the meter will be enabled.
-     * 
-     * @see isPeakValueVisible, resetPeakHold, setValueVisible
+     * @see enablePeakHold, resetPeakHold, showValue
     */
-    void enableValue (bool valueEnabled) noexcept { m_options.valueEnabled = valueEnabled; }
+    void enableValue (bool valueEnabled = true);
+
+    /**
+     * @brief Enable tick-marks (divider lines) on the meter.
+     *
+     * A tick mark is a horizontal line, dividing the meter. 
+     * This is also the place the label strip will put it's text values.
+     * 
+     * The tick-marks will be shown when they are enable and visible.
+     *
+     * @param tickMarksEnabled When set true, the tick-marks are enabled. 
+     * @see showTickMarks, setTickMarks, showTickMarksOnTop
+    */
+    void showTickMarks (bool tickMarksEnabled);
+
+    /**
+     * @brief Show the tick-marks on top of the level or below it.
+     * 
+     * When below the level, the tick-marks will be obscured if the 
+     * level is loud enough.
+     * 
+     * @param showTickMarksOnTop Show the tick-marks on top of the level.
+   */
+    void showTickMarksOnTop (bool showTickMarksOnTop);
+
+    /**
+     * @brief Set the level of the tick marks. 
+     *
+     * A tick mark is a horizontal line, dividing the meter. 
+     * This is also the place the label strip will put it's text values.
+     *
+     * @param tickMarks List of tick mark values (in decibels).
+     * @see showTickMarks, showTickMarksOnTop, showTickMarks
+    */
+    void setTickMarks (const std::vector<float>& tickMarks);
 
     /**
      * @brief Show the peak 'value' part of the meter.
@@ -216,7 +192,15 @@ public:
      *
      * @see showValue, resetPeakHold
     */
-    [[nodiscard]] bool isPeakValueVisible() const noexcept { return m_valueVisible && m_options.valueEnabled; }
+    [[nodiscard]] bool isPeakValueVisible() const noexcept { return m_valueVisible && m_meterOptions.valueEnabled; }
+
+    /**
+     * @brief Enable (or disable) the peak hold indicator.
+     *
+     * @param enablePeakHold When set true, the peak hold indicator will be shown.
+     * @see showPeakValue, resetPeakHold
+    */
+    void enablePeakHold (bool enablePeakHold);
 
     /**
      * @brief Reset the peak hold level.
@@ -230,6 +214,62 @@ public:
      * @see resetPeakHold, isPeakValueVisible, setPeakValueVisible, setPeakHoldVisible, isPeakHoldEnabled
     */
     [[nodiscard]] float getPeakHoldLevel() const noexcept;
+
+    /**
+     * @brief Set the meter in 'minimal' mode.
+     * 
+     * In minimal mode, the meter is in it's cleanest state possible.
+     * This means no header, no tick-marks, no value, no faders and no indicator.
+     * 
+     * @param minimalMode When set to true, 'minimal' mode will be enabled.
+     * @see isMinimalModeActive, autoSetMinimalMode
+    */
+    void setMinimalMode (bool minimalMode);
+
+    /**
+     * @brief Sets the meter's refresh rate. 
+     *
+     * Set this to optimize the meter's decay rate.
+     * 
+     * @param refreshRate_hz Refresh rate in Hz.
+     * @see refresh, setDecay, getDecay
+    */
+    void setRefreshRate (float refreshRate_hz);
+
+    /**
+     * @brief Get the meter's refresh (redraw) rate.
+     *
+     * @return The refresh rate of the meter in Hz.
+     *
+     * @see setRefreshRate
+    */
+    [[nodiscard]] float getRefreshRate() const noexcept { return m_meterOptions.refreshRate; }
+
+    /**
+     * @brief Set meter decay.
+     *
+     * @param decay_ms Meter decay in milliseconds.
+     * @see getDecay, setRefreshRate
+    */
+    void setDecay (float decay_ms);
+
+    /**
+     * @brief Get meter decay.
+     *
+     * @return Meter decay in milliseconds
+     * 
+     * @see setDecay
+    */
+    [[nodiscard]] float getDecay() const noexcept { return m_meterOptions.decayTime_ms; }
+
+    /**
+     * @brief Set the segments the meter is made out of.
+     *
+     * All segments have a level range, a range within the meter and a colour (or gradient).
+     *
+     * @param segmentsOptions The segments options to create the segments with.
+    */
+    void setMeterSegments (const std::vector<SegmentOptions>& segmentsOptions);
 
     /**
      * @brief Set the bounds of the 'value' part of the meter.
@@ -352,49 +392,12 @@ public:
         float decibels = 0;  ///< Value of the tick mark (in dB).
     };
 
-    /**
-     * @brief Set the level of the tick marks. 
-     *
-     * A tick mark is a horizontal line, dividing the meter. 
-     * This is also the place the label strip will put it's text values.
-     *
-     * @param ticks list of tick mark values (in amp).
-     * @see setTickMarksVisible, enableTickMarks
-    */
-    void setTickMarks (const std::vector<float>& ticks);
-
-    /**
-     * @brief Show tick-marks (divider lines) on the meter.
-     *
-     * A tick mark is a horizontal line, dividing the meter. 
-     * This is also the place the label strip will put it's text values.
-     *
-     * @param visible When set true, shows the tick-marks. 
-     * @see setTickMarks, enableTickMarks
-    */
-    void showTickMarks (bool visible) noexcept { m_tickMarksVisible = visible; }
-
-    /**
-     * @brief Enable tick-marks (divider lines) on the meter.
-     *
-     * A tick mark is a horizontal line, dividing the meter. 
-     * This is also the place the label strip will put it's text values.
-     * 
-     * The tick-marks will be shown when they are enable and visible.
-     *
-     * @param enabled When set true, the tick-marks are enabled. 
-     * @see setTickMarks, showTickMarks
-    */
-    void enableTickMarks (bool enabled) noexcept { m_options.tickMarksEnabled = enabled; }
-
-    /**
-     * @brief Use gradients in stead of hard segment boundaries.
-     * @param gradientsUsed When set to true, smooth gradients will be used. False gives hard segment boundaries.
-    */
-    void useGradients (bool gradientsUsed) noexcept;
-
 private:
-    Options              m_options;
+    MeterOptions                m_meterOptions;
+    std::vector<SegmentOptions> m_segmentOptions = { { { -60.0f, -20.0f }, { 0.0f, 0.5f }, juce::Colours::green },   // NOLINT
+                                                     { { -20.0f, -6.0f }, { 0.5f, 0.75f }, juce::Colours::yellow },  // NOLINT
+                                                     { { -6.0f, 0.0f }, { 0.75f, 1.0f }, juce::Colours::red } };     // NOLINT
+
     std::vector<Segment> m_segments {};  // List of meter segments.
     float                m_minLevel_db { Constants::kMaxLevel_db };
 
@@ -408,17 +411,18 @@ private:
 
     std::vector<Tick> m_tickMarks {};  // List of user definable tick marks (in db).
 
-    bool        m_tickMarksVisible    = true;
-    bool        m_peakHoldDirty       = false;
-    bool        m_valueVisible        = false;
-    bool        m_mouseOverValue      = false;
-    float       m_decayCoeff          = 0.0f;
-    float       m_refreshPeriod_ms    = (1.0f / m_options.refreshRate) * 1000.0f;  // NOLINT
-    int         m_previousRefreshTime = 0;
+   // bool  m_tickMarksVisible    = true;
+    bool  m_peakHoldDirty       = false;
+    bool  m_mouseOverValue      = false;
+    bool  m_minimalModeActive   = false;
+    float m_decayCoeff          = 0.0f;
+    float m_refreshPeriod_ms    = (1.0f / m_meterOptions.refreshRate) * 1000.0f;  // NOLINT
+    int   m_previousRefreshTime = 0;
 
     //==============================================================================
     [[nodiscard]] float getDecayedLevel (float newLevel_db);
-    void                calculateDecayCoeff();
+    void                calculateDecayCoeff (const MeterOptions& meterOptions);
+    void                synchronizeMeterOptions();
 
     // clang-format on
     JUCE_LEAK_DETECTOR (Level)
