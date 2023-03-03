@@ -84,23 +84,6 @@ void Level::drawInactiveMeter (juce::Graphics& g, const juce::Colour& textColour
 }
 //==============================================================================
 
-void Level::drawLabels (juce::Graphics& g, const juce::Colour& textColour) const
-{
-    g.setColour (textColour);
-    const float fontsize = juce::jlimit (1.0f, 15.0f, m_meterBounds.getHeight() / 4.0f);  // Set font size proportionally. NOLINT
-    g.setFont (fontsize);
-
-    for (const auto& tick: m_tickMarks)
-    {
-        const juce::Rectangle<int> labelrect (m_meterBounds.getX(),
-                                              m_meterBounds.getY() + static_cast<int> (round ((m_meterBounds.getHeight() * (1.0f - tick.gain)) - (fontsize / 2.0f))),  // NOLINT
-                                              m_meterBounds.getWidth(), static_cast<int> (fontsize));
-
-        g.drawFittedText (juce::String (std::abs (tick.decibels)), labelrect.reduced (Constants::kLabelStripTextPadding, 0), juce::Justification::topLeft, 1);
-    }
-}
-//==============================================================================
-
 float Level::getInputLevel()
 {
     m_inputLevelRead.store (true);
@@ -300,6 +283,9 @@ float Level::getPeakHoldLevel() const noexcept
 
 void Level::setMeterBounds (const juce::Rectangle<int>& bounds)
 {
+    if (bounds == m_meterBounds)
+        return;
+
     m_meterBounds = bounds;
     m_levelBounds = m_meterBounds;
 
@@ -311,6 +297,8 @@ void Level::setMeterBounds (const juce::Rectangle<int>& bounds)
 
     for (auto& segment: m_segments)
         segment.setMeterBounds (m_levelBounds);
+
+    m_peakHoldDirty = true;
 }
 //==============================================================================
 

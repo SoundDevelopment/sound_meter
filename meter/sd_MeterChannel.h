@@ -170,7 +170,7 @@ public:
      *
      * @param isLabelStrip when set, this meter behave like a label strip.
     */
-    void setIsLabelStrip (bool isLabelStrip = false) noexcept { m_isLabelStrip = isLabelStrip; }
+    void setIsLabelStrip (bool isLabelStrip = false) noexcept;
 
     /**
      * @brief Set the segments the meter is made out of.
@@ -396,7 +396,7 @@ public:
      * 
      * @see setMinimalMode, isMinimalModeActive
     */
-    [[nodiscard]] bool autoSetMinimalMode (int proposedWidth, int proposedHeight);
+    bool autoSetMinimalMode (int proposedWidth, int proposedHeight);
 
     /**
      * @brief Use gradients in stead of hard segment boundaries.

@@ -216,7 +216,6 @@ void MeterChannel::resized()
     //    }
     //}
 
-    autoSetMinimalMode (meterBounds.getWidth(), meterBounds.getHeight());
     m_level.setMeterBounds (meterBounds);
 
 #if SDTK_ENABLE_FADER
@@ -241,22 +240,22 @@ void MeterChannel::paint (juce::Graphics& g)
 #endif
 
     // Draw the LABEL STRIP ...
-    if (m_isLabelStrip)
-    {
-        // If not active, fill an inactive background.
-        if (!m_active)
-        {
-            g.setColour (m_inactiveColour);
-            g.fillRect (m_level.getMeterBounds());
-        }
+    //if (m_isLabelStrip)
+    //{
+    //    // If not active, fill an inactive background.
+    //    if (!m_active)
+    //    {
+    //        g.setColour (m_inactiveColour);
+    //        g.fillRect (m_level.getMeterBounds());
+    //    }
 
-        m_level.drawLabels (g, m_textColour);
-    }
-    // ... otherwise draw the METER ...
-    else
-    {
+    //    m_level.drawLabels (g, m_textColour);
+    //}
+    //// ... otherwise draw the METER ...
+    //else
+    //{
         drawMeter (g);
-    }
+    //}
 
 #if SDTK_ENABLE_FADER
     m_fader.draw (g, juce::Colour (m_faderColour));  // Draw FADER....
@@ -392,6 +391,13 @@ void MeterChannel::setChannelName (const juce::String& channelName)
 {
     m_header.setName (channelName);
     addDirty (m_header.getBounds());
+}
+//==============================================================================
+
+void MeterChannel::setIsLabelStrip (bool isLabelStrip) noexcept
+{
+    m_isLabelStrip = isLabelStrip;
+    m_level.setIsLabelStrip (isLabelStrip);
 }
 //==============================================================================
 
