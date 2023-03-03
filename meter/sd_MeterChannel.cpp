@@ -165,18 +165,11 @@ void MeterChannel::setColours()
 }
 //==============================================================================
 
-void MeterChannel::enableHeader (bool headerEnabled)
+void MeterChannel::showHeader (bool showHeader)
 {
-    m_header.setEnabled (headerEnabled);
-    if (headerEnabled)
+    m_header.setEnabled (showHeader);
+    if (showHeader)
         m_header.setVisible (true);
-    addDirty (m_header.getBounds());
-}
-//==============================================================================
-
-void MeterChannel::showHeader (bool headerVisible)
-{
-    m_header.setVisible (headerVisible);
     addDirty (m_header.getBounds());
 }
 //==============================================================================
@@ -377,7 +370,7 @@ void MeterChannel::setOptions (const MeterOptions& meterOptions)
     m_level.setMeterOptions (meterOptions);
 
     showTickMarksOnTop (meterOptions.tickMarksOnTop);
-    enableHeader (meterOptions.headerEnabled);
+    showHeader (meterOptions.headerEnabled);
 
 #if SDTK_ENABLE_FADER
     enableFader (meterOptions.faderEnabled);

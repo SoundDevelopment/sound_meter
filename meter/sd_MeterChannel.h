@@ -217,21 +217,9 @@ public:
      * It also doubles as a mute button for the specific channel.
      * 
      * @param headerVisible When set to true, the 'header' part will be visible.
-     * @see enableHeader
-    */
-    void showHeader (bool headerVisible);
-
-    /**
-     * @brief Enable the 'header' part of the meter.
-     * 
-     * The 'header' part is the part above the meter displaying
-     * the channel name (when set) or the channel type.
-     * It also doubles as a mute button for the specific channel.
-     * 
-     * @param headerEnabled When set to true, the header part will be enabled.
      * @see showHeader
     */
-    void enableHeader (bool headerEnabled);
+    void showHeader (bool headerVisible);
 
     /**
      * @brief Set the meter font. 
