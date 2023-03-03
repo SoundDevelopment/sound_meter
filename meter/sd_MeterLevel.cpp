@@ -52,31 +52,12 @@ void Level::drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColou
 
     // Draw PEAK value...
     const auto peak_db = getPeakHoldLevel();
-    if (m_valueBounds.getHeight() == Constants::kDefaultHeaderHeight && peak_db > Constants::kMinLevel_db)  // If active, present and enough space is available.
+    if (peak_db > m_minLevel_db)  // If active, present and enough space is available.
     {
         const int precision = peak_db <= -10.0f ? 1 : 2;  // Set precision depending on peak value. NOLINT
         g.setColour (textValueColour);
         g.drawFittedText (juce::String (peak_db, precision), m_valueBounds, juce::Justification::centred, 1);
     }
-}
-//==============================================================================
-
-juce::Rectangle<int> Level::getDirtyBounds()
-{
-    juce::Rectangle<int> dirtyBounds {};
-    for (const auto& segment: m_segments)
-    {
-        if (segment.isDirty())
-            dirtyBounds = dirtyBounds.getUnion (segment.getSegmentBounds());
-    }
-
-    if (m_peakHoldDirty)
-    {
-        dirtyBounds     = dirtyBounds.getUnion (m_valueBounds);
-        m_peakHoldDirty = false;
-    }
-
-    return dirtyBounds;
 }
 //==============================================================================
 
@@ -90,7 +71,7 @@ void Level::drawMeter (juce::Graphics& g)
 void Level::drawInactiveMeter (juce::Graphics& g, const juce::Colour& textColour) const
 {
     // Check if there is space enough to write the 'MUTE' text...
-    if (m_meterBounds.getWidth() < (g.getCurrentFont().getHeight()))
+    if (static_cast<float> (m_meterBounds.getWidth()) < (g.getCurrentFont().getHeight()))
         return;
 
     g.saveState();
@@ -160,7 +141,11 @@ void Level::synchronizeMeterOptions()
 {
     setMinimalMode (m_minimalModeActive);
     for (auto& segment: m_segments)
+    {
         segment.setMeterOptions (m_meterOptions);
+        segment.setIsLabelStrip (m_isLabelStrip);
+        segment.setMinimalMode (m_minimalModeActive);
+    }
 }
 
 //==============================================================================
@@ -173,6 +158,15 @@ void Level::setMeterSegments (const std::vector<SegmentOptions>& segmentsOptions
         m_segments.emplace_back (m_meterOptions, segmentOptions);
         m_minLevel_db = std::min (m_minLevel_db, segmentOptions.levelRange.getStart());
     }
+
+    synchronizeMeterOptions();
+}
+//==============================================================================
+
+void Level::setIsLabelStrip (bool isLabelStrip) noexcept
+{
+    m_isLabelStrip = isLabelStrip;
+    synchronizeMeterOptions();
 }
 //==============================================================================
 
@@ -221,12 +215,14 @@ void Level::showValue (bool isVisible) noexcept
 
 void Level::setMinimalMode (bool minimalMode)
 {
+    if (m_minimalModeActive == minimalMode)
+        return;
+
     m_minimalModeActive = minimalMode;
 
     setMeterBounds (m_meterBounds);
 
-    for (auto& segment: m_segments)
-        segment.setMinimalMode (minimalMode);
+    synchronizeMeterOptions();
 }
 //==============================================================================
 
@@ -304,17 +300,36 @@ float Level::getPeakHoldLevel() const noexcept
 
 void Level::setMeterBounds (const juce::Rectangle<int>& bounds)
 {
-    m_meterBounds    = bounds;
-    auto levelBounds = bounds;
+    m_meterBounds = bounds;
+    m_levelBounds = m_meterBounds;
 
     // If the meter is in minimal mode, the value is not displayed...
     if (m_meterOptions.valueEnabled && !m_minimalModeActive)
-        m_valueBounds = levelBounds.removeFromBottom (Constants::kDefaultHeaderHeight);
+        m_valueBounds = m_levelBounds.removeFromBottom (Constants::kDefaultHeaderHeight);
     else
         m_valueBounds = juce::Rectangle<int>();
 
     for (auto& segment: m_segments)
-        segment.setMeterBounds (levelBounds);
+        segment.setMeterBounds (m_levelBounds);
+}
+//==============================================================================
+
+juce::Rectangle<int> Level::getDirtyBounds()
+{
+    juce::Rectangle<int> dirtyBounds {};
+    for (const auto& segment: m_segments)
+    {
+        if (segment.isDirty())
+            dirtyBounds = dirtyBounds.getUnion (segment.getSegmentBounds());
+    }
+
+    if (m_peakHoldDirty)
+    {
+        dirtyBounds     = dirtyBounds.getUnion (m_valueBounds);
+        m_peakHoldDirty = false;
+    }
+
+    return dirtyBounds;
 }
 //==============================================================================
 

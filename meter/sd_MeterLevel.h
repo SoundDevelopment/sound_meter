@@ -116,7 +116,7 @@ public:
      * @param meterOptions Meter options to use.
     */
     void setMeterOptions (const MeterOptions& meterOptions);
-  
+
     /**
      * @brief Use gradients in stead of hard segment boundaries.
      * 
@@ -260,37 +260,49 @@ public:
     void setMeterSegments (const std::vector<SegmentOptions>& segmentsOptions);
 
     /**
-     * @brief Set the bounds of the 'value' part of the meter.
-     * 
-     * @param bounds The bounds to use for the 'value' part of the meter.
-     * 
-     * @see getValueBounds, setMeterBounds, getMeterBounds
-    */
-    void setValueBounds (const juce::Rectangle<int>& bounds) noexcept { m_valueBounds = bounds; }
-
-    /**
-     * @brief Get the bounds of the 'value' part of the meter.
+     * @brief Set whether this meter is a label strip. 
      *
-     * @return The bounds of the 'value' part of the meter.
-     * @see setMeterBounds, setValueBounds, getMeterBounds
+     * A label strip only draws the value labels (at the tick-marks),
+     * but does not display any level.
+     *
+     * @param isLabelStrip when set, this meter behave like a label strip.
     */
-    [[nodiscard]] juce::Rectangle<int> getValueBounds() const noexcept { return m_valueBounds; }
+    void setIsLabelStrip (bool isLabelStrip = false) noexcept;
 
     /**
      * @brief Set the bounds of the 'meter' part of the meter.
      * 
      * @param bounds The bounds to use for the 'meter' part of the meter.
-     * @see getValueBounds, setValueBounds, getMeterBounds
+     * @see getValueBounds, setValueBounds, getMeterBounds, getDirtyBounds, getLevelBounds
     */
     void setMeterBounds (const juce::Rectangle<int>& bounds);
+
+    /**
+     * @brief Get the bounds of the 'value' part of the meter.
+     *
+     * @return The bounds of the 'value' part of the meter.
+     * @see setMeterBounds, setValueBounds, getMeterBounds, getDirtyBounds, getLevelBounds
+    */
+    [[nodiscard]] juce::Rectangle<int> getValueBounds() const noexcept { return m_valueBounds; }
 
     /**
      * @brief Get the bounds of the 'meter' part.
      *
      * @return The bounds of the 'meter' part.
-     * @see getValueBounds, setValueBounds, setMeterBounds
+     * @see getValueBounds, setValueBounds, setMeterBounds, getDirtyBounds, getLevelBounds
     */
     [[nodiscard]] juce::Rectangle<int> getMeterBounds() const noexcept { return m_meterBounds; }
+
+    /**
+     * @brief Get the bounds of the 'level' part.
+     *
+     * @return The bounds of the 'level' part.
+     * @see getValueBounds, setValueBounds, setMeterBounds, getDirtyBounds, getMeterBounds
+    */
+    [[nodiscard]] juce::Rectangle<int> getLevelBounds() const noexcept { return m_levelBounds; }
+
+    /** @brief Get the dirty part of the meter.*/
+    [[nodiscard]] juce::Rectangle<int> getDirtyBounds();
 
     /**
      * @brief Check if the mouse cursor is over the 'value' part of the meter.
@@ -311,9 +323,6 @@ public:
      * @brief Reset 'mouse over' status of the 'value' part of the meter.
     */
     void resetMouseOverValue() noexcept { m_mouseOverValue = false; }
-
-    /** @brief Get the dirty part of the meter.*/
-    [[nodiscard]] juce::Rectangle<int> getDirtyBounds();
 
     /**
      * @brief Draws the meter.
@@ -385,14 +394,16 @@ private:
     float              m_meterLevel_db { Constants::kMinLevel_db };  // Current meter level.
 
     juce::Rectangle<int> m_valueBounds;  // Bounds of the value area.
-    juce::Rectangle<int> m_meterBounds;  // Bounds of the meter area.
+    juce::Rectangle<int> m_meterBounds;  // Bounds of the meter area.   
+    juce::Rectangle<int> m_levelBounds;  // Bounds of the level area.
 
     std::vector<Tick> m_tickMarks {};  // List of user definable tick marks (in db).
 
-   // bool  m_tickMarksVisible    = true;
+    // bool  m_tickMarksVisible    = true;
     bool  m_peakHoldDirty       = false;
     bool  m_mouseOverValue      = false;
     bool  m_minimalModeActive   = false;
+    bool  m_isLabelStrip        = false;
     float m_decayCoeff          = 0.0f;
     float m_refreshPeriod_ms    = (1.0f / m_meterOptions.refreshRate) * 1000.0f;  // NOLINT
     int   m_previousRefreshTime = 0;

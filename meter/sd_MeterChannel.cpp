@@ -1,4 +1,3 @@
-#include "sd_MeterChannel.h"
 /*
     ==============================================================================
     
@@ -31,21 +30,25 @@
     ==============================================================================
 */
 
+#include "sd_MeterChannel.h"
 
-namespace sd
+namespace sd  // NOLINT
 {
 namespace SoundMeter
 {
 
 MeterChannel::MeterChannel()
+  : juce::Component()  // NOLINT
 #if SDTK_ENABLE_FADER
-  : m_fader (this)
+    ,
+    m_fader (this)
 #endif
 {
 }
 //==============================================================================
 
-MeterChannel::MeterChannel (MeterOptions meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip /*= false*/, ChannelType channelType /*= ChannelType::unknown*/)
+MeterChannel::MeterChannel (const MeterOptions& meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip /*= false*/,
+                            ChannelType channelType /*= ChannelType::unknown*/)
   : MeterChannel()
 {
     setName (channelName);
@@ -91,7 +94,7 @@ void MeterChannel::notifyParent()
 #endif /* SDTK_ENABLE_FADER */
 
 
-[[nodiscard]] juce::Colour MeterChannel::getColourFromLnf (int colourId, const juce::Colour& fallbackColour) const
+juce::Colour MeterChannel::getColourFromLnf (int colourId, const juce::Colour& fallbackColour) const
 {
     if (isColourSpecified (colourId))
         return findColour (colourId);
@@ -102,9 +105,9 @@ void MeterChannel::notifyParent()
 }
 //==============================================================================
 
-[[nodiscard]] bool MeterChannel::autoSetMinimalMode (int proposedWidth, int proposedHeight)
+bool MeterChannel::autoSetMinimalMode (int proposedWidth, int proposedHeight)
 {
-    bool minimalMode = !nameFits ("Lfe", proposedWidth);
+    bool minimalMode = !nameFits ("-99.99", proposedWidth);
     if (proposedWidth < Constants::kMinModeWidthThreshold)
         minimalMode = true;
     if (proposedHeight < Constants::kMinModeHeightThreshold)
@@ -124,7 +127,7 @@ void MeterChannel::notifyParent()
 
 void MeterChannel::setMinimalMode (bool minimalMode)
 {
-    if (!m_options.useMinimalMode)
+    if (!m_meterOptions.useMinimalMode)
         return;
 
     m_minimalMode = minimalMode;
@@ -196,29 +199,29 @@ void MeterChannel::resized()
 {
     auto meterBounds = SoundMeter::Helpers::applyPadding (getLocalBounds(), m_padding);
 
-    m_level.setValueBounds (m_level.getValueBounds().withHeight (0));  // Set value height to a default of 0.
-    m_header.setBounds (m_header.getBounds().withHeight (0));          // Set header height to a default of 0.
-
-    // channel IDs.
+    // Meter header...
+    m_header.setBounds (meterBounds.withHeight (0));
     if (m_header.isVisible())
         m_header.setBounds (meterBounds.removeFromTop (Constants::kDefaultHeaderHeight));
 
     // Resize channel name and value...
-    if (!m_isLabelStrip)  // Label strips do not have channel names or peak values.
-    {
-        if (auto* font = m_header.getFont())
-        {
-            // Draw peak value.
-            const bool wideEnoughForValue = font->getStringWidth ("-99.99") <= meterBounds.getWidth();
-            if (m_level.isPeakValueVisible() && wideEnoughForValue)
-                m_level.setValueBounds (meterBounds.removeFromBottom (Constants::kDefaultHeaderHeight));
-        }
-    }
+    //if (!m_isLabelStrip)  // Label strips do not have channel names or peak values.
+    //{
+    //    if (auto* font = m_header.getFont())
+    //    {
+    //        // Draw peak value.
+    //        const bool wideEnoughForValue = font->getStringWidth ("-99.99") <= meterBounds.getWidth();
+    //        if (m_level.isPeakValueVisible() && wideEnoughForValue)
+    //            m_level.setValueBounds (meterBounds.removeFromBottom (Constants::kDefaultHeaderHeight));
+    //    }
+    //}
+
+    autoSetMinimalMode (meterBounds.getWidth(), meterBounds.getHeight());
+    m_level.setMeterBounds (meterBounds);
 
 #if SDTK_ENABLE_FADER
-    m_fader.setBounds (meterBounds);
+    m_fader.setBounds (m_level.getLevelBounds());
 #endif
-    m_level.setMeterBounds (meterBounds);
 }
 //==============================================================================
 
@@ -297,6 +300,10 @@ void MeterChannel::setDirty (bool isDirty /*= true*/)
 
 void MeterChannel::refresh (const bool forceRefresh)
 {
+    if (getBounds().isEmpty())
+        return;
+
+
     if (m_active)
     {
         m_level.refreshMeterLevel();
@@ -361,9 +368,9 @@ void MeterChannel::resetPeakHold()
 }
 //==============================================================================
 
-void MeterChannel::setOptions (MeterOptions meterOptions)
+void MeterChannel::setOptions (const MeterOptions& meterOptions)
 {
-    m_options = meterOptions;
+    m_meterOptions = meterOptions;
 
     setVisible (meterOptions.enabled);
     setEnabled (meterOptions.enabled);
@@ -442,7 +449,7 @@ void MeterChannel::enableFader (bool faderEnabled /*= true*/)
 void MeterChannel::mouseDown (const juce::MouseEvent& event)
 {
     // Left mouse button down and fader is active...
-    if (event.mods == juce::ModifierKeys::leftButtonModifier && m_fader.isEnabled())
+    if (event.mods.isLeftButtonDown() && m_fader.isEnabled())
     {
         // Clicked on the METER part...
         if (!m_header.isMouseOver (event.y) && !m_level.isMouseOverValue (event.y) && m_fader.isVisible())
@@ -455,9 +462,7 @@ void MeterChannel::mouseDown (const juce::MouseEvent& event)
 
         // Clicked on the HEADER part...
         if (m_header.isMouseOver (event.y))
-        {
             setActive (!isActive(), NotificationOptions::notify);
-        }
     }
 }
 
