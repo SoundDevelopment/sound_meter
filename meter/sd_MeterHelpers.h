@@ -1,6 +1,6 @@
 /*
     ==============================================================================
-    
+
     This file is part of the sound_meter JUCE module
     Copyright (c) 2019 - 2021 Sound Development - Marcel Huibers
     All rights reserved.
@@ -30,46 +30,42 @@
     ==============================================================================
 */
 
-
 #pragma once
 
 #include <juce_core/juce_core.h>
 #include <juce_graphics/juce_graphics.h>
 
-
 namespace sd  // NOLINT
 {
 namespace SoundMeter
 {
-
-
 /**
  * @brief Various meter helper constants.
 */
 namespace Constants
 {
-static constexpr auto kMinWidth                = 2;        ///< Minimum meter width (in pixels).
-static constexpr auto kMaxWidth                = 500;      ///< Maximum meter width (in pixels).
-static constexpr auto kPeakHoldHeight          = 2;        ///< Height of the peak hold strip (in pixels).
-static constexpr auto kDefaultHeaderHeight     = 25;       ///< Default height of the 'header' part (in pixels).
-static constexpr auto kDefaultHeaderLabelWidth = 30;       ///< Default 'header' label width (in pixels).
-static constexpr auto kDefaultHeaderFontHeight = 12.0f;    ///< Default height of the font used in the 'header' part (in pixels).
-static constexpr auto kLabelStripTextPadding   = 2;        ///< Padding around the text in a label strip (in pixels).
-static constexpr auto kLabelStripLeftPadding   = 5;        ///< Padding (in pixels) on the left side of the label strip (which can double as a master fader).
-static constexpr auto kFaderRightPadding       = 1;        ///< Padding (in pixels) on the right side of the channel faders.
+static constexpr auto kMinWidth                = 2;      ///< Minimum meter width (in pixels). NOLINT
+static constexpr auto kMaxWidth                = 500;    ///< Maximum meter width (in pixels). NOLINT
+static constexpr auto kPeakHoldHeight          = 2;      ///< Height of the peak hold strip (in pixels). NOLINT
+static constexpr auto kDefaultHeaderHeight     = 25;     ///< Default height of the 'header' part (in pixels). NOLINT
+static constexpr auto kDefaultHeaderLabelWidth = 30;     ///< Default 'header' label width (in pixels). NOLINT
+static constexpr auto kDefaultHeaderFontHeight = 14.0f;  ///< Default height of the font used in the 'header' part (in pixels). NOLINT
+static constexpr auto kLabelStripTextPadding   = 2;      ///< Padding around the text in a label strip (in pixels). NOLINT
+static constexpr auto kLabelStripLeftPadding   = 5;  ///< Padding (in pixels) on the left side of the label strip (which can double as a master fader). NOLINT
+static constexpr auto kFaderRightPadding       = 1;  ///< Padding (in pixels) on the right side of the channel faders. NOLINT
 static constexpr auto kMaxLevel_db             = 0.0f;     ///< Maximum meter level (in db).
 static constexpr auto kMinLevel_db             = -96.0f;   ///< Minimum meter level (in db).
-static constexpr auto kMinDecay_ms             = 100.0f;   ///< Minimum meter decay speed (in milliseconds).
-static constexpr auto kMaxDecay_ms             = 4000.0f;  ///< Maximum meter decay speed (in milliseconds).
+static constexpr auto kMinDecay_ms             = 100.0f;   ///< Minimum meter decay speed (in milliseconds). NOLINT
+static constexpr auto kMaxDecay_ms             = 4000.0f;  ///< Maximum meter decay speed (in milliseconds). NOLINT
 static constexpr auto kDefaultDecay_ms         = 1000.0f;  ///< Default meter decay speed (in milliseconds).
-static constexpr auto kTickMarkHeight          = 2;        ///< Height of a tick mark (in pixels).
-static constexpr auto kFaderFadeTime_ms        = 2500;     ///< Fader fade out time (in milliseconds).
-static constexpr auto kFaderSensitivity        = 10.0f;    ///< Fader sensitivity value. Must be a positive value > 0.
-static constexpr auto kFaderAlphaMax           = 0.3f;     ///< Maximum transparency (alpha) of the fader overlay.
-static constexpr auto kMinModeHeightThreshold = 150;  ///< Meter minimum mode height threshold in pixels (min. mod is just the meter. not value, ticks or fader).
-static constexpr auto kMinModeWidthThreshold = 15;    ///< Meter minimum mode width threshold in pixels (min. mod is just the meter. not value, ticks or fader).
-static constexpr auto kMetersPanelId         = "meters_panel";  ///< ID (name) of all components in the meters panel.
-static constexpr auto kLabelStripId          = "label_strip";   ///< ID (name) of the label-strip (master fader).
+static constexpr auto kTickMarkHeight          = 2;        ///< Height of a tick mark (in pixels). NOLINT
+static constexpr auto kFaderFadeTime_ms        = 2500;     ///< Fader fade out time (in milliseconds). NOLINT
+static constexpr auto kFaderSensitivity        = 10.0f;    ///< Fader sensitivity value. Must be a positive value > 0. NOLINT
+static constexpr auto kFaderAlphaMax           = 0.3f;     ///< Maximum transparency (alpha) of the fader overlay.  NOLINT
+static constexpr auto kMinModeHeightThreshold = 150;  ///< Meter minimum mode height threshold in pixels (min. mod is just the meter. not value, ticks or fader). NOLINT
+static constexpr auto kMinModeWidthThreshold = 15;  ///< Meter minimum mode width threshold in pixels (min. mod is just the meter. not value, ticks or fader). NOLINT
+static constexpr auto kMetersPanelId = "meters_panel";  ///< ID (name) of all components in the meters panel. NOLINT
+static constexpr auto kLabelStripId  = "label_strip";   ///< ID (name) of the label-strip (master fader). NOLINT
 }  // namespace Constants
 
 /**
@@ -107,7 +103,7 @@ struct SegmentOptions
 struct MeterOptions
 {
     bool  enabled          = true;  ///< Enable the meter.
-    bool  showHeader    = true;  ///< Enable the 'header' part of the meter.
+    bool  showHeader       = true;  ///< Enable the 'header' part of the meter.
     bool  valueEnabled     = true;  ///< Enable the 'value' part of the meter.
     bool  faderEnabled     = true;  ///< Enable the fader (overlay-ed over the meter). Only works if fader have been enabled in the module.
     bool  useMinimalMode   = true;  ///< Automatically adapt the meter to use the most of the space available (by hiding header, value, tick-marks, etc...).
@@ -136,7 +132,6 @@ public:
 private:
     MeterScales() = default;
 };
-
 
 /**
  * @brief Type indicating whether to notify the listeners or not.
@@ -169,10 +164,7 @@ namespace Helpers
  * @param paddingToApply The padding to apply (left, right, top, bottom).
  * @return The padded rectangle.
 */
-[[nodiscard]] juce::Rectangle<int> applyPadding (const juce::Rectangle<int>& rectToPad, Padding paddingToApply);
-
+[[nodiscard]] juce::Rectangle<int> applyPadding (const juce::Rectangle<int>& rectToPad, Padding paddingToApply) noexcept;
 }  // namespace Helpers
-
 }  // namespace SoundMeter
-
 }  // namespace sd

@@ -52,13 +52,13 @@ namespace SoundMeter
  * The 'header' also doubles as a button which can de-activate (mute) or 
  * activate the meter.
 */
-class Header
+class Header final
 {
 public:
     /**
     * @brief Default constructor
     */
-    Header() = default;
+    explicit Header (juce::Font& font) noexcept : Header ({}, juce::AudioChannelSet::unknown, font) { }
 
     /**
     * @brief Parameterized constructor.
@@ -66,7 +66,9 @@ public:
     * @param name Channel name to display in the header.
     * @param type Channel type to display in the header.
     */
-    Header (juce::String name, const juce::AudioChannelSet::ChannelType& type) : m_name (std::move (name)), m_type (type) { }
+    Header (juce::String name, const juce::AudioChannelSet::ChannelType& type, juce::Font& font) noexcept : m_font (font), m_name (std::move (name)), m_type (type)
+    {
+    }
 
     /**
     * @brief Set the channel type.
@@ -88,7 +90,7 @@ public:
      * 
      * @see setType
     */
-    [[nodiscard]] const juce::AudioChannelSet::ChannelType& getType() const noexcept;
+    [[nodiscard]] const juce::AudioChannelSet::ChannelType& getType() const noexcept { return m_type; }
 
     /**
      * @brief Set the channel name.
@@ -110,7 +112,7 @@ public:
      * 
      * @see setName
     */
-    [[nodiscard]] juce::String getName() const noexcept;
+    [[nodiscard]] juce::String getName() const noexcept { return m_name; }
 
     /**
     * @brief Get the width (in pixels) of the channel name.
@@ -118,7 +120,7 @@ public:
     * @return The width (in pixels) taken by the channel name.
     * @see getTypeWidth, textFits
     */
-    [[nodiscard]] float getNameWidth() const noexcept;
+    [[nodiscard]] float getNameWidth() const noexcept { return m_nameWidth; }
 
     /**
      * @brief Get the width (in pixels) of the channel description.
@@ -126,7 +128,7 @@ public:
      * @return The width (in pixels) taken by the channel description.
      * @see getNameWdith, textFits
     */
-    [[nodiscard]] float getTypeWidth() const noexcept;
+    [[nodiscard]] float getTypeWidth() const noexcept { return m_typeWidth; }
 
     /**
      * @brief Get the info text displayed in the 'header'
@@ -139,7 +141,7 @@ public:
      * 
      * @see getName, getType
     */
-    [[nodiscard]] juce::String getInfo() const;
+    [[nodiscard]] juce::String getInfo() const noexcept;
 
     /**
      * @brief Check whether a certain text will fit the width available using the meter's specified font.
@@ -159,7 +161,7 @@ public:
     * @param font The font to use.
     * @see getFont
     */
-    void setFont (juce::Font font);
+    void setFont (const juce::Font& font);
 
     /**
     * @brief Set the bounds of the 'header' part of the meter.
@@ -167,7 +169,7 @@ public:
     * @param bounds The bounds to use for the 'header' part of the meter.
     * @see getBounds
    */
-    void setBounds (const juce::Rectangle<int>& bounds) noexcept;
+    void setBounds (const juce::Rectangle<int>& bounds) noexcept { m_bounds = bounds; }
 
     /**
      * @brief Get the bounds of the 'header' part of the meter.
@@ -175,23 +177,7 @@ public:
      * @return The bounds of the 'header' part of the meter.
      * @see setBounds
     */
-    [[nodiscard]] juce::Rectangle<int> getBounds() const noexcept;
-
-    /**
-     * @brief Check if the 'header' part of the meter is visible.
-     * 
-     * @return True, when the 'header' part is visible.
-     * @see setVisible, setEnabled
-    */
-    [[nodiscard]] bool isVisible() const noexcept { return m_visible && m_enabled; }
-
-    /**
-    * @brief Enable the 'header' part of the meter.
-    * 
-    * @param enable When set to true, the header part will be enabled.
-    * @see setVisible, isVisible
-   */
-    void setEnabled (bool enable) noexcept { m_enabled = enable; }
+    [[nodiscard]] juce::Rectangle<int> getBounds() const noexcept { return m_bounds; }
 
     /**
      * @brief Check if the mouse is over the 'header' part of the meter.
@@ -200,7 +186,7 @@ public:
      * @return  True, when the mouse is over the 'header' part of the meter, using the supplied y coordinate.
      * @see resetMouseOver
     */
-    [[nodiscard]] bool isMouseOver (int y);
+    [[nodiscard]] bool isMouseOver (int y) noexcept;
 
     /**
      * @brief Check if the mouse is over the 'header' part of the meter.
@@ -228,7 +214,6 @@ public:
     */
     void setReferredWidth (float referredWidth) noexcept { m_referredWidth = referredWidth; }
 
-
     /**
      * @brief Draw the 'header' part of the meter.
      * 
@@ -244,9 +229,7 @@ public:
                const juce::Colour& textColour, const juce::Colour& inactiveColour);
 
 private:
-    bool       m_visible = true;
-    bool       m_enabled = true;
-    juce::Font m_font;
+    juce::Font& m_font;
 
     // Info
     juce::String                       m_name                 = "";

@@ -1,6 +1,6 @@
 /*
     ==============================================================================
-    
+
     This file is part of the sound_meter JUCE module
     Copyright (c) 2019 - 2021 Sound Development - Marcel Huibers
     All rights reserved.
@@ -30,37 +30,35 @@
     ==============================================================================
 */
 
-namespace sd
-{
+#include "sd_MeterFader.h"
 
+namespace sd  // NOLINT
+{
 namespace SoundMeter
 {
 //==============================================================================
 
-void Fader::flash()
+void Fader::flash() noexcept
 {
-    if (! m_enabled) return;
+    if (!m_enabled)
+        return;
 
     m_fadeStart = static_cast<int> (juce::Time::getMillisecondCounter());
     m_isFading  = true;
 }
 //==============================================================================
 
-[[nodiscard]] bool Fader::isVisible() const noexcept
+void Fader::setVisible (bool showFader /*= true*/) noexcept
 {
-    return m_visible && m_enabled;
-}
-//==============================================================================
-
-void Fader::setVisible (bool showFader /*= true*/)
-{
-    if (! m_enabled) return;
+    if (!m_enabled)
+        return;
 
     // If fader needs to be HIDDEN...
-    if (! showFader)
+    if (!showFader)
     {
         // If it was visible, FADE it out...
-        if (m_visible) m_fadeStart = static_cast<int> (juce::Time::getMillisecondCounter());
+        if (m_visible)
+            m_fadeStart = static_cast<int> (juce::Time::getMillisecondCounter());
 
         // Hide fader...
         m_visible = false;
@@ -75,30 +73,20 @@ void Fader::setVisible (bool showFader /*= true*/)
 }
 //==============================================================================
 
-void Fader::setBounds (const juce::Rectangle<int>& bounds) noexcept
-{
-    m_bounds = bounds;
-}
-//==============================================================================
-
-juce::Rectangle<int> Fader::getBounds() const noexcept
-{
-    return m_bounds;
-}
-//==============================================================================
-
 void Fader::draw (juce::Graphics& g, const juce::Colour& faderColour)
 {
     using namespace Constants;
 
     m_isFading = false;
 
-    if (! m_enabled) return;
+    if (!m_enabled)
+        return;
 
     const auto timeSinceStartFade = getTimeSinceStartFade();
 
     // Return if the fader was already invisible and a new fade has not been started...
-    if (! m_visible && timeSinceStartFade >= kFaderFadeTime_ms) return;
+    if (!m_visible && timeSinceStartFade >= kFaderFadeTime_ms)
+        return;
 
     auto alpha = Constants::kFaderAlphaMax;
 
@@ -107,7 +95,7 @@ void Fader::draw (juce::Graphics& g, const juce::Colour& faderColour)
     {
         constexpr float fadePortion = 2.0f;
         jassert (kFaderFadeTime_ms > 0.0f);
-        alpha      = juce::jlimit (0.0f, 1.0f, fadePortion - ((timeSinceStartFade * fadePortion) / kFaderFadeTime_ms)) * kFaderAlphaMax;
+        alpha      = juce::jlimit (0.0f, 1.0f, fadePortion - ((static_cast<float> (timeSinceStartFade) * fadePortion) / kFaderFadeTime_ms)) * kFaderAlphaMax;
         m_isFading = alpha > 0.0f;
     }
 
@@ -122,32 +110,17 @@ void Fader::draw (juce::Graphics& g, const juce::Colour& faderColour)
 }
 //==============================================================================
 
-bool Fader::isEnabled() const noexcept
+bool Fader::setValue (const float value, NotificationOptions notificationOption /*= NotificationOptions::Notify*/)  // NOLINT
 {
-    return m_enabled;
-}
-//==============================================================================
-
-void Fader::enable (bool enabled /*= true*/) noexcept
-{
-    m_enabled = enabled;
-}
-//==============================================================================
-
-float Fader::getValue() const noexcept
-{
-    return m_faderValue.load();
-}
-//==============================================================================
-
-bool Fader::setValue (float value, NotificationOptions notificationOption /*= NotificationOptions::Notify*/)
-{
-    if (! m_enabled) return false;
-    if (m_faderValue.load() == value) return false;
+    if (!m_enabled)
+        return false;
+    if (m_faderValue.load() == value)
+        return false;
     m_faderValue.store (value);
 
 #if SDTK_ENABLE_FADER
-    if (notificationOption == NotificationOptions::notify && m_parentMeter) m_parentMeter->notifyParent();
+    if (notificationOption == NotificationOptions::notify && m_parentMeter)
+        m_parentMeter->notifyParent();
 #else
     juce::ignoreUnused (notificationOption);
 #endif
@@ -159,18 +132,11 @@ bool Fader::setValue (float value, NotificationOptions notificationOption /*= No
 void Fader::setValueFromPos (const int position, NotificationOptions notificationOption /*= NotificationOptions::Notify*/)
 {
     const auto height = static_cast<float> (m_bounds.getHeight());
-    if (height <= 0.0f) return;
+    if (height <= 0.0f)
+        return;
 
     setValue (1.0f - juce::jlimit (0.0f, 1.0f, static_cast<float> (position - m_bounds.getY()) / height), notificationOption);
 }
 //==============================================================================
-
-int Fader::getTimeSinceStartFade() const
-{
-    return static_cast<int> (juce::Time::getMillisecondCounter()) - m_fadeStart;
-}
-
-//==============================================================================
-
 }  // namespace SoundMeter
 }  // namespace sd
