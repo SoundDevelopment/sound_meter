@@ -337,11 +337,10 @@ public:
      * @brief Draw the 'meter' part in it's inactive (muted) state.
      * 
      * @param[in,out] g   The juce graphics context to use.
-     * @param textColour  Colour of the text on the inactive meter.
      * 
      * @see drawMeter, drawTickMarks, drawPeakValue, drawPeakHold, drawLabels
     */
-    void drawInactiveMeter (juce::Graphics& g, const juce::Colour& textColour) const;
+    void drawInactiveMeter (juce::Graphics& g) const;
 
     /**
      * @brief Draw the peak 'value'.
@@ -354,9 +353,7 @@ public:
 
 private:
     MeterOptions                m_meterOptions;
-    std::vector<SegmentOptions> m_segmentOptions = { { { -60.0f, -18.0f }, { 0.0f, 0.5f }, juce::Colours::green, juce::Colours::yellow },  // NOLINT
-                                                     { { -18.0f, -3.0f }, { 0.5f, 0.90f }, juce::Colours::yellow, juce::Colours::red },    // NOLINT
-                                                     { { -3.0f, 0.0f }, { 0.90f, 1.0f }, juce::Colours::red, juce::Colours::red } };       // NOLINT
+    std::vector<SegmentOptions> m_segmentOptions = MeterScales::getDefaultScale();
 
     std::vector<Segment> m_segments {};  // List of meter segments.
     float                m_minLevel_db { Constants::kMaxLevel_db };

@@ -31,7 +31,9 @@
 */
 
 
-namespace sd
+#include "sd_MeterHeader.h"
+
+namespace sd  // NOLINT
 {
 
 namespace SoundMeter
@@ -105,11 +107,8 @@ void Header::setName (const juce::String& name)
 
 void Header::calculateInfoWidth()
 {
-    if (!m_font)
-        return;
-
-    m_nameWidth = m_font->getStringWidthFloat (m_name);
-    m_typeWidth = m_font->getStringWidthFloat (m_typeDescription);
+    m_nameWidth = m_font.getStringWidthFloat (m_name);
+    m_typeWidth = m_font.getStringWidthFloat (m_typeDescription);
 }
 //==============================================================================
 
@@ -133,7 +132,7 @@ juce::String Header::getName() const noexcept
 
 juce::String Header::getInfo() const
 {
-    // Check which type width to use. This meter's one or a refered meter...
+    // Check which type width to use. This meter's one or a referred meter...
     const auto typeWidthToCompare = (m_referredWidth > 0 ? m_referredWidth : m_typeWidth);
 
     // First check if the channel name fits and is not empty (preferred)...
@@ -158,13 +157,7 @@ juce::Rectangle<int> Header::getBounds() const noexcept
 }
 //==============================================================================
 
-const juce::Font* Header::getFont() const noexcept
-{
-    return m_font;
-}
-//==============================================================================
-
-void Header::setFont (juce::Font* font)
+void Header::setFont (juce::Font font)
 {
     m_font = font;
     calculateInfoWidth();
@@ -173,14 +166,11 @@ void Header::setFont (juce::Font* font)
 
 bool Header::textFits (const juce::String& text, const int widthAvailable) const
 {
-    if (!m_font)
-        return false;
-
-    return m_font->getStringWidthFloat (text) <= static_cast<float> (widthAvailable);
+    return m_font.getStringWidthFloat (text) <= static_cast<float> (widthAvailable);
 }
 //==============================================================================
 
-[[nodiscard]] bool Header::isMouseOver (const int y)
+bool Header::isMouseOver (const int y)
 {
     m_mouseOver = (y < m_bounds.getHeight());
     return m_mouseOver;

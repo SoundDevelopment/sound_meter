@@ -228,7 +228,7 @@ public:
      *
      * @param font The font to use.
     */
-    void setFont (juce::Font* font);
+    void setFont (const juce::Font& font);
 
     /**
      * @brief Set the channel name.
@@ -461,7 +461,7 @@ public:
     void notifyParent();
 
     /** You can assign a lambda to this callback object to have it called when the button is clicked. */
-    std::function<void (sd::SoundMeter::MeterChannel* meter)> onFaderMove;
+    std::function<void (MeterChannel* meter)> onFaderMove;
 
 #endif /* SDTK_ENABLE_FADER */
 
@@ -492,7 +492,8 @@ public:
         mutedColourId          = 0x1a03210,  ///< Muted button colour.
         solodColourId          = 0x1a03211,  ///< Soloed button colour..
         mutedMouseOverColourId = 0x1a03212,  ///< Muted mouse over button colour.
-        inactiveColourId       = 0x1a03213   ///< Inactive (muted) colour.
+        inactiveColourId       = 0x1a03213,  ///< Inactive (muted) colour.
+        peakHoldColourId       = 0x1a03214   ///< Peak hold colour.
     };
 
 private:
@@ -504,19 +505,18 @@ private:
     Fader m_fader;
 #endif /* SDTK_ENABLE_FADER */
 
-    bool                 m_active { true };
-    bool                 m_isLabelStrip { false };
-    bool                 m_minimalMode { false };
-    juce::Rectangle<int> m_dirtyRect {};
+    bool m_active       = true;
+    bool m_isLabelStrip = false;
+    bool m_minimalMode  = false;
 
-    Padding m_padding { 0, 0, 0, 0 };  ///< Space between meter and component's edge.
+    juce::Rectangle<int> m_dirtyRect {};
+    Padding              m_padding { 0, 0, 0, 0 };  ///< Space between meter and component's edge.
+    juce::Font           m_font;
 
     // Cached colours...
     juce::Colour m_backgroundColour    = juce::Colours::black;
     juce::Colour m_inactiveColour      = juce::Colours::grey;
-    juce::Colour m_textColour          = juce::Colours::white.darker (0.6F);
-    juce::Colour m_textValueColour     = juce::Colours::white.darker (0.6F);
-    juce::Colour m_tickColour          = juce::Colours::white.darker (0.3F).withAlpha (0.5F);
+    juce::Colour m_textValueColour     = juce::Colours::white.darker (0.6f);
     juce::Colour m_muteColour          = juce::Colours::red;
     juce::Colour m_muteMouseOverColour = juce::Colours::black;
     juce::Colour m_faderColour         = juce::Colours::blue.withAlpha (Constants::kFaderAlphaMax);
