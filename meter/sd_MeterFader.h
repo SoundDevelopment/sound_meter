@@ -30,10 +30,15 @@
     ==============================================================================
 */
 
-#ifndef SD_SOUND_METER_FADER_H
-#define SD_SOUND_METER_FADER_H
+#pragma once
 
-namespace sd
+#include "sd_MeterHelpers.h"
+
+#include <juce_core/juce_core.h>
+#include <juce_graphics/juce_graphics.h>
+#include <juce_gui_basics/juce_gui_basics.h>
+
+namespace sd  // NOLINT
 {
 namespace SoundMeter
 {
@@ -48,19 +53,21 @@ class MeterChannel;
  * can be used by the user to control gain or any other
  * parameter.
 */
-class Fader
+class Fader final
 {
- public:
+public:
+    using MeterPtr = juce::Component::SafePointer<MeterChannel>;
+
     /**
      * @brief Parameterized constructor
      * @param parentMeter The parent meter object
     */
-    explicit Fader (SoundMeter::MeterChannel* parentMeter) noexcept : m_parentMeter (parentMeter) { juce::ignoreUnused (m_parentMeter); }
+    explicit Fader (MeterPtr parentMeter) noexcept : m_parentMeter (parentMeter) { }
 
     /**
      * @brief Show the fader briefly and fade out (unless overridden and shown longer).
     */
-    void flash();
+    void flash() noexcept;
 
     /**
     * @brief Check if the fader is visible.
@@ -68,7 +75,7 @@ class Fader
      * @return True, if the meter is visible, otherwise the fader is hidden.
      * @see setVisible, setEnabled, isEnabled
     */
-    [[nodiscard]] bool isVisible() const noexcept;
+    [[nodiscard]] bool isVisible() const noexcept { return m_visible && m_enabled; }
 
     /**
      * @brief Show or hide the fader.
@@ -76,7 +83,7 @@ class Fader
      * @param setVisible When set to true, show the fader. Otherwise hide it.
      * @see isVisible, setEnabled, isEnabled
     */
-    void setVisible (bool showFader = true);
+    void setVisible (bool showFader = true) noexcept;
 
     /**
      * @brief Check if the 'fader' overlay is enabled.
@@ -84,7 +91,7 @@ class Fader
      * @return True, when the fader is enabled.
      * @see setEnabled, isVisible, setVisible
     */
-    [[nodiscard]] bool isEnabled() const noexcept;
+    [[nodiscard]] bool isEnabled() const noexcept { return m_enabled; }
 
     /**
      * @brief Enable or disable the 'fader' overlay.
@@ -92,15 +99,15 @@ class Fader
      * @param enabled True, when the fader needs to be enabled.
      * @see isEnabled, isActive, setActive
     */
-    void enable (bool enabled = true) noexcept;
+    void enable (bool enabled = true) noexcept { m_enabled = enabled; }
 
     /**
      * @brief Set the fader bounds.
      * 
-     * @param bounds Bounds to use for the fader.
+     * @param bounds The bounds to use for the fader.
      * @see getBounds
     */
-    void setBounds (const juce::Rectangle<int>& bounds) noexcept;
+    void setBounds (const juce::Rectangle<int>& bounds) noexcept { m_bounds = bounds; }
 
     /**
      * @brief Get the fader bounds.
@@ -108,7 +115,7 @@ class Fader
      * @return Bounds used by the fader.
      * @see setBounds
     */
-    [[nodiscard]] juce::Rectangle<int> getBounds() const noexcept;
+    [[nodiscard]] juce::Rectangle<int> getBounds() const noexcept { return m_bounds; }
 
     /**
      * @brief Get the value of the meter fader.
@@ -116,7 +123,7 @@ class Fader
      * @return The current fader value [0..1].
      * @see setValueFromPos, setValue
     */
-    [[nodiscard]] float getValue() const noexcept;
+    [[nodiscard]] float getValue() const noexcept { return m_faderValue.load(); }
 
     /**
      * @brief Set fader value.
@@ -159,29 +166,18 @@ class Fader
     */
     [[nodiscard]] bool needsRedrawing() noexcept { return (m_drawnFaderValue != m_faderValue.load()) || isFading(); }
 
- private:
-    /**
-     * @brief Actually draw the fader part.
-     * 
-     * This function get's called or an overridden LookAndFeel method.
-     * 
-     * @param[in,out] g The juce graphics context to use.
-     * @param bounds    The bounds available to the fader part.
-     * @param value     The value of the fader.
-     * @param alpha     The alpha component of the fader (to enable fading).
-    */
-    void drawFader (juce::Graphics& g, juce::Rectangle<int> bounds, float value, juce::Colour faderColour);
+private:
+    std::atomic<float>   m_faderValue { 1.0f };  // Fader value (between 0..1).
+    juce::Rectangle<int> m_bounds {};
 
-    std::atomic<float>        m_faderValue { 1.0f };  // Fader value (between 0..1).
-    float                     m_drawnFaderValue { 1.0f };
-    SoundMeter::MeterChannel* m_parentMeter { nullptr };
-    bool                      m_visible { false };
-    bool                      m_enabled { false };
-    bool                      m_isFading { false };
-    int                       m_fadeStart { 0 };
-    juce::Rectangle<int>      m_bounds {};
+    float    m_drawnFaderValue = 1.0f;
+    MeterPtr m_parentMeter     = nullptr;
+    bool     m_visible         = false;
+    bool     m_enabled         = false;
+    bool     m_isFading        = false;
+    int      m_fadeStart       = 0;
 
-    [[nodiscard]] int getTimeSinceStartFade() const;
+    [[nodiscard]] int getTimeSinceStartFade() const noexcept { return static_cast<int> (juce::Time::getMillisecondCounter() - m_fadeStart); }
 
     JUCE_LEAK_DETECTOR (Fader)
 };
@@ -189,5 +185,3 @@ class Fader
 }  // namespace SoundMeter
 
 }  // namespace sd
-
-#endif /* SD_SOUND_METER_FADER_H */

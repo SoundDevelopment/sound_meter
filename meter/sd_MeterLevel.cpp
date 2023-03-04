@@ -1,6 +1,6 @@
 /*
     ==============================================================================
-    
+
     This file is part of the sound_meter JUCE module
     Copyright (c) 2019 - 2021 Sound Development - Marcel Huibers
     All rights reserved.
@@ -30,15 +30,12 @@
     ==============================================================================
 */
 
-
 #include "sd_MeterLevel.h"
 
 namespace sd  // NOLINT
 {
-
 namespace SoundMeter
 {
-
 Level::Level()
 {
     setMeterSegments (m_segmentOptions);
@@ -334,6 +331,5 @@ bool Level::isMouseOverValue (const int y)
     m_mouseOverValue = (y >= m_valueBounds.getY() && !m_valueBounds.isEmpty());
     return m_mouseOverValue;
 }
-
 }  // namespace SoundMeter
 }  // namespace sd

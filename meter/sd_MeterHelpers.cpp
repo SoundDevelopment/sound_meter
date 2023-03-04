@@ -30,8 +30,9 @@
     ==============================================================================
 */
 
+#include "sd_MeterHelpers.h"
 
-namespace sd
+namespace sd // NOLINT
 {
 namespace SoundMeter
 {
@@ -39,7 +40,7 @@ namespace Helpers
 {
 
 //==============================================================================
-[[nodiscard]] juce::Rectangle<int> applyPadding (const juce::Rectangle<int>& rectToPad, Padding paddingToApply)
+[[nodiscard]] juce::Rectangle<int> applyPadding (const juce::Rectangle<int>& rectToPad, Padding paddingToApply) noexcept
 {
     juce::Rectangle<int> result { rectToPad };
     if (juce::isPositiveAndBelow (paddingToApply.left, result.getWidth())) result.setLeft (rectToPad.getX() + paddingToApply.left);

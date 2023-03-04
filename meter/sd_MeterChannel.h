@@ -1,6 +1,6 @@
 /*
     ==============================================================================
-    
+
     This file is part of the sound_meter JUCE module
     Copyright (c) 2019 - 2021 Sound Development - Marcel Huibers
     All rights reserved.
@@ -30,30 +30,29 @@
     ==============================================================================
 */
 
-
 #pragma once
 
+#include "sd_MeterHeader.h"
 #include "sd_MeterHelpers.h"
+#include "sd_MeterLevel.h"
 
 #include <juce_audio_basics/juce_audio_basics.h>
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_core/juce_core.h>
 #include <juce_gui_basics/juce_gui_basics.h>
 
-
 namespace sd  // NOLINT
 {
 namespace SoundMeter
 {
-
 /**
  * @brief An individual meter channel.
- * 
+ *
  * This represents a single meter.
  * Use the MetersComponent to create multiple meters matching
  * the specified channel format.
 */
-class MeterChannel
+class MeterChannel final
   : public juce::Component
   , private juce::SettableTooltipClient
 {
@@ -64,11 +63,11 @@ public:
     /**
      * @brief Default constructor.
     */
-    MeterChannel();
+    MeterChannel() noexcept;
 
     /**
      * @brief Parameterized constructor.
-     * 
+     *
      * @param meterOptions  Meter options to use (defining appearance and functionality).
      * @param padding       The padding to use (space between meter and the edge of the component).
      * @param channelName   The channel name (set by the user).
@@ -101,10 +100,10 @@ public:
     void refresh (bool forceRefresh);
 
     /**
-     * @brief Sets the meter's refresh rate. 
+     * @brief Sets the meter's refresh rate.
      *
      * Set this to optimize the meter's decay rate.
-     * 
+     *
      * @param refreshRate_hz Refresh rate in Hz.
      * @see refresh, setDecay, getDecay
     */
@@ -127,7 +126,7 @@ public:
     [[nodiscard]] float getDecay() const noexcept { return m_level.getDecay(); }
 
     /**
-     * @brief Set the input level from the audio engine. 
+     * @brief Set the input level from the audio engine.
      *
      * Called from the audio thread!
      *
@@ -163,7 +162,7 @@ public:
     [[nodiscard]] bool isActive() const noexcept { return m_active; }
 
     /**
-     * @brief Set whether this meter is a label strip. 
+     * @brief Set whether this meter is a label strip.
      *
      * A label strip only draws the value labels (at the tick-marks),
      * but does not display any level.
@@ -211,18 +210,17 @@ public:
 
     /**
      * @brief Show the 'header' part of the meter.
-     * 
+     *
      * The 'header' part is the part above the meter displaying
      * the channel name (when set) or the channel type.
      * It also doubles as a mute button for the specific channel.
-     * 
+     *
      * @param headerVisible When set to true, the 'header' part will be visible.
-     * @see showHeader
     */
     void showHeader (bool headerVisible);
 
     /**
-     * @brief Set the meter font. 
+     * @brief Set the meter font.
      *
      * Font to be used for the header, value and label strip.
      *
@@ -232,21 +230,21 @@ public:
 
     /**
      * @brief Set the channel name.
-     * 
+     *
      * Set's the channel name belonging to the track
      * feeding the meter.
-     * 
-     * @param channelName Name to assign to this meter. 
+     *
+     * @param channelName Name to assign to this meter.
     */
     void setChannelName (const juce::String& channelName);
 
     /**
      * @brief Set the channel type.
-     * 
+     *
      * For instance: left, right, center, etc..
-     * 
+     *
      * @param type The channel type assigned to the meter.
-     * 
+     *
      * @see getType
     */
     void setChannelType (ChannelType channelType) { m_header.setType (channelType); }
@@ -269,7 +267,7 @@ public:
      * @brief Get the width (in pixels) of the channel info in the 'header' part.
      *
      * @return The width (in pixels) taken by the channel info in the 'header' part.
-     * 
+     *
      * @see getChannelTypeWidth, nameFits, setChannelName
     */
     [[nodiscard]] float getChannelNameWidth() const noexcept { return m_header.getNameWidth(); }
@@ -278,20 +276,20 @@ public:
      * @brief Get the width (in pixels) of the full type description in the 'header' part.
      *
      * @return The width (in pixels) taken by the full type description in the 'header' part.
-     * 
+     *
      * @see getChannelNameWidth, nameFits, setChannelType
     */
     [[nodiscard]] float getChannelTypeWidth() const noexcept { return m_header.getTypeWidth(); }
 
     /**
      * @brief Set the referred width (from other meters) used to decide what info to display.
-     * 
+     *
      * When this is set to zero, each meter uses his own bounds to decide what to display.
      * When set to a non zero value (for instance from another meter) this meter will use that
      * value to decide what to display.
      * When there is not enough room (width) to display the full description or name, display
      * the abbreviated type description.
-     * 
+     *
      * @param referredWidth The width (in pixels) to use when deciding what to display in the header.
     */
     void setReferredTypeWidth (float referredTypeWidth) noexcept { m_header.setReferredWidth (referredTypeWidth); }
@@ -299,30 +297,30 @@ public:
     /**
      * @brief Enable tick-marks (divider lines) on the meter.
      *
-     * A tick mark is a horizontal line, dividing the meter. 
+     * A tick mark is a horizontal line, dividing the meter.
      * This is also the place the label strip will put it's text values.
-     * 
+     *
      * The tick-marks will be shown when they are enable and visible.
      *
-     * @param tickMarksEnabled When set true, the tick-marks are enabled. 
+     * @param tickMarksEnabled When set true, the tick-marks are enabled.
      * @see showTickMarks, setTickMarks, showTickMarksOnTop
     */
     void showTickMarks (bool tickMarksEnabled) { m_level.showTickMarks (tickMarksEnabled); }
 
     /**
      * @brief Show the tick-marks on top of the level or below it.
-     * 
-     * When below the level, the tick-marks will be obscured if the 
+     *
+     * When below the level, the tick-marks will be obscured if the
      * level is loud enough.
-     * 
+     *
      * @param showTickMarksOnTop Show the tick-marks on top of the level.
    */
     void showTickMarksOnTop (bool showTickMarksOnTop) { m_level.showTickMarksOnTop (showTickMarksOnTop); }
 
     /**
-     * @brief Set the level of the tick marks. 
+     * @brief Set the level of the tick marks.
      *
-     * A tick mark is a horizontal line, dividing the meter. 
+     * A tick mark is a horizontal line, dividing the meter.
      * This is also the place the label strip will put it's text values.
      *
      * @param tickMarks List of tick mark values (in decibels).
@@ -331,9 +329,9 @@ public:
     void setTickMarks (const std::vector<float>& tickMarks) { m_level.setTickMarks (tickMarks); }
 
     /**
-     * @brief Set the padding of the meter. 
+     * @brief Set the padding of the meter.
      *
-     * The padding is the space between the meter and the edges 
+     * The padding is the space between the meter and the edges
      * of the component.
      *
      * @param padding Amount of padding to apply.
@@ -345,14 +343,14 @@ public:
      *
      * @return The bounds of the 'meter' and 'header' parts combined.
     */
-    [[nodiscard]] juce::Rectangle<int> getLabelStripBounds() const;
+    [[nodiscard]] juce::Rectangle<int> getLabelStripBounds() const noexcept { return m_level.getMeterBounds().getUnion (m_header.getBounds()); }
 
     /**
      * @brief Set the meter in 'minimal' mode.
-     * 
+     *
      * In minimal mode, the meter is in it's cleanest state possible.
      * This means no header, no tick-marks, no value, no faders and no indicator.
-     * 
+     *
      * @param minimalMode When set to true, 'minimal' mode will be enabled.
      * @see isMinimalModeActive, autoSetMinimalMode
     */
@@ -360,10 +358,10 @@ public:
 
     /**
      * @brief Check if the meter is in 'minimal' mode.
-     * 
+     *
      * In minimal mode, the meter is in it's cleanest state possible.
      * This means no header, no tick-marks, no value, no faders and no indicator.
-     * 
+     *
      * @return True, if the meter is in 'minimal' mode.
      * @see setMinimalMode, autoSetMinimalMode
     */
@@ -371,24 +369,24 @@ public:
 
     /**
      * @brief Automatically set the meter in 'minimal' mode.
-     * 
+     *
      * Use the proposed height and width to determine if that would lead
      * to the meter being in 'minimal' mode. Then apply that mode.
-     * 
+     *
      * In minimal mode, the meter is in it's cleanest state possible.
      * This means no header, no tick-marks, no value, no faders and no indicator.
-     * 
+     *
      * @param proposedWidth  The width use to determine if the meter would be in 'minimal' mode.
      * @param proposedHeight The height use to determine if the meter would be in 'minimal' mode.
      * @return               True, if the meter is in 'minimal' mode.
-     * 
+     *
      * @see setMinimalMode, isMinimalModeActive
     */
     bool autoSetMinimalMode (int proposedWidth, int proposedHeight);
 
     /**
      * @brief Use gradients in stead of hard segment boundaries.
-     * 
+     *
      * @param useGradients When set to true, uses smooth gradients. False gives hard segment boundaries.
     */
     void useGradients (bool useGradients) { m_level.useGradients (useGradients); }
@@ -397,12 +395,12 @@ public:
 
     /**
      * @brief Show or hide the fader.
-     * 
+     *
      * The fader overlay display on top of the 'meter' part
      * (in combination with the 'mute' buttons in the 'header' part)
      * can be used by the user to control gain or any other
      * parameter.
-     * 
+     *
      * @param faderVisible When set to true, show the fader. Otherwise hide it.
      * @see isFaderVisible, setFaderEnabled
     */
@@ -410,7 +408,7 @@ public:
 
     /**
      * @brief Check if the meter is visible or hidden.
-     * 
+     *
      * @return True, if the meter is visible.
      * @see showFader, setFaderEnabled
     */
@@ -418,16 +416,16 @@ public:
 
     /**
      * @brief Enable the 'fader' overlay.
-     * 
+     *
      * The fader overlay display on top of the 'meter' part
      * (in combination with the 'mute' buttons in the 'header' part)
      * can be used by the user to control gain or any other
      * parameter.
-     * 
+     *
      * @param faderEnabled True, when the fader needs to be enabled.
      * @see isFaderVisible, showFader
     */
-    void enableFader (bool faderEnabled = true);
+    void enableFader (bool faderEnabled = true) noexcept;
 
     /**
      * @brief Show the fader briefly and fade out (unless overridden and shown longer).
@@ -443,7 +441,7 @@ public:
 
     /**
      * @brief Set fader value.
-     *   
+     *
      * The fader overlay display on top of the 'meter' part
      * (in combination with the 'mute' buttons in the 'header' part)
      * can be used by the user to control gain or any other
@@ -461,7 +459,7 @@ public:
     void notifyParent();
 
     /** You can assign a lambda to this callback object to have it called when the button is clicked. */
-    std::function<void (MeterChannel* meter)> onFaderMove;
+    std::function<void (MeterChannel::Ptr meter)> onFaderMove;
 
 #endif /* SDTK_ENABLE_FADER */
 
@@ -497,7 +495,7 @@ public:
     };
 
 private:
-    Header m_header {};  ///< 'Header' part of the meter with info relating to the meter (name, channel type, info rect, index in a sequence of multiple meters).
+    Header m_header { m_font };  ///< 'Header' part of the meter with info relating to the meter (name, channel type, info rect, index in a sequence of multiple meters).
     Level        m_level {};         ///< 'Meter' part of the meter. Actually displaying the level.
     MeterOptions m_meterOptions {};  ///< 'Meter' options.
 
@@ -516,12 +514,12 @@ private:
     // Cached colours...
     juce::Colour m_backgroundColour    = juce::Colours::black;
     juce::Colour m_inactiveColour      = juce::Colours::grey;
-    juce::Colour m_textValueColour     = juce::Colours::white.darker (0.6f);
+    juce::Colour m_textValueColour     = juce::Colours::white.darker (0.6f);  // NOLINT
     juce::Colour m_muteColour          = juce::Colours::red;
     juce::Colour m_muteMouseOverColour = juce::Colours::black;
     juce::Colour m_faderColour         = juce::Colours::blue.withAlpha (Constants::kFaderAlphaMax);
 
-    void                       setDirty (bool isDirty = true);
+    void                       setDirty (bool isDirty = true) noexcept;
     [[nodiscard]] bool         isDirty (const juce::Rectangle<int>& rectToCheck = {}) const noexcept;
     void                       addDirty (const juce::Rectangle<int>& dirtyRect) noexcept { m_dirtyRect = m_dirtyRect.getUnion (dirtyRect); }
     void                       drawMeter (juce::Graphics& g);
@@ -529,7 +527,7 @@ private:
     void                       mouseMove (const juce::MouseEvent& event) override;
     void                       mouseExit (const juce::MouseEvent& event) override;
     void                       mouseDoubleClick (const juce::MouseEvent& event) override;
-    void                       resetMouseOvers();
+    void                       resetMouseOvers() noexcept;
     void                       setColours();
 
 #if SDTK_ENABLE_FADER
@@ -541,6 +539,5 @@ private:
     // clang-format on
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MeterChannel)
 };
-
 }  // namespace SoundMeter
 }  // namespace sd

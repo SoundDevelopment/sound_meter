@@ -1,6 +1,6 @@
 /*
     ==============================================================================
-    
+
     This file is part of the sound_meter JUCE module
     Copyright (c) 2019 - 2021 Sound Development - Marcel Huibers
     All rights reserved.
@@ -36,12 +36,9 @@ namespace sd  // NOLINT
 {
 namespace SoundMeter
 {
-
-MeterChannel::MeterChannel()
-  : juce::Component()  // NOLINT
+MeterChannel::MeterChannel() noexcept
 #if SDTK_ENABLE_FADER
-    ,
-    m_fader (this)
+  : m_fader (this)
 #endif
 {
 }
@@ -93,7 +90,6 @@ void MeterChannel::notifyParent()
 
 #endif /* SDTK_ENABLE_FADER */
 
-
 juce::Colour MeterChannel::getColourFromLnf (int colourId, const juce::Colour& fallbackColour) const
 {
     if (isColourSpecified (colourId))
@@ -116,12 +112,6 @@ bool MeterChannel::autoSetMinimalMode (int proposedWidth, int proposedHeight)
     setMinimalMode (minimalMode);
 
     return minimalMode;
-}
-//==============================================================================
-
-juce::Rectangle<int> MeterChannel::getLabelStripBounds() const
-{
-    return m_level.getMeterBounds().getUnion (m_header.getBounds());
 }
 //==============================================================================
 
@@ -167,9 +157,13 @@ void MeterChannel::setColours()
 }
 //==============================================================================
 
-void MeterChannel::showHeader (bool showHeader)
+void MeterChannel::showHeader (bool headerVisible)
 {
-    m_header.setEnabled (showHeader);
+    if (m_meterOptions.showHeader == headerVisible)
+        return;
+
+    m_meterOptions.showHeader = headerVisible;
+
     resized();
     addDirty (m_header.getBounds());
 }
@@ -183,7 +177,6 @@ void MeterChannel::showValue (bool showValue /*= true*/)
 //==============================================================================
 
 #pragma endregion
-
 
 #pragma region Draw Methods
 
@@ -214,11 +207,14 @@ void MeterChannel::paint (juce::Graphics& g)
     g.setFont (m_font);
 
     // Draw the 'HEADER' part of the meter...
+    if (!m_header.getBounds().isEmpty() && m_meterOptions.showHeader)
+    {
 #if SDTK_ENABLE_FADER
-    m_header.draw (g, isActive(), m_fader.isEnabled(), m_muteColour, m_muteMouseOverColour, m_meterOptions.textColour, m_inactiveColour);
+        m_header.draw (g, isActive(), m_fader.isEnabled(), m_muteColour, m_muteMouseOverColour, m_meterOptions.textColour, m_inactiveColour);
 #else
-    m_header.draw (g, isActive(), false, m_muteColour, m_muteMouseOverColour, m_meterOptions.textColour, m_inactiveColour);
+        m_header.draw (g, isActive(), false, m_muteColour, m_muteMouseOverColour, m_meterOptions.textColour, m_inactiveColour);
 #endif
+    }
 
     drawMeter (g);
 
@@ -254,7 +250,7 @@ bool MeterChannel::isDirty (const juce::Rectangle<int>& rectToCheck /*= {}*/) co
 }
 //==============================================================================
 
-void MeterChannel::setDirty (bool isDirty /*= true*/)
+void MeterChannel::setDirty (bool isDirty /*= true*/) noexcept
 {
     m_dirtyRect = { 0, 0, 0, 0 };
     if (isDirty)
@@ -264,9 +260,11 @@ void MeterChannel::setDirty (bool isDirty /*= true*/)
 
 void MeterChannel::refresh (const bool forceRefresh)
 {
-    if (getBounds().isEmpty())
+    if (!isShowing())
         return;
 
+    if (getBounds().isEmpty())
+        return;
 
     if (m_active)
     {
@@ -287,7 +285,6 @@ void MeterChannel::refresh (const bool forceRefresh)
 }
 //==============================================================================
 #pragma endregion
-
 
 #pragma region Properties
 
@@ -311,7 +308,7 @@ void MeterChannel::setActive (bool isActive, NotificationOptions notify /*= Noti
 }
 //==============================================================================
 
-void MeterChannel::resetMouseOvers()
+void MeterChannel::resetMouseOvers() noexcept
 {
     m_header.resetMouseOver();
     m_level.resetMouseOverValue();
@@ -399,7 +396,7 @@ void MeterChannel::setFaderValue (const float value, NotificationOptions notific
 }
 //==============================================================================
 
-void MeterChannel::enableFader (bool faderEnabled /*= true*/)
+void MeterChannel::enableFader (bool faderEnabled /*= true*/) noexcept
 {
     m_fader.enable (faderEnabled);
     addDirty (m_fader.getBounds());
@@ -409,9 +406,7 @@ void MeterChannel::enableFader (bool faderEnabled /*= true*/)
 
 #pragma endregion
 
-
 #pragma region Mouse Methods
-
 
 #if SDTK_ENABLE_FADER
 
@@ -449,8 +444,8 @@ void MeterChannel::mouseMove (const juce::MouseEvent& event)
 #endif
 
     // Check if the mouse is over the header part...
-    bool isMouseOverHeader      = m_header.isMouseOver();                                 // Get the previous mouse over flag, to check if it has changed.
-    bool mouseOverHeaderChanged = (isMouseOverHeader != m_header.isMouseOver (event.y));  // Check if it has changed.
+    const auto isMouseOverHeader      = m_header.isMouseOver();                                 // Get the previous mouse over flag, to check if it has changed.
+    const bool mouseOverHeaderChanged = (isMouseOverHeader != m_header.isMouseOver (event.y));  // Check if it has changed.
     if (m_header.isMouseOver() && mouseOverHeaderChanged && faderEnabled)  // If the mouse entered the 'header' part for the first time and the fader is enabled...
     {
         setMouseCursor (juce::MouseCursor::PointingHandCursor);
@@ -460,8 +455,8 @@ void MeterChannel::mouseMove (const juce::MouseEvent& event)
         addDirty (m_header.getBounds());  // Mouse over status has changed. Repaint.
 
     // Check if the mouse is over the value part...
-    bool isMouseOverValue      = m_level.isMouseOverValue();
-    bool mouseOverValueChanged = (isMouseOverValue != m_level.isMouseOverValue (event.y));
+    const auto isMouseOverValue      = m_level.isMouseOverValue();
+    const bool mouseOverValueChanged = (isMouseOverValue != m_level.isMouseOverValue (event.y));
     if (m_level.isMouseOverValue() && mouseOverValueChanged)
     {
         setMouseCursor (juce::MouseCursor::PointingHandCursor);  // NOLINT
@@ -473,7 +468,6 @@ void MeterChannel::mouseMove (const juce::MouseEvent& event)
     // Check if the mouse is over the meter part...
     if (!m_header.isMouseOver() && !m_level.isMouseOverValue())
     {
-
 #if SDTK_ENABLE_FADER
         if (m_fader.isVisible())
         {
@@ -536,6 +530,5 @@ void MeterChannel::mouseWheelMove (const juce::MouseEvent& /*event*/, const juce
 #endif /* SDTK_ENABLE_FADER */
 
 #pragma endregion
-
 }  // namespace SoundMeter
 }  // namespace sd

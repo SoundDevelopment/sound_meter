@@ -1,6 +1,6 @@
 /*
     ==============================================================================
-    
+
     This file is part of the sound_meter JUCE module
     Copyright (c) 2019 - 2021 Sound Development - Marcel Huibers
     All rights reserved.
@@ -30,15 +30,12 @@
     ==============================================================================
 */
 
-
 #include "sd_MeterSegment.h"
 
 namespace sd  // NOLINT
 {
 namespace SoundMeter
 {
-
-
 Segment::Segment (const MeterOptions& meterOptions, const SegmentOptions& segmentOptions)
 {
     setSegmentOptions (segmentOptions);
@@ -46,7 +43,7 @@ Segment::Segment (const MeterOptions& meterOptions, const SegmentOptions& segmen
 }
 //==============================================================================
 
-void Segment::setMinimalMode (bool minimalMode)
+void Segment::setMinimalMode (bool minimalMode) noexcept
 {
     if (minimalMode == m_minimalModeActive)
         return;
@@ -58,7 +55,7 @@ void Segment::setMinimalMode (bool minimalMode)
 }
 //==============================================================================
 
-void Segment::setSegmentOptions (SegmentOptions segmentOptions) noexcept
+void Segment::setSegmentOptions (SegmentOptions segmentOptions)
 {
     // Check level range validity.
     jassert (segmentOptions.levelRange.getLength() > 0.0f);  // NOLINT
@@ -146,7 +143,7 @@ void Segment::drawLabels (juce::Graphics& g) const
 }
 //==============================================================================
 
-inline bool Segment::containsUpTo (juce::Range<float> levelRange, float levelDb)
+constexpr bool Segment::containsUpTo (juce::Range<float> levelRange, float levelDb) noexcept
 {
     return levelDb > levelRange.getStart() && levelDb <= levelRange.getEnd();
 }
@@ -250,6 +247,5 @@ void Segment::setMeterOptions (const MeterOptions& meterOptions)
     m_isDirty = true;
 }
 //==============================================================================
-
 }  // namespace SoundMeter
 }  // namespace sd

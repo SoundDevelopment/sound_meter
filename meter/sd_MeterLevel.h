@@ -1,6 +1,6 @@
 /*
     ==============================================================================
-    
+
     This file is part of the sound_meter JUCE module
     Copyright (c) 2019 - 2021 Sound Development - Marcel Huibers
     All rights reserved.
@@ -43,7 +43,6 @@ namespace sd  // NOLINT
 {
 namespace SoundMeter
 {
-
 struct MeterOptions;
 
 /**
@@ -67,43 +66,43 @@ public:
 
     /**
      * @brief Set the level of the meter.
-     * 
+     *
      * Here the level is actually set from the audio engine.
      * Beware: very likely called from the audio thread!
-     * 
+     *
      * @param newLevel The peak level from the audio engine (in amp).
-     * 
+     *
      * @see getInputLevel
     */
     void setInputLevel (float newLevel);
 
     /**
      * @brief Get's the meter's input level.
-     * 
+     *
      * @return The meter's input level (in decibels).
-     * 
+     *
      * @see setInputLevel
     */
     [[nodiscard]] float getInputLevel();
 
     /**
      * @brief Calculate the actual meter level (ballistics included).
-     * 
+     *
      * Calculate the meter's level including ballistics.
      * Instant attack, but decayed release.
-     * 
+     *
      * @see getMeterLevel, setDecay
     */
     void refreshMeterLevel();
 
     /**
      * @brief Get the actual meter's level (including ballistics).
-     * 
+     *
      * Get the decayed meter level.
      * Instant attack, but decayed release.
-     * 
+     *
      * @return The actual meter's level (in decibels) with ballistics.
-     * 
+     *
      * @see setMeterLevel, setDecay
     */
     [[nodiscard]] float getMeterLevel() const noexcept { return m_meterLevel_db; }
@@ -119,7 +118,7 @@ public:
 
     /**
      * @brief Use gradients in stead of hard segment boundaries.
-     * 
+     *
      * @param useGradients When set to true, uses smooth gradients. False gives hard segment boundaries.
     */
     void useGradients (bool useGradients);
@@ -127,30 +126,30 @@ public:
     /**
      * @brief Enable tick-marks (divider lines) on the meter.
      *
-     * A tick mark is a horizontal line, dividing the meter. 
+     * A tick mark is a horizontal line, dividing the meter.
      * This is also the place the label strip will put it's text values.
-     * 
+     *
      * The tick-marks will be shown when they are enable and visible.
      *
-     * @param tickMarksEnabled When set true, the tick-marks are enabled. 
+     * @param tickMarksEnabled When set true, the tick-marks are enabled.
      * @see showTickMarks, setTickMarks, showTickMarksOnTop
     */
     void showTickMarks (bool tickMarksEnabled);
 
     /**
      * @brief Show the tick-marks on top of the level or below it.
-     * 
-     * When below the level, the tick-marks will be obscured if the 
+     *
+     * When below the level, the tick-marks will be obscured if the
      * level is loud enough.
-     * 
+     *
      * @param showTickMarksOnTop Show the tick-marks on top of the level.
    */
     void showTickMarksOnTop (bool showTickMarksOnTop);
 
     /**
-     * @brief Set the level of the tick marks. 
+     * @brief Set the level of the tick marks.
      *
-     * A tick mark is a horizontal line, dividing the meter. 
+     * A tick mark is a horizontal line, dividing the meter.
      * This is also the place the label strip will put it's text values.
      *
      * @param tickMarks List of tick mark values (in decibels).
@@ -175,7 +174,7 @@ public:
      *
      * The peak value will be shown below the meter (in db).
      * It's the same level as the peak hold bar.
-     * 
+     *
      * @return True, if the peak hold 'value' part is visible.
      *
      * @see showValue, resetPeakHold
@@ -205,20 +204,20 @@ public:
 
     /**
      * @brief Set the meter in 'minimal' mode.
-     * 
+     *
      * In minimal mode, the meter is in it's cleanest state possible.
      * This means no header, no tick-marks, no value, no faders and no indicator.
-     * 
+     *
      * @param minimalMode When set to true, 'minimal' mode will be enabled.
      * @see isMinimalModeActive, autoSetMinimalMode
     */
     void setMinimalMode (bool minimalMode);
 
     /**
-     * @brief Sets the meter's refresh rate. 
+     * @brief Sets the meter's refresh rate.
      *
      * Set this to optimize the meter's decay rate.
-     * 
+     *
      * @param refreshRate_hz Refresh rate in Hz.
      * @see refresh, setDecay, getDecay
     */
@@ -245,7 +244,7 @@ public:
      * @brief Get meter decay.
      *
      * @return Meter decay in milliseconds
-     * 
+     *
      * @see setDecay
     */
     [[nodiscard]] float getDecay() const noexcept { return m_meterOptions.decayTime_ms; }
@@ -260,7 +259,7 @@ public:
     void setMeterSegments (const std::vector<SegmentOptions>& segmentsOptions);
 
     /**
-     * @brief Set whether this meter is a label strip. 
+     * @brief Set whether this meter is a label strip.
      *
      * A label strip only draws the value labels (at the tick-marks),
      * but does not display any level.
@@ -271,7 +270,7 @@ public:
 
     /**
      * @brief Set the bounds of the 'meter' part of the meter.
-     * 
+     *
      * @param bounds The bounds to use for the 'meter' part of the meter.
      * @see getValueBounds, setValueBounds, getMeterBounds, getDirtyBounds, getLevelBounds
     */
@@ -306,7 +305,7 @@ public:
 
     /**
      * @brief Check if the mouse cursor is over the 'value' part of the meter.
-     * 
+     *
      * @param y The y coordinate (relative to the meter bounds) to use to determine if the mouse if over the 'value' part of the meter.
      * @return True, if the mouse cursor is over the 'value' part of the meter.
     */
@@ -314,7 +313,7 @@ public:
 
     /**
      * @brief Check if the mouse cursor is over the 'value' part of the meter.
-     * 
+     *
      * @return True, if the mouse cursor is over the 'value' part of the meter.
     */
     [[nodiscard]] bool isMouseOverValue() const noexcept { return m_mouseOverValue; }
@@ -326,18 +325,18 @@ public:
 
     /**
      * @brief Draws the meter.
-     * 
+     *
      * @param[in,out] g The juce graphics context to use.
-     * 
+     *
      * @see drawInactiveMeter, drawPeakValue, drawPeakHold, drawTickMarks, drawLabels
     */
     void drawMeter (juce::Graphics& g);
 
     /**
      * @brief Draw the 'meter' part in it's inactive (muted) state.
-     * 
+     *
      * @param[in,out] g   The juce graphics context to use.
-     * 
+     *
      * @see drawMeter, drawTickMarks, drawPeakValue, drawPeakHold, drawLabels
     */
     void drawInactiveMeter (juce::Graphics& g) const;
@@ -346,7 +345,7 @@ public:
      * @brief Draw the peak 'value'.
      * @param[in,out] g        The juce graphics context to use.
      * @param textValueColour  Colour of the text displaying the peak value.
-     * 
+     *
      * @see drawMeter, drawInactiveMeter, drawInactiveMeter, drawPeakHold, drawTickMarks, drawLabels
     */
     void drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColour) const;
@@ -364,7 +363,7 @@ private:
     float              m_meterLevel_db { Constants::kMinLevel_db };  // Current meter level.
 
     juce::Rectangle<int> m_valueBounds;  // Bounds of the value area.
-    juce::Rectangle<int> m_meterBounds;  // Bounds of the meter area.   
+    juce::Rectangle<int> m_meterBounds;  // Bounds of the meter area.
     juce::Rectangle<int> m_levelBounds;  // Bounds of the level area.
 
     bool  m_peakHoldDirty       = false;
@@ -383,6 +382,5 @@ private:
     // clang-format on
     JUCE_LEAK_DETECTOR (Level)
 };
-
 }  // namespace SoundMeter
 }  // namespace sd

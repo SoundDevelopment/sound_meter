@@ -44,7 +44,7 @@ namespace SoundMeter
 {
 
 
-class Segment
+class Segment final
 {
 public:
     /** @brief Construct a segment using the supplied options.*/
@@ -72,28 +72,28 @@ public:
     [[nodiscard]] bool isDirty() const noexcept { return m_isDirty; }
 
     /**
-             * @brief Set whether this meter is a label strip.
-             *
-             * A label strip only draws the value labels (at the tick-marks),
-             * but does not display any level.
-             *
-             * @param isLabelStrip when set, this meter behave like a label strip.
-            */
+     * @brief Set whether this meter is a label strip.
+     *
+     * A label strip only draws the value labels (at the tick-marks),
+     * but does not display any level.
+     *
+     * @param isLabelStrip when set, this meter behave like a label strip.
+    */
     void setIsLabelStrip (bool isLabelStrip = false) noexcept { m_isLabelStrip = isLabelStrip; }
 
     /**
-             * @brief Set the meter in 'minimal' mode.
-             *
-             * In minimal mode, the meter is in it's cleanest state possible.
-             * This means no header, no tick-marks, no value, no faders and no indicator.
-             *
-             * @param minimalMode When set to true, 'minimal' mode will be enabled.
-             * @see isMinimalModeActive, autoSetMinimalMode
-            */
-    void setMinimalMode (bool minimalMode);
+     * @brief Set the meter in 'minimal' mode.
+     *
+     * In minimal mode, the meter is in it's cleanest state possible.
+     * This means no header, no tick-marks, no value, no faders and no indicator.
+     *
+     * @param minimalMode When set to true, 'minimal' mode will be enabled.
+     * @see isMinimalModeActive, autoSetMinimalMode
+     */
+    void setMinimalMode (bool minimalMode) noexcept;
 
     /** @brief Set the segment options, describing the range and colour of the segment. */
-    void setSegmentOptions (SegmentOptions segmentOptions) noexcept;
+    void setSegmentOptions (SegmentOptions segmentOptions);
 
     /** @brief Get the segment options, describing the range and colour of the segment. */
     [[nodiscard]] SegmentOptions getSegmentOptions() const noexcept { return m_segmentOptions; }
@@ -127,7 +127,7 @@ private:
     void drawTickMarks (juce::Graphics& g);
     void drawLabels (juce::Graphics& g) const;
 
-    [[nodiscard]] static bool containsUpTo (juce::Range<float> levelRange, float levelDb);
+    [[nodiscard]] static constexpr bool containsUpTo (juce::Range<float> levelRange, float levelDb) noexcept;
 
 
     JUCE_LEAK_DETECTOR (Segment)
