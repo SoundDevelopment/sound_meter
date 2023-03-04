@@ -30,11 +30,14 @@
     ==============================================================================
 */
 
-#ifndef SD_SOUND_METER_HEADER_H
-#define SD_SOUND_METER_HEADER_H
+#pragma once
+
+#include <juce_audio_basics/juce_audio_basics.h>
+#include <juce_core/juce_core.h>
+#include <juce_gui_basics/juce_gui_basics.h>
 
 
-namespace sd
+namespace sd  // NOLINT
 {
 namespace SoundMeter
 {
@@ -51,7 +54,7 @@ namespace SoundMeter
 */
 class Header
 {
- public:
+public:
     /**
     * @brief Default constructor
     */
@@ -63,7 +66,7 @@ class Header
     * @param name Channel name to display in the header.
     * @param type Channel type to display in the header.
     */
-    Header (const juce::String& name, const juce::AudioChannelSet::ChannelType& type) : m_name (name), m_type (type) { }
+    Header (juce::String name, const juce::AudioChannelSet::ChannelType& type) : m_name (std::move (name)), m_type (type) { }
 
     /**
     * @brief Set the channel type.
@@ -146,7 +149,7 @@ class Header
      * 
      * @see getInfo, getTypeWidth, getNameWidth
     */
-    bool textFits (const juce::String& text, int widthAvailable) const;
+    [[nodiscard]] bool textFits (const juce::String& text, int widthAvailable) const;
 
     /**
     * @brief Set the font used to display the info (and other text in the meter).
@@ -156,14 +159,7 @@ class Header
     * @param font The font to use.
     * @see getFont
     */
-    void setFont (juce::Font* font);
-
-    /**
-     * @brief Get the font used to display the info.
-     * 
-     * @return The font used to display the info.
-    */
-    [[nodiscard]] const juce::Font* getFont() const noexcept;
+    void setFont (juce::Font font);
 
     /**
     * @brief Set the bounds of the 'header' part of the meter.
@@ -190,14 +186,6 @@ class Header
     [[nodiscard]] bool isVisible() const noexcept { return m_visible && m_enabled; }
 
     /**
-     * @brief Show the 'header' part of the meter.
-     * 
-     * @param visible When set to true, the 'header' part will be visible.
-     * @see isVisible, setEnabled
-    */
-    void setVisible (bool visible) noexcept { m_visible = visible; }
-
-    /**
     * @brief Enable the 'header' part of the meter.
     * 
     * @param enable When set to true, the header part will be enabled.
@@ -212,7 +200,7 @@ class Header
      * @return  True, when the mouse is over the 'header' part of the meter, using the supplied y coordinate.
      * @see resetMouseOver
     */
-    [[nodiscard]] bool isMouseOver (const int y);
+    [[nodiscard]] bool isMouseOver (int y);
 
     /**
      * @brief Check if the mouse is over the 'header' part of the meter.
@@ -255,11 +243,11 @@ class Header
     void draw (juce::Graphics& g, bool meterActive, bool faderEnabled, const juce::Colour& muteColour, const juce::Colour& muteMouseOverColour,
                const juce::Colour& textColour, const juce::Colour& inactiveColour);
 
- private:
-    bool m_visible = true;
-    bool m_enabled = true;
+private:
+    bool       m_visible = true;
+    bool       m_enabled = true;
+    juce::Font m_font;
 
-    juce::Font* m_font = nullptr;
     // Info
     juce::String                       m_name                 = "";
     juce::AudioChannelSet::ChannelType m_type                 = juce::AudioChannelSet::ChannelType::unknown;
@@ -281,5 +269,3 @@ class Header
 
 }  // namespace SoundMeter
 }  // namespace sd
-
-#endif /* SD_SOUND_METER_HEADER_H */

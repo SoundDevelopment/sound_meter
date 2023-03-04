@@ -39,8 +39,18 @@ namespace sd  // NOLINT
 namespace SoundMeter
 {
 
-MetersComponent::MetersComponent (const MeterOptions& meterOptions)
+MetersComponent::MetersComponent() : MetersComponent ({}, {}) { }
+//==============================================================================
+
+MetersComponent::MetersComponent (const juce::AudioChannelSet& channelFormat) : MetersComponent ({}, channelFormat) { }
+//==============================================================================
+
+MetersComponent::MetersComponent (const MeterOptions& meterOptions) : MetersComponent (meterOptions, {}) { }
+//==============================================================================
+
+MetersComponent::MetersComponent (const MeterOptions& meterOptions, const juce::AudioChannelSet& channelFormat)
   : m_meterOptions (meterOptions),
+    m_channelFormat (channelFormat),
     m_labelStrip (meterOptions, Padding (Constants::kLabelStripLeftPadding, 0, 0, 0), Constants::kLabelStripId, true, juce::AudioChannelSet::ChannelType::unknown)
 {
 #if SDTK_ENABLE_FADER
@@ -54,18 +64,7 @@ MetersComponent::MetersComponent (const MeterOptions& meterOptions)
     setName (Constants::kMetersPanelId);
 
     startTimerHz (static_cast<int> (std::round (m_meterOptions.refreshRate)));
-}
-//==============================================================================
 
-MetersComponent::MetersComponent() : MetersComponent ({}, {}) { }
-//==============================================================================
-
-MetersComponent::MetersComponent (const juce::AudioChannelSet& channelFormat) : MetersComponent ({}, channelFormat) { }
-//==============================================================================
-
-MetersComponent::MetersComponent (const MeterOptions& meterOptions, const juce::AudioChannelSet& channelFormat)
-  : m_meterOptions (meterOptions), m_channelFormat (channelFormat)
-{
     createMeters (channelFormat, {});
 }
 //==============================================================================
@@ -156,17 +155,14 @@ void MetersComponent::paint (juce::Graphics& g)
 
 void MetersComponent::resized()
 {
-    // Get the number of meters present...
     const int numOfMeters = static_cast<int> (m_meterChannels.size());
     if (numOfMeters == 0)
         return;
 
-    auto       panelBounds = getLocalBounds();
-    const auto panelHeight = panelBounds.getHeight();
-    const auto panelWidth  = panelBounds.getWidth();
-
-    // By default show the MASTER strip...
-    auto labelStripWidth = (m_labelStripPosition != LabelStripPosition::none ? Constants::kDefaultHeaderLabelWidth : 0);
+    auto       panelBounds     = getLocalBounds();
+    const auto panelHeight     = panelBounds.getHeight();
+    const auto panelWidth      = panelBounds.getWidth();
+    auto       labelStripWidth = (m_labelStripPosition != LabelStripPosition::none ? Constants::kDefaultHeaderLabelWidth : 0);
 
     // Calculate meter width from available width taking into account the extra width needed when showing the master strip...
     auto       meterWidth     = juce::jlimit (Constants::kMinWidth, Constants::kMaxWidth, (panelWidth - labelStripWidth) / numOfMeters);
@@ -228,9 +224,9 @@ void MetersComponent::setChannelNames (const std::vector<juce::String>& channelN
     {
         if (meterIdx < numChannelNames)
         {
-            if (channelNames[(size_t) meterIdx].isNotEmpty())
+            if (channelNames[static_cast<size_t> (meterIdx)].isNotEmpty())
             {
-                m_meterChannels[meterIdx]->setChannelName (channelNames[(size_t) meterIdx]);  // ... and set the channel name.
+                m_meterChannels[meterIdx]->setChannelName (channelNames[static_cast<size_t> (meterIdx)]);  // ... and set the channel name.
 
                 // Calculate the meter width so it fits the largest of channel names...
                 defaultMeterWidth = std::max (defaultMeterWidth, m_meterChannels[meterIdx]->getChannelNameWidth());
@@ -534,7 +530,7 @@ void MetersComponent::createMeters (const juce::AudioChannelSet& channelFormat, 
         meterChannel->onFaderMove = [this] (MeterChannel* channel) { faderChanged (channel); };
 #endif
 
-        meterChannel->setFont (&m_font);
+        meterChannel->setFont (m_font);
         meterChannel->addMouseListener (this, true);
 
         addChildComponent (meterChannel.get());
@@ -590,8 +586,8 @@ void MetersComponent::setFont (const juce::Font& newFont)
 {
     m_font = newFont;
     for (auto* meter: m_meterChannels)
-        meter->setFont (&m_font);
-    m_labelStrip.setFont (&m_font);
+        meter->setFont (m_font);
+    m_labelStrip.setFont (m_font);
 }
 //==============================================================================
 
@@ -646,10 +642,10 @@ void MetersComponent::setLabelStripPosition (LabelStripPosition labelStripPositi
 
 void MetersComponent::showHeader (bool showHeader)
 {
-    if (m_meterOptions.headerEnabled == showHeader)
+    if (m_meterOptions.showHeader == showHeader)
         return;
 
-    m_meterOptions.headerEnabled = showHeader;
+    m_meterOptions.showHeader = showHeader;
     m_labelStrip.showHeader (showHeader);
 
     for (auto* meter: m_meterChannels)

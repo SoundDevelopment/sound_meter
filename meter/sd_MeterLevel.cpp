@@ -45,6 +45,29 @@ Level::Level()
 }
 //==============================================================================
 
+void Level::drawMeter (juce::Graphics& g)
+{
+    for (auto& segment: m_segments)
+        segment.draw (g);
+}
+//==============================================================================
+
+void Level::drawInactiveMeter (juce::Graphics& g) const
+{
+    // Check if there is space enough to write the 'MUTE' text...
+    if (static_cast<float> (m_meterBounds.getWidth()) < (g.getCurrentFont().getHeight()))
+        return;
+
+    g.saveState();
+    g.addTransform (juce::AffineTransform::rotation (juce::MathConstants<float>::halfPi, static_cast<float> (m_meterBounds.getCentreX()),
+                                                     static_cast<float> (m_meterBounds.getY() + (m_meterBounds.getWidth() / 2.0f))));  // NOLINT
+    g.setColour (m_meterOptions.textColour.darker (0.7f));
+
+    g.drawText (TRANS ("MUTE"), m_meterBounds.withWidth (m_meterBounds.getHeight()).withHeight (m_meterBounds.getWidth()), juce::Justification::centred);
+    g.restoreState();
+}
+//==============================================================================
+
 void Level::drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColour) const
 {
     if (m_valueBounds.isEmpty())
@@ -58,29 +81,6 @@ void Level::drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColou
         g.setColour (textValueColour);
         g.drawFittedText (juce::String (peak_db, precision), m_valueBounds, juce::Justification::centred, 1);
     }
-}
-//==============================================================================
-
-void Level::drawMeter (juce::Graphics& g)
-{
-    for (auto& segment: m_segments)
-        segment.draw (g);
-}
-//==============================================================================
-
-void Level::drawInactiveMeter (juce::Graphics& g, const juce::Colour& textColour) const
-{
-    // Check if there is space enough to write the 'MUTE' text...
-    if (static_cast<float> (m_meterBounds.getWidth()) < (g.getCurrentFont().getHeight()))
-        return;
-
-    g.saveState();
-    g.addTransform (juce::AffineTransform::rotation (juce::MathConstants<float>::halfPi, static_cast<float> (m_meterBounds.getCentreX()),
-                                                     static_cast<float> (m_meterBounds.getY() + (m_meterBounds.getWidth() / 2.0f))));  // NOLINT
-    g.setColour (textColour);
-
-    g.drawText (TRANS ("MUTE"), m_meterBounds.withWidth (m_meterBounds.getHeight()).withHeight (m_meterBounds.getWidth()), juce::Justification::centred);
-    g.restoreState();
 }
 //==============================================================================
 
@@ -122,7 +122,6 @@ void Level::setMeterOptions (const MeterOptions& meterOptions)
 
 void Level::synchronizeMeterOptions()
 {
-    setMinimalMode (m_minimalModeActive);
     for (auto& segment: m_segments)
     {
         segment.setMeterOptions (m_meterOptions);
@@ -130,7 +129,6 @@ void Level::synchronizeMeterOptions()
         segment.setMinimalMode (m_minimalModeActive);
     }
 }
-
 //==============================================================================
 
 void Level::setMeterSegments (const std::vector<SegmentOptions>& segmentsOptions)
@@ -146,18 +144,18 @@ void Level::setMeterSegments (const std::vector<SegmentOptions>& segmentsOptions
 }
 //==============================================================================
 
-void Level::setIsLabelStrip (bool isLabelStrip) noexcept
-{
-    m_isLabelStrip = isLabelStrip;
-    synchronizeMeterOptions();
-}
-//==============================================================================
-
 void Level::reset()
 {
     m_inputLevel.store (0.0f);
     m_meterLevel_db       = Constants::kMinLevel_db;
     m_previousRefreshTime = 0;
+}
+//==============================================================================
+
+void Level::setIsLabelStrip (bool isLabelStrip) noexcept
+{
+    m_isLabelStrip = isLabelStrip;
+    synchronizeMeterOptions();
 }
 //==============================================================================
 
@@ -204,7 +202,6 @@ void Level::setMinimalMode (bool minimalMode)
     m_minimalModeActive = minimalMode;
 
     setMeterBounds (m_meterBounds);
-
     synchronizeMeterOptions();
 }
 //==============================================================================

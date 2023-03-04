@@ -48,6 +48,9 @@ Segment::Segment (const MeterOptions& meterOptions, const SegmentOptions& segmen
 
 void Segment::setMinimalMode (bool minimalMode)
 {
+    if (minimalMode == m_minimalModeActive)
+        return;
+
     m_minimalModeActive = false;
     if (m_meterOptions.useMinimalMode && minimalMode)
         m_minimalModeActive = true;
@@ -159,6 +162,7 @@ void Segment::setMeterBounds (juce::Rectangle<int> meterBounds)
                                  .withHeight (meterBounds.proportionOfHeight (m_segmentOptions.meterRange.getLength()));
     m_segmentBounds = segmentBounds;
     updateLevelBounds();
+    updatePeakHoldBounds();
 
     if (m_meterOptions.useGradients)
         m_gradientFill = juce::ColourGradient (m_segmentOptions.segmentColour, segmentBounds.toFloat().getBottomLeft(), m_segmentOptions.nextSegmentColour,

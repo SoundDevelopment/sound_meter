@@ -107,7 +107,7 @@ struct SegmentOptions
 struct MeterOptions
 {
     bool  enabled          = true;  ///< Enable the meter.
-    bool  headerEnabled    = true;  ///< Enable the 'header' part of the meter.
+    bool  showHeader    = true;  ///< Enable the 'header' part of the meter.
     bool  valueEnabled     = true;  ///< Enable the 'value' part of the meter.
     bool  faderEnabled     = true;  ///< Enable the fader (overlay-ed over the meter). Only works if fader have been enabled in the module.
     bool  useMinimalMode   = true;  ///< Automatically adapt the meter to use the most of the space available (by hiding header, value, tick-marks, etc...).
@@ -116,11 +116,25 @@ struct MeterOptions
     bool  tickMarksEnabled = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
     bool  tickMarksOnTop   = true;   ///< Show the tick-marks below the level or above the level (level might obscure the tick-marks if loud enough).
     bool  useGradients     = false;  ///< Use gradients for the meter segments, in stead of solid colours.
-    juce::Colour       peakHoldColour = juce::Colours::blueviolet;                 ///< The colour of peak hold bar.
-    bool               enablePeakHold = true;                                      ///< Enable peak hold.
+    juce::Colour       peakHoldColour = juce::Colours::blueviolet;                               ///< The colour of peak hold bar.
+    bool               enablePeakHold = true;                                                    ///< Enable peak hold.
     std::vector<float> tickMarks      = { 0.0f, -3.0f, -6.0f, -12.0f, -18.0f, -32.0f, -50.0f };  ///< Tick-mark position in db. NOLINT
-    juce::Colour       tickMarkColour = juce::Colours::grey;                       ///< Tick-mark colour.  NOLINT
-    juce::Colour       textColour     = juce::Colours::white;                      ///< Text colour.  NOLINT
+    juce::Colour       tickMarkColour = juce::Colours::grey;                                     ///< Tick-mark colour.  NOLINT
+    juce::Colour       textColour     = juce::Colours::white;                                    ///< Text colour.  NOLINT
+};
+
+class MeterScales
+{
+public:
+    [[nodiscard]] static std::vector<SegmentOptions> getDefaultScale()
+    {
+        return { { { -60.0f, -18.0f }, { 0.0f, 0.5f }, juce::Colours::green, juce::Colours::yellow },  // NOLINT
+                 { { -18.0f, -3.0f }, { 0.5f, 0.90f }, juce::Colours::yellow, juce::Colours::red },    // NOLINT
+                 { { -3.0f, 0.0f }, { 0.90f, 1.0f }, juce::Colours::red, juce::Colours::red } };       // NOLINT
+    }
+
+private:
+    MeterScales() = default;
 };
 
 
