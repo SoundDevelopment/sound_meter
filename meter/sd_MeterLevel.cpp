@@ -58,7 +58,7 @@ void Level::drawInactiveMeter (juce::Graphics& g) const
     g.saveState();
     g.addTransform (juce::AffineTransform::rotation (juce::MathConstants<float>::halfPi, static_cast<float> (m_meterBounds.getCentreX()),
                                                      static_cast<float> (m_meterBounds.getY() + (m_meterBounds.getWidth() / 2.0f))));  // NOLINT
-    g.setColour (m_meterOptions.textColour.darker (0.7f));
+    g.setColour (m_meterOptions.textColour.darker (0.7f));                                                                             // NOLINT
 
     g.drawText (TRANS ("MUTE"), m_meterBounds.withWidth (m_meterBounds.getHeight()).withHeight (m_meterBounds.getWidth()), juce::Justification::centred);
     g.restoreState();
@@ -156,41 +156,6 @@ void Level::setIsLabelStrip (bool isLabelStrip) noexcept
 }
 //==============================================================================
 
-void Level::useGradients (bool useGradients)
-{
-    m_meterOptions.useGradients = useGradients;
-    synchronizeMeterOptions();
-}
-//==============================================================================
-
-void Level::showTickMarks (bool tickMarksEnabled)
-{
-    m_meterOptions.tickMarksEnabled = tickMarksEnabled;
-    synchronizeMeterOptions();
-}
-//==============================================================================
-
-void Level::showTickMarksOnTop (bool showTickMarksOnTop)
-{
-    m_meterOptions.tickMarksOnTop = showTickMarksOnTop;
-    synchronizeMeterOptions();
-}
-//==============================================================================
-
-void Level::setTickMarks (const std::vector<float>& tickMarks)
-{
-    m_meterOptions.tickMarks = tickMarks;
-    synchronizeMeterOptions();
-}
-//==============================================================================
-
-void Level::showValue (bool isVisible) noexcept
-{
-    m_meterOptions.valueEnabled = isVisible;
-    synchronizeMeterOptions();
-}
-//==============================================================================
-
 void Level::setMinimalMode (bool minimalMode)
 {
     if (m_minimalModeActive == minimalMode)
@@ -251,13 +216,6 @@ float Level::getDecayedLevel (const float newLevel_db)
 }
 //==============================================================================
 
-void Level::enablePeakHold (bool enablePeakHold)
-{
-    m_meterOptions.enablePeakHold = enablePeakHold;
-    synchronizeMeterOptions();
-}
-//==============================================================================
-
 void Level::resetPeakHold()
 {
     for (auto& segment: m_segments)
@@ -284,7 +242,7 @@ void Level::setMeterBounds (const juce::Rectangle<int>& bounds)
     m_levelBounds = m_meterBounds;
 
     // If the meter is in minimal mode, the value is not displayed...
-    if (m_meterOptions.valueEnabled && !m_minimalModeActive)
+    if (m_meterOptions.showValue && !m_minimalModeActive)
         m_valueBounds = m_levelBounds.removeFromBottom (Constants::kDefaultHeaderHeight);
     else
         m_valueBounds = juce::Rectangle<int>();

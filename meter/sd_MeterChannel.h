@@ -185,17 +185,17 @@ public:
      *
      * Resets the peak hold indicator and value.
      *
-     * @see enablePeakHold
+     * @see showPeakHold
     */
     void resetPeakHold();
 
     /**
-     * @brief Enable (or disable) the peak hold indicator.
+     * @brief Show (or hide) the peak hold indicator.
      *
-     * @param enablePeakHold When set true, the peak hold indicator will be shown.
+     * @param showPeakHold When set true, the peak hold indicator will be shown.
      * @see showPeakValue, resetPeakHold
     */
-    void enablePeakHold (bool enablePeakHold = true) { m_level.enablePeakHold (enablePeakHold); }
+    void showPeakHold (bool showPeakHold = true);
 
     /**
      * @brief Show the peak 'value' part of the meter.
@@ -204,7 +204,7 @@ public:
      * It's the same level as the peak hold bar.
      *
      * @param showPeakValue When set true, shows the 'value' level (in dB) part below the meter.
-     * @see enablePeakHold, resetPeakHold, showValue
+     * @see showPeakHold, resetPeakHold, showValue
     */
     void showValue (bool showValue = true);
 
@@ -302,10 +302,10 @@ public:
      *
      * The tick-marks will be shown when they are enable and visible.
      *
-     * @param tickMarksEnabled When set true, the tick-marks are enabled.
+     * @param showTickMarks When set true, the tick-marks are enabled.
      * @see showTickMarks, setTickMarks, showTickMarksOnTop
     */
-    void showTickMarks (bool tickMarksEnabled) { m_level.showTickMarks (tickMarksEnabled); }
+    void showTickMarks (bool showTickMarks);
 
     /**
      * @brief Show the tick-marks on top of the level or below it.
@@ -315,7 +315,7 @@ public:
      *
      * @param showTickMarksOnTop Show the tick-marks on top of the level.
    */
-    void showTickMarksOnTop (bool showTickMarksOnTop) { m_level.showTickMarksOnTop (showTickMarksOnTop); }
+    void showTickMarksOnTop (bool showTickMarksOnTop);
 
     /**
      * @brief Set the level of the tick marks.
@@ -326,7 +326,7 @@ public:
      * @param tickMarks List of tick mark values (in decibels).
      * @see showTickMarks, showTickMarksOnTop, showTickMarks
     */
-    void setTickMarks (const std::vector<float>& tickMarks) { m_level.setTickMarks (tickMarks); }
+    void setTickMarks (const std::vector<float>& tickMarks);
 
     /**
      * @brief Set the padding of the meter.
@@ -389,7 +389,7 @@ public:
      *
      * @param useGradients When set to true, uses smooth gradients. False gives hard segment boundaries.
     */
-    void useGradients (bool useGradients) { m_level.useGradients (useGradients); }
+    void useGradients (bool useGradients);
 
 #if SDTK_ENABLE_FADER
 
@@ -465,11 +465,8 @@ public:
 
     /** @internal */
     void paint (juce::Graphics& g) override;
-    /** @internal */
     void resized() override;
-    /** @internal */
     void lookAndFeelChanged() override;  // On change in lookandfeel or visibility. Cache the colours.
-    /** @internal */
     void visibilityChanged() override;
 
     /**

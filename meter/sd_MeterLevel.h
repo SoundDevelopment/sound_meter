@@ -117,59 +117,6 @@ public:
     void setMeterOptions (const MeterOptions& meterOptions);
 
     /**
-     * @brief Use gradients in stead of hard segment boundaries.
-     *
-     * @param useGradients When set to true, uses smooth gradients. False gives hard segment boundaries.
-    */
-    void useGradients (bool useGradients);
-
-    /**
-     * @brief Enable tick-marks (divider lines) on the meter.
-     *
-     * A tick mark is a horizontal line, dividing the meter.
-     * This is also the place the label strip will put it's text values.
-     *
-     * The tick-marks will be shown when they are enable and visible.
-     *
-     * @param tickMarksEnabled When set true, the tick-marks are enabled.
-     * @see showTickMarks, setTickMarks, showTickMarksOnTop
-    */
-    void showTickMarks (bool tickMarksEnabled);
-
-    /**
-     * @brief Show the tick-marks on top of the level or below it.
-     *
-     * When below the level, the tick-marks will be obscured if the
-     * level is loud enough.
-     *
-     * @param showTickMarksOnTop Show the tick-marks on top of the level.
-   */
-    void showTickMarksOnTop (bool showTickMarksOnTop);
-
-    /**
-     * @brief Set the level of the tick marks.
-     *
-     * A tick mark is a horizontal line, dividing the meter.
-     * This is also the place the label strip will put it's text values.
-     *
-     * @param tickMarks List of tick mark values (in decibels).
-     * @see showTickMarks, showTickMarksOnTop, showTickMarks
-    */
-    void setTickMarks (const std::vector<float>& tickMarks);
-
-    /**
-     * @brief Show the peak 'value' part of the meter.
-     *
-     * The peak value will be shown below the meter (in dB).
-     * It's the same level as the peak hold bar.
-     *
-     * @param isVisible When set true, shows the 'value' level (in dB) part below the meter.
-     *
-     * @see isPeakValueVisible, resetPeakHold, showValue
-    */
-    void showValue (bool isVisible) noexcept;
-
-    /**
      * @brief Check if the peak 'value' part is visible.
      *
      * The peak value will be shown below the meter (in db).
@@ -182,16 +129,8 @@ public:
     [[nodiscard]] bool isPeakValueVisible() const noexcept { return !m_valueBounds.isEmpty(); }
 
     /**
-     * @brief Enable (or disable) the peak hold indicator.
-     *
-     * @param enablePeakHold When set true, the peak hold indicator will be shown.
-     * @see showPeakValue, resetPeakHold
-    */
-    void enablePeakHold (bool enablePeakHold);
-
-    /**
      * @brief Reset the peak hold level.
-     * @see getPeakHoldLevel, isPeakValueVisible, setPeakValueVisible, enablePeakHold, showValue, isPeakHoldEnabled
+     * @see getPeakHoldLevel, isPeakValueVisible, setPeakValueVisible, showPeakHold, showValue, isPeakHoldEnabled
     */
     void resetPeakHold();
 
