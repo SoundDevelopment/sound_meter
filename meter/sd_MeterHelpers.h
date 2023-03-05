@@ -129,6 +129,20 @@ public:
                  { { -3.0f, 0.0f }, { 0.90f, 1.0f }, juce::Colours::red, juce::Colours::red } };       // NOLINT
     }
 
+    [[nodiscard]] static std::vector<SegmentOptions> getSmpteScale()
+    {
+        return { { { -44.0f, -12.0f }, { 0.0f, 0.7273f }, juce::Colours::green, juce::Colours::yellow },  // NOLINT
+                 { { -12.0f, -3.0f }, { 0.7273f, 0.9318f }, juce::Colours::yellow, juce::Colours::red },  // NOLINT
+                 { { -3.0f, 0.0f }, { 0.9318f, 1.0f }, juce::Colours::red, juce::Colours::red } };        // NOLINT
+    }
+
+    [[nodiscard]] static std::vector<SegmentOptions> getYamaha60()
+    {
+        return { { { -60.0f, -30.0f }, { 0.0f, 0.2751f }, juce::Colours::yellow, juce::Colours::yellow },     // NOLINT
+                 { { -30.0f, -18.0f }, { 0.2751f, 0.4521f }, juce::Colours::yellow, juce::Colours::yellow },  // NOLINT
+                 { { -18.0f, 0.0f }, { 0.4521f, 1.0f }, juce::Colours::red, juce::Colours::red } };       // NOLINT
+    }
+
 private:
     MeterScales() = default;
 };
