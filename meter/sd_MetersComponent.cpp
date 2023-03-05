@@ -56,9 +56,11 @@ MetersComponent::MetersComponent (const MeterOptions& meterOptions, const juce::
     m_labelStrip.onFaderMove = [this] (MeterChannel::Ptr meterChannel) { faderChanged (meterChannel); };
 #endif
 
-    addAndMakeVisible (m_labelStrip);
-
     setName (Constants::kMetersPanelId);
+  //  setOpaque (true);
+  //  setBufferedToImage (true);
+
+    addAndMakeVisible (m_labelStrip);
 
     startTimerHz (static_cast<int> (std::round (m_meterOptions.refreshRate)));
 
@@ -109,8 +111,10 @@ void MetersComponent::refresh (const bool forceRefresh /*= false*/)
 
     m_labelStrip.refresh (forceRefresh);
     for (auto* meter: m_meterChannels)
+    {
         if (meter)
             meter->refresh (forceRefresh);
+    }
 }
 //==============================================================================
 
@@ -145,13 +149,6 @@ void MetersComponent::useInternalTiming (bool useInternalTiming) noexcept
 void MetersComponent::paint (juce::Graphics& g)
 {
     g.fillAll (m_backgroundColour);
-
-    if (!m_meterOptions.enabled)
-    {
-        g.setColour (m_backgroundColour.contrasting (1.0f));
-        g.setFont (m_font.withHeight (14.0f));                                                                        // NOLINT
-        g.drawFittedText ("No audio device open for playback. ", getLocalBounds(), juce::Justification::centred, 5);  // NOLINT
-    }
 }
 //==============================================================================
 
@@ -501,8 +498,8 @@ void MetersComponent::setChannelFormat (const juce::AudioChannelSet& channels, c
     {
         if (numFaderGains > channels.size() || m_faderGains.empty())
         {
-            m_faderGains.resize (static_cast<size_t> (channels.size()), 1.0F);  // ... and if not resize the mixer gains to accommodate.
-            m_faderGainsBuffer.resize (static_cast<size_t> (channels.size()), 1.0F);
+            m_faderGains.resize (static_cast<size_t> (channels.size()), 1.0f);  // ... and if not resize the mixer gains to accommodate.
+            m_faderGainsBuffer.resize (static_cast<size_t> (channels.size()), 1.0f);
         }
         else
         {
@@ -639,7 +636,7 @@ void MetersComponent::enable (bool enabled /*= true*/)
 
 void MetersComponent::showTickMarks (bool showTickMarks)
 {
-    m_meterOptions.tickMarksEnabled = showTickMarks;
+    m_meterOptions.showTickMarks = showTickMarks;
     for (auto* meter: m_meterChannels)
         if (meter)
             meter->showTickMarks (showTickMarks);
@@ -681,7 +678,7 @@ void MetersComponent::showHeader (bool showHeader)
 
 void MetersComponent::showValue (bool showValue)
 {
-    if (m_meterOptions.valueEnabled == showValue)
+    if (m_meterOptions.showValue == showValue)
         return;
 
     m_labelStrip.showValue (showValue);

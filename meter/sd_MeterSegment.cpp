@@ -97,7 +97,7 @@ void Segment::draw (juce::Graphics& g)
     if (m_meterOptions.tickMarksOnTop)
         drawTickMarks (g);
 
-    if (m_meterOptions.enablePeakHold && !m_peakHoldBounds.isEmpty())
+    if (m_meterOptions.showPeakHold && !m_peakHoldBounds.isEmpty())
     {
         g.setColour (m_meterOptions.peakHoldColour);
         g.fillRect (m_peakHoldBounds);
