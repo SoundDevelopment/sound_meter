@@ -73,10 +73,8 @@ void Fader::setVisible (bool showFader /*= true*/) noexcept
 }
 //==============================================================================
 
-void Fader::draw (juce::Graphics& g, const juce::Colour& faderColour)
+void Fader::draw (juce::Graphics& g, const MeterColours& meterColours)
 {
-    using namespace Constants;
-
     m_isFading = false;
 
     if (!m_enabled)
@@ -85,24 +83,23 @@ void Fader::draw (juce::Graphics& g, const juce::Colour& faderColour)
     const auto timeSinceStartFade = getTimeSinceStartFade();
 
     // Return if the fader was already invisible and a new fade has not been started...
-    if (!m_visible && timeSinceStartFade >= kFaderFadeTime_ms)
+    if (!m_visible && timeSinceStartFade >= Constants::kFaderFadeTime_ms)
         return;
 
     auto alpha = Constants::kFaderAlphaMax;
 
     // If it's fading, calculate it's alpha...
-    if (timeSinceStartFade < kFaderFadeTime_ms)
+    if (timeSinceStartFade < Constants::kFaderFadeTime_ms)
     {
         constexpr float fadePortion = 2.0f;
-        jassert (kFaderFadeTime_ms > 0.0f);
-        alpha      = juce::jlimit (0.0f, 1.0f, fadePortion - ((static_cast<float> (timeSinceStartFade) * fadePortion) / kFaderFadeTime_ms)) * kFaderAlphaMax;
+        alpha = juce::jlimit (0.0f, 1.0f, fadePortion - ((static_cast<float> (timeSinceStartFade) * fadePortion) / Constants::kFaderFadeTime_ms)) * Constants::kFaderAlphaMax;
         m_isFading = alpha > 0.0f;
     }
 
     // If the fader is not fully transparent, draw it...
     if (alpha > 0.0f)
     {
-        g.setColour (faderColour.withAlpha (alpha));
+        g.setColour (meterColours.faderColour.withAlpha (alpha));
         auto faderRect    = m_bounds;
         m_drawnFaderValue = getValue();
         g.fillRect (faderRect.removeFromBottom (m_bounds.proportionOfHeight (m_drawnFaderValue)));

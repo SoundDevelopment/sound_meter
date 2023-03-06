@@ -54,7 +54,7 @@ public:
     void setLevel (float level_db);
 
     /** @brief Draw the segment.*/
-    void draw (juce::Graphics& g);
+    void draw (juce::Graphics& g, const MeterColours& meterColours);
 
     /** @brief Set the bounds of the total meter (all segments) */
     void setMeterBounds (juce::Rectangle<int> meterBounds);
@@ -124,8 +124,8 @@ private:
 
     void updateLevelBounds();
     void updatePeakHoldBounds();
-    void drawTickMarks (juce::Graphics& g);
-    void drawLabels (juce::Graphics& g) const;
+    void drawTickMarks (juce::Graphics& g, const MeterColours& meterColours);
+    void drawLabels (juce::Graphics& g, const MeterColours& meterColours) const;
 
     [[nodiscard]] static constexpr bool containsUpTo (juce::Range<float> levelRange, float levelDb) noexcept;
 

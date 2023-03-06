@@ -149,10 +149,10 @@ public:
     /**
      * @brief Draw the fader.
      *
-     * @param[in,out] g   The juce graphics context to use.
-     * @param faderColour Fader colour to use.
+     * @param[in,out] g    The juce graphics context to use.
+     * @param meterColours Colours to draw the fader with.
     */
-    void draw (juce::Graphics& g, const juce::Colour& faderColour);
+    void draw (juce::Graphics& g, const MeterColours& meterColours);
 
     /**
      * @brief Check if the fader needs redrawing.

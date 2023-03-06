@@ -42,14 +42,14 @@ Level::Level()
 }
 //==============================================================================
 
-void Level::drawMeter (juce::Graphics& g)
+void Level::drawMeter (juce::Graphics& g, const MeterColours& meterColours)
 {
     for (auto& segment: m_segments)
-        segment.draw (g);
+        segment.draw (g, meterColours);
 }
 //==============================================================================
 
-void Level::drawInactiveMeter (juce::Graphics& g) const
+void Level::drawInactiveMeter (juce::Graphics& g, const MeterColours& meterColours) const
 {
     // Check if there is space enough to write the 'MUTE' text...
     if (static_cast<float> (m_meterBounds.getWidth()) < (g.getCurrentFont().getHeight()))
@@ -58,14 +58,14 @@ void Level::drawInactiveMeter (juce::Graphics& g) const
     g.saveState();
     g.addTransform (juce::AffineTransform::rotation (juce::MathConstants<float>::halfPi, static_cast<float> (m_meterBounds.getCentreX()),
                                                      static_cast<float> (m_meterBounds.getY() + (m_meterBounds.getWidth() / 2.0f))));  // NOLINT
-    g.setColour (m_meterOptions.textColour.darker (0.7f));                                                                             // NOLINT
+    g.setColour (meterColours.textColour.darker (0.7f));                                                                               // NOLINT
 
     g.drawText (TRANS ("MUTE"), m_meterBounds.withWidth (m_meterBounds.getHeight()).withHeight (m_meterBounds.getWidth()), juce::Justification::centred);
     g.restoreState();
 }
 //==============================================================================
 
-void Level::drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColour) const
+void Level::drawPeakValue (juce::Graphics& g, const MeterColours& meterColours) const
 {
     if (m_valueBounds.isEmpty())
         return;
@@ -75,7 +75,7 @@ void Level::drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColou
     if (peak_db > m_meterRange.getStart())  // If active, present and enough space is available.
     {
         const int precision = peak_db <= -10.0f ? 1 : 2;  // Set precision depending on peak value. NOLINT
-        g.setColour (textValueColour);
+        g.setColour (meterColours.textValueColour);
         g.drawFittedText (juce::String (peak_db, precision), m_valueBounds, juce::Justification::centred, 1);
     }
 }

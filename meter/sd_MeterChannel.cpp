@@ -32,7 +32,7 @@
 
 #include "sd_MeterChannel.h"
 
-namespace sd  // NOLINT
+namespace sd
 {
 namespace SoundMeter
 {
@@ -88,16 +88,6 @@ void MeterChannel::notifyParent()
 //==============================================================================
 
 #endif /* SDTK_ENABLE_FADER */
-
-juce::Colour MeterChannel::getColourFromLnf (int colourId, const juce::Colour& fallbackColour) const
-{
-    if (isColourSpecified (colourId))
-        return findColour (colourId);
-    if (getLookAndFeel().isColourSpecified (colourId))
-        return getLookAndFeel().findColour (colourId);
-
-    return fallbackColour;
-}
 //==============================================================================
 
 bool MeterChannel::autoSetMinimalMode (int proposedWidth, int proposedHeight)
@@ -122,18 +112,6 @@ void MeterChannel::setMinimalMode (bool minimalMode)
     m_minimalMode = minimalMode;
     showHeader (!m_minimalMode);  // ... show channel ID if it's not too narrow for ID and not in minimum mode.
     m_level.setMinimalMode (m_minimalMode);
-}
-//==============================================================================
-
-void MeterChannel::lookAndFeelChanged()
-{
-    visibilityChanged();
-}
-//==============================================================================
-
-void MeterChannel::visibilityChanged()
-{
-    setColours();
 }
 //==============================================================================
 
@@ -168,20 +146,41 @@ void MeterChannel::setOptions (const MeterOptions& meterOptions)
 }
 //==============================================================================
 
+void MeterChannel::lookAndFeelChanged()
+{
+    visibilityChanged();
+}
+//==============================================================================
+
+void MeterChannel::visibilityChanged()
+{
+    setColours();
+}
+//==============================================================================
+
+juce::Colour MeterChannel::getColourFromLnf (int colourId, const juce::Colour& fallbackColour) const
+{
+    if (isColourSpecified (colourId))
+        return findColour (colourId);
+    if (getLookAndFeel().isColourSpecified (colourId))
+        return getLookAndFeel().findColour (colourId);
+
+    return fallbackColour;
+}
+//==============================================================================
+
 void MeterChannel::setColours()
 {
-    m_backgroundColour    = getColourFromLnf (backgroundColourId, juce::Colours::black);
-    m_inactiveColour      = getColourFromLnf (inactiveColourId, juce::Colours::grey);
-    m_textValueColour     = getColourFromLnf (textValueColourId, juce::Colours::white.darker (0.6f));  // NOLINT
-    m_muteColour          = getColourFromLnf (mutedColourId, juce::Colours::red);
-    m_muteMouseOverColour = getColourFromLnf (mutedMouseOverColourId, juce::Colours::black);
-    m_faderColour         = getColourFromLnf (faderColourId, juce::Colours::blue.withAlpha (Constants::kFaderAlphaMax));
-
-    m_meterOptions.textColour     = getColourFromLnf (textColourId, juce::Colours::white.darker (0.6f));                       // NOLINT
-    m_meterOptions.tickMarkColour = getColourFromLnf (tickMarkColourId, juce::Colours::white.darker (0.3f).withAlpha (0.5f));  // NOLINT
-    m_meterOptions.peakHoldColour = getColourFromLnf (peakHoldColourId, juce::Colours::red);
-
-    setOptions (m_meterOptions);
+    m_meterColours.backgroundColour    = getColourFromLnf (backgroundColourId, juce::Colours::black);
+    m_meterColours.inactiveColour      = getColourFromLnf (inactiveColourId, juce::Colours::grey);
+    m_meterColours.textValueColour     = getColourFromLnf (textValueColourId, juce::Colours::white.darker (0.6f));  // NOLINT
+    m_meterColours.muteColour          = getColourFromLnf (mutedColourId, juce::Colours::red);
+    m_meterColours.muteMouseOverColour = getColourFromLnf (mutedMouseOverColourId, juce::Colours::black);
+    m_meterColours.solodColour         = getColourFromLnf (solodColourId, juce::Colours::red);
+    m_meterColours.faderColour         = getColourFromLnf (faderColourId, juce::Colours::blue.withAlpha (Constants::kFaderAlphaMax));
+    m_meterColours.textColour          = getColourFromLnf (textColourId, juce::Colours::white.darker (0.6f));                       // NOLINT
+    m_meterColours.tickMarkColour      = getColourFromLnf (tickMarkColourId, juce::Colours::white.darker (0.3f).withAlpha (0.5f));  // NOLINT
+    m_meterColours.peakHoldColour      = getColourFromLnf (peakHoldColourId, juce::Colours::red);
 }
 //==============================================================================
 
@@ -227,12 +226,6 @@ void MeterChannel::showPeakHold (bool showPeakHold)
 }
 //==============================================================================
 
-#pragma endregion
-
-#pragma region Draw Methods
-
-//==============================================================================
-
 void MeterChannel::resized()
 {
     auto meterBounds = SoundMeter::Helpers::applyPadding (getLocalBounds(), m_padding);
@@ -252,8 +245,6 @@ void MeterChannel::resized()
 
 void MeterChannel::paint (juce::Graphics& g)
 {
-    setDirty (false);
-
     if (getLocalBounds().isEmpty())
         return;
 
@@ -263,16 +254,16 @@ void MeterChannel::paint (juce::Graphics& g)
     if (!m_header.getBounds().isEmpty() && m_meterOptions.showHeader)
     {
 #if SDTK_ENABLE_FADER
-        m_header.draw (g, isActive(), m_fader.isEnabled(), m_muteColour, m_muteMouseOverColour, m_meterOptions.textColour, m_inactiveColour);
+        m_header.draw (g, isActive(), m_fader.isEnabled(), m_meterColours);
 #else
-        m_header.draw (g, isActive(), false, m_muteColour, m_muteMouseOverColour, m_meterOptions.textColour, m_inactiveColour);
+        m_header.draw (g, isActive(), false, m_meterColours);
 #endif
     }
 
     drawMeter (g);
 
 #if SDTK_ENABLE_FADER
-    m_fader.draw (g, juce::Colour (m_faderColour));  // Draw FADER....
+    m_fader.draw (g, m_meterColours);  // Draw FADER....
 #endif
 }
 //==============================================================================
@@ -280,14 +271,14 @@ void MeterChannel::paint (juce::Graphics& g)
 void MeterChannel::drawMeter (juce::Graphics& g)
 {
     // Draw meter BACKGROUND...
-    g.setColour (m_active ? m_backgroundColour : m_inactiveColour);
+    g.setColour (m_active ? m_meterColours.backgroundColour : m_meterColours.inactiveColour);
     g.fillRect (m_level.getMeterBounds());
 
     // Draw meter level segments...
-    m_active ? m_level.drawMeter (g) : m_level.drawInactiveMeter (g);
+    m_active ? m_level.drawMeter (g, m_meterColours) : m_level.drawInactiveMeter (g, m_meterColours);
 
     // Draw peak hold level VALUE...
-    m_level.drawPeakValue (g, m_textValueColour);
+    m_level.drawPeakValue (g, m_meterColours);
 }
 //==============================================================================
 
@@ -299,8 +290,18 @@ bool MeterChannel::isDirty (const juce::Rectangle<int>& rectToCheck /*= {}*/) co
 }
 //==============================================================================
 
+void MeterChannel::addDirty (const juce::Rectangle<int>& dirtyRect) noexcept
+{
+    if (!isShowing())
+        return;
+    m_dirtyRect = m_dirtyRect.getUnion (dirtyRect);
+}
+//==============================================================================
+
 void MeterChannel::setDirty (bool isDirty /*= true*/) noexcept
 {
+    if (!isShowing())
+        return;
     m_dirtyRect = { 0, 0, 0, 0 };
     if (isDirty)
         m_dirtyRect = getLocalBounds();
@@ -318,7 +319,9 @@ void MeterChannel::refresh (const bool forceRefresh)
     if (m_active)
     {
         m_level.refreshMeterLevel();
-        addDirty (m_level.getDirtyBounds());
+        const auto levelDirtyBounds = m_level.getDirtyBounds();
+        if (!levelDirtyBounds.isEmpty())
+            addDirty (levelDirtyBounds);
 
 #if SDTK_ENABLE_FADER
         if (m_fader.needsRedrawing())
@@ -327,16 +330,16 @@ void MeterChannel::refresh (const bool forceRefresh)
     }
 
     // Redraw if dirty or forced to...
-    if (forceRefresh)
-        repaint();
-    else if (isDirty())
+    if (isDirty())
+    {
         repaint (m_dirtyRect);
+        setDirty (false);
+    }
+    else if (forceRefresh)
+    {
+        repaint();
+    }
 }
-//==============================================================================
-#pragma endregion
-
-#pragma region Properties
-
 //==============================================================================
 
 void MeterChannel::setActive (bool isActive, NotificationOptions notify /*= NotificationOptions::dontNotify*/)
@@ -396,7 +399,7 @@ void MeterChannel::setIsLabelStrip (bool isLabelStrip) noexcept
 void MeterChannel::setMeterSegments (const std::vector<SegmentOptions>& segmentsOptions)
 {
     m_level.setMeterSegments (segmentsOptions);
-    setDirty (true);
+    setDirty();
 }
 //==============================================================================
 
@@ -410,7 +413,6 @@ void MeterChannel::showFader (const bool faderVisible /*= true */)
     if (!faderVisible || !m_fader.isEnabled())
         resetMouseOvers();
     addDirty (m_fader.getBounds());
-    refresh (false);
 }
 //==============================================================================
 
@@ -421,7 +423,6 @@ void MeterChannel::setFaderValue (const float value, NotificationOptions notific
         if (mustShowFader && !m_fader.isVisible())
             flashFader();
         addDirty (m_fader.getBounds());
-        refresh (false);
     }
 }
 //==============================================================================
@@ -431,14 +432,6 @@ void MeterChannel::enableFader (bool faderEnabled /*= true*/) noexcept
     m_fader.enable (faderEnabled);
     addDirty (m_fader.getBounds());
 }
-
-#endif /* SDTK_ENABLE_FADER */
-
-#pragma endregion
-
-#pragma region Mouse Methods
-
-#if SDTK_ENABLE_FADER
 
 //==============================================================================
 
@@ -560,7 +553,6 @@ void MeterChannel::mouseDrag (const juce::MouseEvent& event)
     {
         m_fader.setValueFromPos (event.y);
         addDirty (m_level.getMeterBounds());
-        refresh (false);
     }
 }
 //==============================================================================
@@ -572,6 +564,5 @@ void MeterChannel::mouseWheelMove (const juce::MouseEvent& /*event*/, const juce
 
 #endif /* SDTK_ENABLE_FADER */
 
-#pragma endregion
 }  // namespace SoundMeter
 }  // namespace sd

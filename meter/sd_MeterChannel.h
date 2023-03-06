@@ -41,7 +41,7 @@
 #include <juce_core/juce_core.h>
 #include <juce_gui_basics/juce_gui_basics.h>
 
-namespace sd  // NOLINT
+namespace sd 
 {
 namespace SoundMeter
 {
@@ -52,7 +52,7 @@ namespace SoundMeter
  * Use the MetersComponent to create multiple meters matching
  * the specified channel format.
 */
-class MeterChannel final
+class MeterChannel final 
   : public juce::Component
   , private juce::SettableTooltipClient
 {
@@ -476,62 +476,52 @@ public:
     */
     enum ColourIds
     {
-        backgroundColourId     = 0x1a03201,  ///< Background colour.
-        peakColourId           = 0x1a03202,  ///< Peak area colour.
-        warningColourId        = 0x1a03203,  ///< Warning area colour.
-        normalColourId         = 0x1a03204,  ///< Normal colour.
-        tickMarkColourId       = 0x1a03205,  ///< Tick-mark colour.
-        textColourId           = 0x1a03206,  ///< Text colour.
-        faderColourId          = 0x1a03207,  ///< Fader colour.
-        textValueColourId      = 0x1a03208,  ///< Value text colour.
-        textBackgroundColourId = 0x1a03209,  ///< Text background colour.
-        mutedColourId          = 0x1a03210,  ///< Muted button colour.
-        solodColourId          = 0x1a03211,  ///< Soloed button colour..
-        mutedMouseOverColourId = 0x1a03212,  ///< Muted mouse over button colour.
-        inactiveColourId       = 0x1a03213,  ///< Inactive (muted) colour.
-        peakHoldColourId       = 0x1a03214   ///< Peak hold colour.
+        backgroundColourId     = 0x1a03201,  /// Background colour.
+        tickMarkColourId       = 0x1a03202,  /// Tick-mark colour.
+        textColourId           = 0x1a03203,  /// Text colour.
+        faderColourId          = 0x1a03204,  /// Fader colour.
+        textValueColourId      = 0x1a03205,  /// Value text colour.
+        mutedColourId          = 0x1a03206,  /// Muted button colour.
+        solodColourId          = 0x1a03207,  /// Soloed button colour..
+        mutedMouseOverColourId = 0x1a03208,  /// Muted mouse over button colour.
+        inactiveColourId       = 0x1a03209,  /// Inactive (muted) colour.
+        peakHoldColourId       = 0x1a03210   /// Peak hold colour.
     };
 
 private:
-    Header m_header { m_font };  ///< 'Header' part of the meter with info relating to the meter (name, channel type, info rect, index in a sequence of multiple meters).
-    Level        m_level {};         ///< 'Meter' part of the meter. Actually displaying the level.
-    MeterOptions m_meterOptions {};  ///< 'Meter' options.
+    // clang-format off
+    Header                      m_header            { m_font };     /// 'Header' part of the meter with info relating to the meter (name, channel type, info rect, index in a sequence of multiple meters).
+    Level                       m_level             {};             /// 'Meter' part of the meter. Actually displaying the level.
+    MeterOptions                m_meterOptions      {};             /// 'Meter' options.
 
 #if SDTK_ENABLE_FADER
-    Fader m_fader;
+    Fader                       m_fader;
 #endif /* SDTK_ENABLE_FADER */
 
-    bool m_active       = true;
-    bool m_isLabelStrip = false;
-    bool m_minimalMode  = false;
+    bool                        m_active            = true;
+    bool                        m_isLabelStrip      = false;
+    bool                        m_minimalMode       = false;
 
-    juce::Rectangle<int> m_dirtyRect {};
-    Padding              m_padding { 0, 0, 0, 0 };  ///< Space between meter and component's edge.
-    juce::Font           m_font;
+    juce::Rectangle<int>        m_dirtyRect         {};
+    Padding                     m_padding           { 0, 0, 0, 0 }; /// Space between meter and component's edge.
+    juce::Font                  m_font;
+    MeterColours                m_meterColours      {};
 
-    // Cached colours...
-    juce::Colour m_backgroundColour    = juce::Colours::black;
-    juce::Colour m_inactiveColour      = juce::Colours::grey;
-    juce::Colour m_textValueColour     = juce::Colours::white.darker (0.6f);  // NOLINT
-    juce::Colour m_muteColour          = juce::Colours::red;
-    juce::Colour m_muteMouseOverColour = juce::Colours::black;
-    juce::Colour m_faderColour         = juce::Colours::blue.withAlpha (Constants::kFaderAlphaMax);
-
-    void                       setDirty (bool isDirty = true) noexcept;
-    [[nodiscard]] bool         isDirty (const juce::Rectangle<int>& rectToCheck = {}) const noexcept;
-    void                       addDirty (const juce::Rectangle<int>& dirtyRect) noexcept { m_dirtyRect = m_dirtyRect.getUnion (dirtyRect); }
-    void                       drawMeter (juce::Graphics& g);
-    [[nodiscard]] juce::Colour getColourFromLnf (int colourId, const juce::Colour& fallbackColour) const;
-    void                       mouseMove (const juce::MouseEvent& event) override;
-    void                       mouseExit (const juce::MouseEvent& event) override;
-    void                       mouseDoubleClick (const juce::MouseEvent& event) override;
-    void                       resetMouseOvers() noexcept;
-    void                       setColours();
+    void                        setDirty            (bool isDirty = true) noexcept;
+    [[nodiscard]] bool          isDirty             (const juce::Rectangle<int>& rectToCheck = {}) const noexcept;
+    void                        addDirty            (const juce::Rectangle<int>& dirtyRect) noexcept;
+    void                        drawMeter           (juce::Graphics& g);
+    [[nodiscard]] juce::Colour  getColourFromLnf    (int colourId, const juce::Colour& fallbackColour) const;
+    void                        mouseMove           (const juce::MouseEvent& event) override;
+    void                        mouseExit           (const juce::MouseEvent& event) override;
+    void                        mouseDoubleClick    (const juce::MouseEvent& event) override;
+    void                        resetMouseOvers     () noexcept;
+    void                        setColours          ();
 
 #if SDTK_ENABLE_FADER
-    void mouseDrag (const juce::MouseEvent& event) override;
-    void mouseWheelMove (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel) override;
-    void mouseDown (const juce::MouseEvent& event) override;
+    void                        mouseDrag           (const juce::MouseEvent& event) override;
+    void                        mouseWheelMove      (const juce::MouseEvent& event, const juce::MouseWheelDetails& wheel) override;
+    void                        mouseDown           (const juce::MouseEvent& event) override;
 #endif /* SDTK_ENABLE_FADER */
 
     // clang-format on
