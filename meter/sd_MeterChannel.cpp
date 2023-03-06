@@ -37,10 +37,10 @@ namespace sd  // NOLINT
 namespace SoundMeter
 {
 MeterChannel::MeterChannel() noexcept
-#if SDTK_ENABLE_FADER
-  : m_fader (this)
-#endif
 {
+#if SDTK_ENABLE_FADER
+    m_fader.onFaderValueChanged = [this]() { notifyParent(); };
+#endif
 }
 //==============================================================================
 
@@ -458,7 +458,18 @@ void MeterChannel::mouseDown (const juce::MouseEvent& event)
 
         // Clicked on the HEADER part...
         if (m_header.isMouseOver (event.y))
-            setActive (!isActive(), NotificationOptions::notify);
+        {
+            if (event.mods.isShiftDown())
+            {
+                setActive (true, NotificationOptions::dontNotify);
+                if (onChannelSolo)
+                    onChannelSolo (this);
+            }
+            else
+            {
+                setActive (!isActive(), NotificationOptions::notify);
+            }
+        }
     }
 }
 
