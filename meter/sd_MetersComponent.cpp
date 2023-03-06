@@ -211,13 +211,9 @@ void MetersComponent::resized()
 
 void MetersComponent::setChannelNames (const std::vector<juce::String>& channelNames)
 {
-    using namespace Constants;
-
-    const auto numChannelNames = static_cast<int> (channelNames.size());
-
-    const auto numMeters = static_cast<int> (m_meterChannels.size());
-
-    auto defaultMeterWidth = static_cast<float> (kMinWidth);
+    const auto numChannelNames   = static_cast<int> (channelNames.size());
+    const auto numMeters         = static_cast<int> (m_meterChannels.size());
+    auto       defaultMeterWidth = static_cast<float> (Constants::kMinWidth);
 
     // Loop through all meters...
     for (int meterIdx = 0; meterIdx < numMeters; ++meterIdx)
@@ -249,8 +245,8 @@ void MetersComponent::setChannelNames (const std::vector<juce::String>& channelN
     // Calculate default mixer width...
     // This is the width at which all channel names can be displayed.
     m_autoSizedPanelWidth = static_cast<int> (defaultMeterWidth * static_cast<float> (numMeters));  // Min. width needed for channel names.
-    m_autoSizedPanelWidth += numMeters * (2 * kFaderRightPadding);               // Add the padding that is on the right side of the channels.
-    m_autoSizedPanelWidth += kDefaultHeaderLabelWidth + kLabelStripLeftPadding;  // Add master fader width (incl. padding).
+    m_autoSizedPanelWidth += numMeters * (2 * Constants::kFaderRightPadding);  // Add the padding that is on the right side of the channels.
+    m_autoSizedPanelWidth += Constants::kDefaultHeaderLabelWidth + Constants::kLabelStripLeftPadding;  // Add master fader width (incl. padding).
 }
 //==============================================================================
 
@@ -327,6 +323,31 @@ void MetersComponent::faderChanged (MeterChannel::Ptr sourceChannel)
 }
 //==============================================================================
 
+void MetersComponent::channelSolo (MeterChannel::Ptr sourceChannel)
+{
+    bool alreadySoloed { true };
+    for (auto* meter: m_meterChannels)
+    {
+        if (meter)
+        {
+            if (meter != sourceChannel && meter->isActive())
+            {
+                meter->setActive (false, NotificationOptions::dontNotify);
+                alreadySoloed = false;
+            }
+        }
+    }
+    if (alreadySoloed)
+    {
+        for (auto* meter: m_meterChannels)
+            if (meter)
+                meter->setActive (true, NotificationOptions::dontNotify);
+    }
+
+    getFaderValues (NotificationOptions::notify);
+}
+//==============================================================================
+
 void MetersComponent::setFaderValues (const std::vector<float>& faderValues, NotificationOptions notificationOption /*= NotificationOptions::dontNotify*/)
 {
     for (int meterIdx = 0; meterIdx < m_meterChannels.size(); ++meterIdx)
@@ -344,9 +365,7 @@ void MetersComponent::getFaderValues (NotificationOptions notificationOption /*=
 
     // Set number of mixer gains to match the number of channels...
     jassert (static_cast<int> (m_faderGains.size()) == m_meterChannels.size());  // NOLINT
-    // if( static_cast<int>( m_mixerGains.size() ) != m_meters.size() ) m_mixerGains.resize( m_meters.size() );
 
-    // Loop through all meters...
     for (int channelIdx = 0; channelIdx < static_cast<int> (m_meterChannels.size()); ++channelIdx)
     {
         // If the meter is active, get the value from the fader, otherwise a value of 0.0 is used...
@@ -533,7 +552,8 @@ void MetersComponent::createMeters (const juce::AudioChannelSet& channelFormat, 
                                                             channelFormat.getTypeOfChannel (channelIdx));
 
 #if SDTK_ENABLE_FADER
-        meterChannel->onFaderMove = [this] (MeterChannel* channel) { faderChanged (channel); };
+        meterChannel->onFaderMove   = [this] (MeterChannel* channel) { faderChanged (channel); };
+        meterChannel->onChannelSolo = [this] (MeterChannel* channel) { channelSolo (channel); };
 #endif
 
         meterChannel->setFont (m_font);

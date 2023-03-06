@@ -43,8 +43,6 @@ namespace sd  // NOLINT
 namespace SoundMeter
 {
 
-class MeterChannel;
-
 /**
  * @brief Class responsible for the fader.
  * 
@@ -56,13 +54,8 @@ class MeterChannel;
 class Fader final
 {
 public:
-    using MeterPtr = juce::Component::SafePointer<MeterChannel>;
-
-    /**
-     * @brief Parameterized constructor
-     * @param parentMeter The parent meter object
-    */
-    explicit Fader (MeterPtr parentMeter) noexcept : m_parentMeter (parentMeter) { }
+  
+    Fader() = default;
 
     /**
      * @brief Show the fader briefly and fade out (unless overridden and shown longer).
@@ -166,12 +159,13 @@ public:
     */
     [[nodiscard]] bool needsRedrawing() noexcept { return (m_drawnFaderValue != m_faderValue.load()) || isFading(); }
 
+    std::function<void ()> onFaderValueChanged { nullptr };
+
 private:
     std::atomic<float>   m_faderValue { 1.0f };  // Fader value (between 0..1).
     juce::Rectangle<int> m_bounds {};
 
     float    m_drawnFaderValue = 1.0f;
-    MeterPtr m_parentMeter     = nullptr;
     bool     m_visible         = false;
     bool     m_enabled         = false;
     bool     m_isFading        = false;

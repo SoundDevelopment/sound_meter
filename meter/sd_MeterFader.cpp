@@ -119,8 +119,8 @@ bool Fader::setValue (const float value, NotificationOptions notificationOption 
     m_faderValue.store (value);
 
 #if SDTK_ENABLE_FADER
-    if (notificationOption == NotificationOptions::notify && m_parentMeter)
-        m_parentMeter->notifyParent();
+    if (notificationOption == NotificationOptions::notify && onFaderValueChanged)
+        onFaderValueChanged();
 #else
     juce::ignoreUnused (notificationOption);
 #endif

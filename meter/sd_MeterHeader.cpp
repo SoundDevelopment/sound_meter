@@ -117,7 +117,7 @@ juce::String Header::getInfo() const noexcept
     if (m_name.isNotEmpty() && m_nameWidth < static_cast<float> (m_bounds.getWidth()))
         return m_name;
 
-    if (m_typeDescription.isNotEmpty() && typeWidthToCompare < static_cast<float> (m_bounds.getWidth()))  // Check if there is room for the full channel description...
+    if (m_typeDescription.isNotEmpty() && typeWidthToCompare < static_cast<float> (m_bounds.getWidth() - 5))  // Check if there is room for the full channel description...
         return m_typeDescription;
 
     return m_typeAbbrDecscription;  // ... otherwise use the abbreviated one.

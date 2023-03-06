@@ -459,7 +459,8 @@ public:
     void notifyParent();
 
     /** You can assign a lambda to this callback object to have it called when the button is clicked. */
-    std::function<void (MeterChannel::Ptr meter)> onFaderMove;
+    std::function<void (MeterChannel::Ptr meter)> onFaderMove { nullptr };
+    std::function<void (MeterChannel::Ptr meter)> onChannelSolo { nullptr };
 
 #endif /* SDTK_ENABLE_FADER */
 

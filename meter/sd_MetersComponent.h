@@ -454,7 +454,8 @@ private:
    void                             notifyListeners         ();                                          // Notify the listeners the faders have been moved.
    void                             mouseEnter              (const juce::MouseEvent& event) override;
    void                             mouseExit               (const juce::MouseEvent& event) override;
-   void                             faderChanged            (MeterChannel::Ptr sourceMeter);
+   void                             faderChanged            (MeterChannel::Ptr sourceChannel);
+    void                            channelSolo             (MeterChannel::Ptr sourceChannel);
 
 #endif
 
