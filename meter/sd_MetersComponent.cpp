@@ -57,8 +57,6 @@ MetersComponent::MetersComponent (const MeterOptions& meterOptions, const juce::
 #endif
 
     setName (Constants::kMetersPanelId);
-  //  setOpaque (true);
-  //  setBufferedToImage (true);
 
     addAndMakeVisible (m_labelStrip);
 

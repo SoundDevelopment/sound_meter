@@ -294,7 +294,7 @@ private:
     std::vector<SegmentOptions> m_segmentOptions = MeterScales::getDefaultScale();
 
     std::vector<Segment> m_segments {};  // List of meter segments.
-    float                m_minLevel_db { Constants::kMaxLevel_db };
+    juce::Range<float>   m_meterRange { Constants::kMaxLevel_db, Constants::kMinLevel_db };
 
     // Meter levels...
     std::atomic<float> m_inputLevel { 0.0f };  // Audio peak level.
@@ -313,8 +313,11 @@ private:
     float m_refreshPeriod_ms    = (1.0f / m_meterOptions.refreshRate) * 1000.0f;  // NOLINT
     int   m_previousRefreshTime = 0;
 
+    float m_decayRate { 0.0f };  // Decay rate in dB/ms.
+
     //==============================================================================
     [[nodiscard]] float getDecayedLevel (float newLevel_db);
+    [[nodiscard]] float getLinearDecayedLevel (const float newLevel_db);
     void                calculateDecayCoeff (const MeterOptions& meterOptions);
     void                synchronizeMeterOptions();
 

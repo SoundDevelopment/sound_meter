@@ -72,7 +72,7 @@ void Level::drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColou
 
     // Draw PEAK value...
     const auto peak_db = getPeakHoldLevel();
-    if (peak_db > m_minLevel_db)  // If active, present and enough space is available.
+    if (peak_db > m_meterRange.getStart())  // If active, present and enough space is available.
     {
         const int precision = peak_db <= -10.0f ? 1 : 2;  // Set precision depending on peak value. NOLINT
         g.setColour (textValueColour);
@@ -84,7 +84,7 @@ void Level::drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColou
 float Level::getInputLevel()
 {
     m_inputLevelRead.store (true);
-    return juce::jlimit (m_minLevel_db, Constants::kMaxLevel_db, juce::Decibels::gainToDecibels (m_inputLevel.load()));
+    return m_meterRange.clipValue (juce::Decibels::gainToDecibels (m_inputLevel.load()));
 }
 //==============================================================================
 
@@ -95,10 +95,58 @@ void Level::setInputLevel (float newLevel)
 }
 //==============================================================================
 
+float Level::getLinearDecayedLevel (float newLevel_db)
+{
+    const auto currentTime = static_cast<int> (juce::Time::getMillisecondCounter());
+    const auto timePassed  = static_cast<float> (currentTime - static_cast<int> (m_previousRefreshTime));
+
+    m_previousRefreshTime = currentTime;
+
+    if (newLevel_db >= m_meterLevel_db)
+        return newLevel_db;
+
+    return std::max (newLevel_db, m_meterLevel_db - (timePassed * m_decayRate));
+}
+//==============================================================================
+
+float Level::getDecayedLevel (const float newLevel_db)
+{
+    const auto currentTime = static_cast<int> (juce::Time::getMillisecondCounter());
+    const auto timePassed  = static_cast<float> (currentTime - static_cast<int> (m_previousRefreshTime));
+
+    // A new frame is not needed yet, return the current value...
+    if (timePassed < m_refreshPeriod_ms)
+        return m_meterLevel_db;
+
+    m_previousRefreshTime = currentTime;
+
+    if (newLevel_db >= m_meterLevel_db)
+        return newLevel_db;
+
+    // More time has passed then the meter decay. The meter has fully decayed...
+    if (timePassed > m_meterOptions.decayTime_ms)
+        return newLevel_db;
+
+    if (m_meterLevel_db == newLevel_db)
+        return newLevel_db;
+
+    // Convert that to refreshed frames...
+    auto numberOfFramePassed = static_cast<int> (std::round ((timePassed * m_meterOptions.refreshRate) / 1000.0f));  // NOLINT
+
+    auto level_db = m_meterLevel_db;
+    for (int frame = 0; frame < numberOfFramePassed; ++frame)
+        level_db = newLevel_db + (m_decayCoeff * (level_db - newLevel_db));
+
+    if (std::abs (level_db - newLevel_db) < Constants::kMinLevel_db)
+        level_db = newLevel_db;
+
+    return level_db;
+}
+//==============================================================================
+
 void Level::refreshMeterLevel()
 {
-    const auto newLevel_db = getInputLevel();
-    m_meterLevel_db        = (newLevel_db > m_meterLevel_db ? newLevel_db : getDecayedLevel (newLevel_db));
+    m_meterLevel_db = getLinearDecayedLevel (getInputLevel());
 
     if (m_meterLevel_db > getPeakHoldLevel())
         m_peakHoldDirty = true;
@@ -134,10 +182,12 @@ void Level::setMeterSegments (const std::vector<SegmentOptions>& segmentsOptions
     for (const auto& segmentOptions: segmentsOptions)
     {
         m_segments.emplace_back (m_meterOptions, segmentOptions);
-        m_minLevel_db = std::min (m_minLevel_db, segmentOptions.levelRange.getStart());
+        m_meterRange.setStart (std::min (m_meterRange.getStart(), segmentOptions.levelRange.getStart()));
+        m_meterRange.setEnd (std::max (m_meterRange.getEnd(), segmentOptions.levelRange.getEnd()));
     }
 
     synchronizeMeterOptions();
+    calculateDecayCoeff (m_meterOptions);
 }
 //==============================================================================
 
@@ -181,38 +231,6 @@ void Level::setDecay (float decay_ms)
     m_meterOptions.decayTime_ms = decay_ms;
     calculateDecayCoeff (m_meterOptions);
     synchronizeMeterOptions();
-}
-//==============================================================================
-
-float Level::getDecayedLevel (const float newLevel_db)
-{
-    const auto currentTime = static_cast<int> (juce::Time::getMillisecondCounter());
-    const auto timePassed  = static_cast<float> (currentTime - static_cast<int> (m_previousRefreshTime));
-
-    // A new frame is not needed yet, return the current value...
-    if (timePassed < m_refreshPeriod_ms)
-        return m_meterLevel_db;
-
-    m_previousRefreshTime = currentTime;
-
-    // More time has passed then the meter decay. The meter has fully decayed...
-    if (timePassed > m_meterOptions.decayTime_ms)
-        return newLevel_db;
-
-    if (m_meterLevel_db == newLevel_db)
-        return newLevel_db;
-
-    // Convert that to refreshed frames...
-    auto numberOfFramePassed = static_cast<int> (std::round ((timePassed * m_meterOptions.refreshRate) / 1000.0f));  // NOLINT
-
-    auto level_db = m_meterLevel_db;
-    for (int frame = 0; frame < numberOfFramePassed; ++frame)
-        level_db = newLevel_db + (m_decayCoeff * (level_db - newLevel_db));
-
-    if (std::abs (level_db - newLevel_db) < Constants::kMinLevel_db)
-        level_db = newLevel_db;
-
-    return level_db;
 }
 //==============================================================================
 
@@ -278,6 +296,8 @@ void Level::calculateDecayCoeff (const MeterOptions& meterOptions)
     m_meterOptions.decayTime_ms = juce::jlimit (Constants::kMinDecay_ms, Constants::kMaxDecay_ms, meterOptions.decayTime_ms);
     m_meterOptions.refreshRate  = std::max (1.0f, meterOptions.refreshRate);
     m_refreshPeriod_ms          = (1.0f / m_meterOptions.refreshRate) * 1000.0f;  // NOLINT
+
+    m_decayRate = m_meterRange.getLength() / m_meterOptions.decayTime_ms;
 
     // Rises to 99% of in value over duration of time constant.
     m_decayCoeff = std::pow (0.01f, (1000.0f / (m_meterOptions.decayTime_ms * m_meterOptions.refreshRate)));  // NOLINT
