@@ -43,8 +43,7 @@ namespace SoundMeter
 
 //==============================================================================
 
-void Header::draw (juce::Graphics& g, bool meterActive, bool faderEnabled, const juce::Colour& muteColour, const juce::Colour& muteMouseOver,
-                   const juce::Colour& textColour, const juce::Colour& inactiveColour)
+void Header::draw (juce::Graphics& g, bool meterActive, bool faderEnabled, const MeterColours& meterColours)
 {
     if (m_bounds.isEmpty())
         return;
@@ -55,21 +54,21 @@ void Header::draw (juce::Graphics& g, bool meterActive, bool faderEnabled, const
     // Draw 'button' for muting/de-activating channel...
     if (m_mouseOver && faderEnabled)
     {
-        g.setColour (meterActive ? muteColour : muteMouseOver);
+        g.setColour (meterActive ? meterColours.muteColour : meterColours.muteMouseOverColour);
         g.fillRect (m_bounds);
-        g.setColour (muteColour.contrasting (0.8f));  // NOLINT
+        g.setColour (meterColours.muteColour.contrasting (0.8f));  // NOLINT
     }
     else
     {
         if (meterActive)
         {
-            g.setColour (textColour);
+            g.setColour (meterColours.textColour);
         }
         else
         {
-            g.setColour (inactiveColour);
+            g.setColour (meterColours.inactiveColour);
             g.fillRect (m_bounds);
-            g.setColour (inactiveColour.contrasting (0.8f));  // NOLINT
+            g.setColour (meterColours.inactiveColour.contrasting (0.8f));  // NOLINT
         }
     }
     if (headerText.isNotEmpty())

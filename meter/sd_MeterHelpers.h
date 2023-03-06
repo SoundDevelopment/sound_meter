@@ -102,21 +102,32 @@ struct SegmentOptions
 */
 struct MeterOptions
 {
-    bool  enabled          = true;  ///< Enable the meter.
-    bool  showHeader       = true;  ///< Enable the 'header' part of the meter.
-    bool  showValue     = true;  ///< Enable the 'value' part of the meter.
-    bool  faderEnabled     = true;  ///< Enable the fader (overlay-ed over the meter). Only works if fader have been enabled in the module.
-    bool  useMinimalMode   = true;  ///< Automatically adapt the meter to use the most of the space available (by hiding header, value, tick-marks, etc...).
-    float decayTime_ms     = Constants::kDefaultDecay_ms;  ///< Meter decay in milliseconds.
-    float refreshRate      = 24.0f;                        ///< Meter refresh rate when using internal timing. NOLINT
-    bool  showTickMarks = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
-    bool  tickMarksOnTop   = true;   ///< Show the tick-marks below the level or above the level (level might obscure the tick-marks if loud enough).
-    bool  useGradients     = false;  ///< Use gradients for the meter segments, in stead of solid colours.
-    juce::Colour       peakHoldColour = juce::Colours::blueviolet;                               ///< The colour of peak hold bar.
-    bool               showPeakHold = true;                                                    ///< Enable peak hold.
-    std::vector<float> tickMarks      = { 0.0f, -3.0f, -6.0f, -12.0f, -18.0f, -32.0f, -50.0f };  ///< Tick-mark position in db. NOLINT
-    juce::Colour       tickMarkColour = juce::Colours::grey;                                     ///< Tick-mark colour.  NOLINT
-    juce::Colour       textColour     = juce::Colours::white;                                    ///< Text colour.  NOLINT
+    bool  enabled        = true;  ///< Enable the meter.
+    bool  showHeader     = true;  ///< Enable the 'header' part of the meter.
+    bool  showValue      = true;  ///< Enable the 'value' part of the meter.
+    bool  faderEnabled   = true;  ///< Enable the fader (overlay-ed over the meter). Only works if fader have been enabled in the module.
+    bool  useMinimalMode = true;  ///< Automatically adapt the meter to use the most of the space available (by hiding header, value, tick-marks, etc...).
+    float decayTime_ms   = Constants::kDefaultDecay_ms;  ///< Meter decay in milliseconds.
+    float refreshRate    = 30.0f;                        ///< Meter refresh rate when using internal timing. NOLINT
+    bool  showTickMarks  = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
+    bool  tickMarksOnTop = false;   ///< Show the tick-marks below the level or above the level (level might obscure the tick-marks if loud enough).
+    bool  useGradients   = true;  ///< Use gradients for the meter segments, in stead of solid colours.
+    bool  showPeakHold   = true;   ///< Enable peak hold.
+    std::vector<float> tickMarks = { 0.0f, -3.0f, -6.0f, -9.0f, -12.0f, -18.0f, -30.0f, -40.0f, -50.0f };  ///< Tick-mark position in db. NOLINT
+};
+
+struct MeterColours
+{
+    juce::Colour backgroundColour    = juce::Colours::black;
+    juce::Colour inactiveColour      = juce::Colours::grey;
+    juce::Colour textValueColour     = juce::Colours::white.darker (0.6f);  // NOLINT
+    juce::Colour muteColour          = juce::Colours::red;
+    juce::Colour muteMouseOverColour = juce::Colours::black;
+    juce::Colour faderColour         = juce::Colours::blue.withAlpha (Constants::kFaderAlphaMax);
+    juce::Colour textColour          = juce::Colours::white.darker (0.6f);                   // NOLINT
+    juce::Colour tickMarkColour      = juce::Colours::white.darker (0.3f).withAlpha (0.5f);  // NOLINT
+    juce::Colour peakHoldColour      = juce::Colours::red;
+    juce::Colour solodColour         = juce::Colours::yellow;
 };
 
 class MeterScales
@@ -124,9 +135,9 @@ class MeterScales
 public:
     [[nodiscard]] static std::vector<SegmentOptions> getDefaultScale()
     {
-        return { { { -60.0f, -18.0f }, { 0.0f, 0.5f }, juce::Colours::green, juce::Colours::yellow },  // NOLINT
-                 { { -18.0f, -3.0f }, { 0.5f, 0.90f }, juce::Colours::yellow, juce::Colours::red },    // NOLINT
-                 { { -3.0f, 0.0f }, { 0.90f, 1.0f }, juce::Colours::red, juce::Colours::red } };       // NOLINT
+        return { { { -60.0f, -18.0f }, { 0.0f, 0.5f }, juce::Colours::green, juce::Colours::green },  // NOLINT
+                 { { -18.0f, -3.0f }, { 0.5f, 0.90f }, juce::Colours::green, juce::Colours::yellow },    // NOLINT
+                 { { -3.0f, 0.0f }, { 0.90f, 1.0f }, juce::Colours::yellow, juce::Colours::red } };    // NOLINT
     }
 
     [[nodiscard]] static std::vector<SegmentOptions> getSmpteScale()
@@ -140,7 +151,7 @@ public:
     {
         return { { { -60.0f, -30.0f }, { 0.0f, 0.2751f }, juce::Colours::yellow, juce::Colours::yellow },     // NOLINT
                  { { -30.0f, -18.0f }, { 0.2751f, 0.4521f }, juce::Colours::yellow, juce::Colours::yellow },  // NOLINT
-                 { { -18.0f, 0.0f }, { 0.4521f, 1.0f }, juce::Colours::red, juce::Colours::red } };       // NOLINT
+                 { { -18.0f, 0.0f }, { 0.4521f, 1.0f }, juce::Colours::red, juce::Colours::red } };           // NOLINT
     }
 
 private:

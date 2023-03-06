@@ -217,16 +217,10 @@ public:
     /**
      * @brief Draw the 'header' part of the meter.
      * 
-     * @param[in,out] g           The juce graphics context to use.
-     * @param meterActive         When true, the meter is un-muted (activated).
-     * @param faderEnabled        When true, the fader overlay is enabled (so the header needs to display the muted button).
-     * @param muteColour          The colour to use when the meter is muted (in-active).
-     * @param muteMouseOverColour The colour to use when the mouse is over the meter and the meter is muted (in-active).
-     * @param textColour          The colour of the text in the header.
-     * @param inactiveColour      The colour to use when the meter is muted (in-active).
+     * @param[in,out] g    The juce graphics context to use.
+     * @param meterColours The colours to draw the header with.        
     */
-    void draw (juce::Graphics& g, bool meterActive, bool faderEnabled, const juce::Colour& muteColour, const juce::Colour& muteMouseOverColour,
-               const juce::Colour& textColour, const juce::Colour& inactiveColour);
+    void draw (juce::Graphics& g, bool meterActive, bool faderEnabled, const MeterColours& meterColours);
 
 private:
     juce::Font& m_font;

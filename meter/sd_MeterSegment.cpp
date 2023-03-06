@@ -71,18 +71,18 @@ void Segment::setSegmentOptions (SegmentOptions segmentOptions)
 }
 //==============================================================================
 
-void Segment::draw (juce::Graphics& g)
+void Segment::draw (juce::Graphics& g, const MeterColours& meterColours)
 {
     m_isDirty = false;
 
     if (m_isLabelStrip)
     {
-        drawLabels (g);
+        drawLabels (g, meterColours);
         return;
     }
 
     if (!m_meterOptions.tickMarksOnTop)
-        drawTickMarks (g);
+        drawTickMarks (g, meterColours);
 
     if (!m_drawnBounds.isEmpty())
     {
@@ -95,26 +95,26 @@ void Segment::draw (juce::Graphics& g)
     }
 
     if (m_meterOptions.tickMarksOnTop)
-        drawTickMarks (g);
+        drawTickMarks (g, meterColours);
 
     if (m_meterOptions.showPeakHold && !m_peakHoldBounds.isEmpty())
     {
-        g.setColour (m_meterOptions.peakHoldColour);
+        g.setColour (meterColours.peakHoldColour);
         g.fillRect (m_peakHoldBounds);
         m_drawnPeakHoldBounds = m_peakHoldBounds;
     }
 }
 //==============================================================================
 
-void Segment::drawTickMarks (juce::Graphics& g)
+void Segment::drawTickMarks (juce::Graphics& g, const MeterColours& meterColours)
 {
     if (m_minimalModeActive)
         return;
 
-    g.setColour (m_meterOptions.tickMarkColour);
+    g.setColour (meterColours.tickMarkColour);
     for (const auto& tickMark: m_tickMarks)
     {
-        if (tickMark <= m_currentLevel_db)
+        if ((tickMark <= m_currentLevel_db) && !m_meterOptions.tickMarksOnTop)
             continue;
 
         const auto tickMarkLevelRatio = std::clamp ((tickMark - m_segmentOptions.levelRange.getStart()) / m_segmentOptions.levelRange.getLength(), 0.0f, 1.0f);
@@ -125,9 +125,9 @@ void Segment::drawTickMarks (juce::Graphics& g)
 }
 //==============================================================================
 
-void Segment::drawLabels (juce::Graphics& g) const
+void Segment::drawLabels (juce::Graphics& g, const MeterColours& meterColours) const
 {
-    g.setColour (m_meterOptions.textColour);
+    g.setColour (meterColours.textColour);
     const float fontsize = juce::jlimit (1.0f, 15.0f, m_meterBounds.getHeight() / 4.0f);  // Set font size proportionally. NOLINT
     g.setFont (fontsize);
 

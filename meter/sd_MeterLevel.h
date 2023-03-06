@@ -265,29 +265,31 @@ public:
     /**
      * @brief Draws the meter.
      *
-     * @param[in,out] g The juce graphics context to use.
+     * @param[in,out] g            The juce graphics context to use.     
+     * @param         meterColours The colours to use to draw the meter.
      *
      * @see drawInactiveMeter, drawPeakValue, drawPeakHold, drawTickMarks, drawLabels
     */
-    void drawMeter (juce::Graphics& g);
+    void drawMeter (juce::Graphics& g, const MeterColours& meterColours);
 
     /**
      * @brief Draw the 'meter' part in it's inactive (muted) state.
      *
-     * @param[in,out] g   The juce graphics context to use.
+     * @param[in,out] g            The juce graphics context to use.
+     * @param         meterColours The colours to use to draw the meter.
      *
      * @see drawMeter, drawTickMarks, drawPeakValue, drawPeakHold, drawLabels
     */
-    void drawInactiveMeter (juce::Graphics& g) const;
+    void drawInactiveMeter (juce::Graphics& g, const MeterColours& meterColours) const;
 
     /**
      * @brief Draw the peak 'value'.
-     * @param[in,out] g        The juce graphics context to use.
-     * @param textValueColour  Colour of the text displaying the peak value.
+     * @param[in,out] g            The juce graphics context to use.              
+     * @param         meterColours The colours to use to draw the meter.
      *
      * @see drawMeter, drawInactiveMeter, drawInactiveMeter, drawPeakHold, drawTickMarks, drawLabels
     */
-    void drawPeakValue (juce::Graphics& g, const juce::Colour& textValueColour) const;
+    void drawPeakValue (juce::Graphics& g, const MeterColours& meterColours) const;
 
 private:
     MeterOptions                m_meterOptions;
@@ -295,29 +297,25 @@ private:
 
     std::vector<Segment> m_segments {};  // List of meter segments.
     juce::Range<float>   m_meterRange { Constants::kMaxLevel_db, Constants::kMinLevel_db };
+    juce::Rectangle<int> m_valueBounds {};  // Bounds of the value area.
+    juce::Rectangle<int> m_meterBounds {};  // Bounds of the meter area.
+    juce::Rectangle<int> m_levelBounds {};  // Bounds of the level area.
 
     // Meter levels...
     std::atomic<float> m_inputLevel { 0.0f };  // Audio peak level.
     std::atomic<bool>  m_inputLevelRead { false };
-    float              m_meterLevel_db { Constants::kMinLevel_db };  // Current meter level.
+    float              m_meterLevel_db       = Constants::kMinLevel_db;  // Current meter level.
+    bool               m_peakHoldDirty       = false;
+    bool               m_mouseOverValue      = false;
+    bool               m_minimalModeActive   = false;
+    bool               m_isLabelStrip        = false;
+    float              m_decayCoeff          = 0.0f;
+    float              m_refreshPeriod_ms    = (1.0f / m_meterOptions.refreshRate) * 1000.0f;  // NOLINT
+    int                m_previousRefreshTime = 0;
+    float              m_decayRate           = 0.0f;  // Decay rate in dB/ms.
 
-    juce::Rectangle<int> m_valueBounds;  // Bounds of the value area.
-    juce::Rectangle<int> m_meterBounds;  // Bounds of the meter area.
-    juce::Rectangle<int> m_levelBounds;  // Bounds of the level area.
-
-    bool  m_peakHoldDirty       = false;
-    bool  m_mouseOverValue      = false;
-    bool  m_minimalModeActive   = false;
-    bool  m_isLabelStrip        = false;
-    float m_decayCoeff          = 0.0f;
-    float m_refreshPeriod_ms    = (1.0f / m_meterOptions.refreshRate) * 1000.0f;  // NOLINT
-    int   m_previousRefreshTime = 0;
-
-    float m_decayRate { 0.0f };  // Decay rate in dB/ms.
-
-    //==============================================================================
     [[nodiscard]] float getDecayedLevel (float newLevel_db);
-    [[nodiscard]] float getLinearDecayedLevel (const float newLevel_db);
+    [[nodiscard]] float getLinearDecayedLevel (float newLevel_db);
     void                calculateDecayCoeff (const MeterOptions& meterOptions);
     void                synchronizeMeterOptions();
 
