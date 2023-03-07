@@ -48,7 +48,7 @@ class Segment final
 {
 public:
     /** @brief Construct a segment using the supplied options.*/
-    Segment (const MeterOptions& meterOptions, const SegmentOptions& segmentOptions);
+    Segment (const Options& meterOptions, const SegmentOptions& segmentOptions);
 
     /** @brief Set the level in decibels.*/
     void setLevel (float level_db);
@@ -99,14 +99,14 @@ public:
     [[nodiscard]] SegmentOptions getSegmentOptions() const noexcept { return m_segmentOptions; }
 
     /** @brief Set meter options. */
-    void setMeterOptions (const MeterOptions& meterOptions);
+    void setMeterOptions (const Options& meterOptions);
 
     /** @brief Get segment options.*/
-    [[nodiscard]] MeterOptions getMeterOptions() const { return m_meterOptions; }
+    [[nodiscard]] Options getMeterOptions() const { return m_meterOptions; }
 
 private:
     SegmentOptions       m_segmentOptions {};
-    MeterOptions         m_meterOptions {};
+    Options              m_meterOptions {};
     std::vector<float>   m_tickMarks {};
     juce::Rectangle<int> m_meterBounds {};
     juce::Rectangle<int> m_segmentBounds {};

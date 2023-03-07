@@ -100,19 +100,19 @@ struct SegmentOptions
 /**
  * @brief All meter options for appearance and functionality.
 */
-struct MeterOptions
+struct Options
 {
-    bool  enabled        = true;  ///< Enable the meter.
-    bool  showHeader     = true;  ///< Enable the 'header' part of the meter.
-    bool  showValue      = true;  ///< Enable the 'value' part of the meter.
-    bool  faderEnabled   = true;  ///< Enable the fader (overlay-ed over the meter). Only works if fader have been enabled in the module.
-    bool  useMinimalMode = true;  ///< Automatically adapt the meter to use the most of the space available (by hiding header, value, tick-marks, etc...).
-    float decayTime_ms   = Constants::kDefaultDecay_ms;  ///< Meter decay in milliseconds.
-    float refreshRate    = 30.0f;                        ///< Meter refresh rate when using internal timing.
-    bool  showTickMarks  = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
-    bool  tickMarksOnTop = false;  ///< Show the tick-marks below the level or above the level (level might obscure the tick-marks if loud enough).
-    bool  useGradients   = true;   ///< Use gradients for the meter segments, in stead of solid colours.
-    bool  showPeakHold   = true;   ///< Enable peak hold.
+    bool  enabled          = true;  ///< Enable the meter.
+    bool  headerEnabled    = true;  ///< Enable the 'header' part of the meter.
+    bool  valueEnabled     = true;  ///< Enable the 'value' part of the meter.
+    bool  faderEnabled     = true;  ///< Enable the fader (overlay-ed over the meter). Only works if fader have been enabled in the module.
+    bool  useMinimalMode   = true;  ///< Automatically adapt the meter to use the most of the space available (by hiding header, value, tick-marks, etc...).
+    float decayTime_ms     = Constants::kDefaultDecay_ms;  ///< Meter decay in milliseconds.
+    float refreshRate      = 30.0f;                        ///< Meter refresh rate when using internal timing.
+    bool  tickMarksEnabled = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
+    bool  tickMarksOnTop   = false;       ///< Show the tick-marks below the level or above the level (level might obscure the tick-marks if loud enough).
+    bool  useGradient      = true;        ///< Use gradients for the meter segments, in stead of solid colours.
+    bool  showPeakHoldIndicator  = true;  ///< Enable peak hold indicator.
     std::vector<float> tickMarks = { 0.0f, -3.0f, -6.0f, -9.0f, -12.0f, -18.0f, -30.0f, -40.0f, -50.0f };  ///< Tick-mark position in db.
 };
 

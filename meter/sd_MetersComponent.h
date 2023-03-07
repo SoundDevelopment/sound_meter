@@ -70,7 +70,7 @@ public:
      *
      * @param meterOptions The options to use with the meters and the label strip.
     */
-    explicit MetersComponent (const MeterOptions& meterOptions);
+    explicit MetersComponent (const Options& meterOptions);
 
     /**
      * @brief Constructor which accepts a channel format.
@@ -91,7 +91,7 @@ public:
      * @param meterOptions  The options to use with the meters and the label strip.
      * @param channelFormat The channel format to use to initialise the panel.
     */
-    MetersComponent (const MeterOptions& meterOptions, const juce::AudioChannelSet& channelFormat);
+    MetersComponent (const Options& meterOptions, const juce::AudioChannelSet& channelFormat);
 
     /** @brief Destructor.*/
     ~MetersComponent() override;
@@ -199,7 +199,7 @@ public:
      *
      * @param meterOptions The options to apply to the meters and label strip.
     */
-    void setOptions (const MeterOptions& meterOptions);
+    void setOptions (const Options& meterOptions);
 
     /**
      * @brief Set the refresh (redraw) rate of the meters.
@@ -428,7 +428,8 @@ public:
 private:
     // clang-format off
 
-   MeterOptions                     m_meterOptions          {};
+   Options                          m_meterOptions          {};  
+   std::vector<SegmentOptions>      m_segmentsOptions       = MeterScales::getDefaultScale();
 
    using                            MetersType              = juce::OwnedArray<MeterChannel>;
    MetersType                       m_meterChannels         {};

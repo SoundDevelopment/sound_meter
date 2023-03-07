@@ -36,7 +36,7 @@ namespace sd  // NOLINT
 {
 namespace SoundMeter
 {
-Segment::Segment (const MeterOptions& meterOptions, const SegmentOptions& segmentOptions)
+Segment::Segment (const Options& meterOptions, const SegmentOptions& segmentOptions)
 {
     setSegmentOptions (segmentOptions);
     setMeterOptions (meterOptions);
@@ -86,7 +86,7 @@ void Segment::draw (juce::Graphics& g, const MeterColours& meterColours)
 
     if (!m_drawnBounds.isEmpty())
     {
-        if (m_meterOptions.useGradients)
+        if (m_meterOptions.useGradient)
             g.setGradientFill (m_gradientFill);
         else
             g.setColour (m_segmentOptions.segmentColour);
@@ -97,7 +97,7 @@ void Segment::draw (juce::Graphics& g, const MeterColours& meterColours)
     if (m_meterOptions.tickMarksOnTop)
         drawTickMarks (g, meterColours);
 
-    if (m_meterOptions.showPeakHold && !m_peakHoldBounds.isEmpty())
+    if (m_meterOptions.showPeakHoldIndicator && !m_peakHoldBounds.isEmpty())
     {
         g.setColour (meterColours.peakHoldColour);
         g.fillRect (m_peakHoldBounds);
@@ -162,7 +162,7 @@ void Segment::setMeterBounds (juce::Rectangle<int> meterBounds)
     updateLevelBounds();
     updatePeakHoldBounds();
 
-    if (m_meterOptions.useGradients)
+    if (m_meterOptions.useGradient)
         m_gradientFill = juce::ColourGradient (m_segmentOptions.segmentColour, segmentBounds.toFloat().getBottomLeft(), m_segmentOptions.nextSegmentColour,
                                                segmentBounds.toFloat().getTopLeft(), false);
 
@@ -233,7 +233,7 @@ void Segment::resetPeakHold() noexcept
 }
 //==============================================================================
 
-void Segment::setMeterOptions (const MeterOptions& meterOptions)
+void Segment::setMeterOptions (const Options& meterOptions)
 {
     m_meterOptions = meterOptions;
 

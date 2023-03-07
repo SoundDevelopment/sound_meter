@@ -156,7 +156,7 @@ void Level::refreshMeterLevel()
 }
 //==============================================================================
 
-void Level::setMeterOptions (const MeterOptions& meterOptions)
+void Level::setMeterOptions (const Options& meterOptions)
 {
     m_meterOptions = meterOptions;
 
@@ -260,7 +260,7 @@ void Level::setMeterBounds (const juce::Rectangle<int>& bounds)
     m_levelBounds = m_meterBounds;
 
     // If the meter is in minimal mode, the value is not displayed...
-    if (m_meterOptions.showValue && !m_minimalModeActive)
+    if (m_meterOptions.valueEnabled && !m_minimalModeActive)
         m_valueBounds = m_levelBounds.removeFromBottom (Constants::kDefaultHeaderHeight);
     else
         m_valueBounds = juce::Rectangle<int>();
@@ -291,7 +291,7 @@ juce::Rectangle<int> Level::getDirtyBounds()
 }
 //==============================================================================
 
-void Level::calculateDecayCoeff (const MeterOptions& meterOptions)
+void Level::calculateDecayCoeff (const Options& meterOptions)
 {
     m_meterOptions.decayTime_ms = juce::jlimit (Constants::kMinDecay_ms, Constants::kMaxDecay_ms, meterOptions.decayTime_ms);
     m_meterOptions.refreshRate  = std::max (1.0f, meterOptions.refreshRate);
