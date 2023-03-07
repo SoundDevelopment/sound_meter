@@ -1,19 +1,19 @@
 # Sound Meter
-[Juce](https://juce.com/) peak meter module with optional fader overlay.<br>
+[Juce](https://juce.com/) logarithmic peak meter module with optional fader overlay.<br>
 <img align="right" src="https://www.sounddevelopment.nl/sd/resources/images/sound_meter/sound_meter_demo.gif">
-*by Marcel Huibers | [Sound Development](https://www.sounddevelopment.nl) 2021 | Published under the [MIT License](https://en.wikipedia.org/wiki/MIT_License)*
+*by Marcel Huibers | [Sound Development](https://www.sounddevelopment.nl) 2023 | Published under the [MIT License](https://en.wikipedia.org/wiki/MIT_License)*
 
 
 Features:
 - Fully **resize-able**.
+- **Adaptive**. Will show header, value, tick-marks only when there is space available.
+- Unlimited number of user defineable **segments**, with custom ranges and configurable colours or gradients.
 - **Efficient**. Only redraws when needed.
 - Configurable meter **ballistics** (meter decay).
-- Normal, warning and peak **segments**, with configurable colours.
 - **Tick-marks** (dividing lines on the meter) at user specified levels.
-- Peak **indicator** and optional peak **value** readout.
+- Peak hold **indicator** and optional peak **value** readout.
 - Optional **label strip** next to the meters (which can double as master fader).
 - Optional **header** identifying the meter's name (set by user) or channel type.
-- **Adaptive**. Will show header, value, tick-marks only when there is space available.
 - Optional **fader** and mute button (in the header).
 
 You can find the API documentation [here](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/)...
@@ -38,21 +38,28 @@ In the **constructor** you can specify a channel format with [setChannelFormat](
 ```
 m_meters.setChannelFormat (juce::AudioChannelSet::stereo());
 ```
-and configure it's options. For example (for all meter options, see [documentation](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/structsd_1_1SoundMeter_1_1Options.html)):
+and configure it's options: (for all meter options, see [documentation](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/structsd_1_1SoundMeter_1_1Options.html))
 ```
-sd::SoundMeter::Options meterOptions;
+sd::SoundMeter::MeterOptions meterOptions;
 meterOptions.faderEnabled     = true;
 meterOptions.headerEnabled    = true;
-meterOptions.peakRegion_db    = -3.0f;  
-meterOptions.warningRegion_db = -12.0f;
+meterOptions.showTickMarks    = true;
 m_meters.setOptions (meterOptions);
 ```
+and configure the segments:
+```
+sd::SoundMeter::SegmentOptions segmentOptions = 
+{ { { -60.0f, -18.0f }, { 0.0f, 0.5f }, juce::Colours::green, juce::Colours::green },   // From bottom of the meter (0.0f) to the half. Displaying -60 dB up to -18 dB.
+  { { -18.0f, -3.0f }, { 0.5f, 0.90f }, juce::Colours::green, juce::Colours::yellow },  // From half of the meter to almost the top (0.9f). Displaying -18 dB up to -3 dB.
+  { { -3.0f, 0.0f }, { 0.90f, 1.0f }, juce::Colours::yellow, juce::Colours::red } };    // From almost the top to the top of the meter (1.0f). Displaying -3 dB up to 0 dB.
+m_meters.setMeterSegments (segmentOptions);
+```
+
 Finally (still in the **constructor**) we add the component and make it visible:
 ```
 addAndMakeVisible (m_meters);
 ```
 <br>
-
 In the `resized()` method, you set the bounds (left, right, width, height) of the meters:
 ```
 m_meters.setBounds (getLocalBounds());
@@ -72,4 +79,4 @@ A fully working example demonstrating this can be found [here](https://github.co
 <br><br>
 
 -----
-*Sound Development 2021*
+*Sound Development 2023*

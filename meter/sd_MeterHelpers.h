@@ -44,28 +44,28 @@ namespace SoundMeter
 */
 namespace Constants
 {
-static constexpr auto kMinWidth                = 2;      ///< Minimum meter width (in pixels). NOLINT
-static constexpr auto kMaxWidth                = 500;    ///< Maximum meter width (in pixels). NOLINT
-static constexpr auto kPeakHoldHeight          = 2;      ///< Height of the peak hold strip (in pixels). NOLINT
-static constexpr auto kDefaultHeaderHeight     = 25;     ///< Default height of the 'header' part (in pixels). NOLINT
-static constexpr auto kDefaultHeaderLabelWidth = 30;     ///< Default 'header' label width (in pixels). NOLINT
-static constexpr auto kDefaultHeaderFontHeight = 14.0f;  ///< Default height of the font used in the 'header' part (in pixels). NOLINT
-static constexpr auto kLabelStripTextPadding   = 2;      ///< Padding around the text in a label strip (in pixels). NOLINT
-static constexpr auto kLabelStripLeftPadding   = 5;  ///< Padding (in pixels) on the left side of the label strip (which can double as a master fader). NOLINT
-static constexpr auto kFaderRightPadding       = 1;  ///< Padding (in pixels) on the right side of the channel faders. NOLINT
+static constexpr auto kMinWidth                = 2;        ///< Minimum meter width (in pixels).
+static constexpr auto kMaxWidth                = 500;      ///< Maximum meter width (in pixels).
+static constexpr auto kPeakHoldHeight          = 2;        ///< Height of the peak hold strip (in pixels).
+static constexpr auto kDefaultHeaderHeight     = 25;       ///< Default height of the 'header' part (in pixels).
+static constexpr auto kDefaultHeaderLabelWidth = 30;       ///< Default 'header' label width (in pixels).
+static constexpr auto kDefaultHeaderFontHeight = 14.0f;    ///< Default height of the font used in the 'header' part (in pixels).
+static constexpr auto kLabelStripTextPadding   = 2;        ///< Padding around the text in a label strip (in pixels).
+static constexpr auto kLabelStripLeftPadding   = 5;        ///< Padding (in pixels) on the left side of the label strip (which can double as a master fader).
+static constexpr auto kFaderRightPadding       = 1;        ///< Padding (in pixels) on the right side of the channel faders.
 static constexpr auto kMaxLevel_db             = 0.0f;     ///< Maximum meter level (in db).
 static constexpr auto kMinLevel_db             = -96.0f;   ///< Minimum meter level (in db).
-static constexpr auto kMinDecay_ms             = 100.0f;   ///< Minimum meter decay speed (in milliseconds). NOLINT
-static constexpr auto kMaxDecay_ms             = 4000.0f;  ///< Maximum meter decay speed (in milliseconds). NOLINT
+static constexpr auto kMinDecay_ms             = 100.0f;   ///< Minimum meter decay speed (in milliseconds).
+static constexpr auto kMaxDecay_ms             = 4000.0f;  ///< Maximum meter decay speed (in milliseconds).
 static constexpr auto kDefaultDecay_ms         = 1000.0f;  ///< Default meter decay speed (in milliseconds).
-static constexpr auto kTickMarkHeight          = 2;        ///< Height of a tick mark (in pixels). NOLINT
-static constexpr auto kFaderFadeTime_ms        = 2500;     ///< Fader fade out time (in milliseconds). NOLINT
-static constexpr auto kFaderSensitivity        = 10.0f;    ///< Fader sensitivity value. Must be a positive value > 0. NOLINT
-static constexpr auto kFaderAlphaMax           = 0.3f;     ///< Maximum transparency (alpha) of the fader overlay.  NOLINT
-static constexpr auto kMinModeHeightThreshold = 150;  ///< Meter minimum mode height threshold in pixels (min. mod is just the meter. not value, ticks or fader). NOLINT
-static constexpr auto kMinModeWidthThreshold = 15;  ///< Meter minimum mode width threshold in pixels (min. mod is just the meter. not value, ticks or fader). NOLINT
-static constexpr auto kMetersPanelId = "meters_panel";  ///< ID (name) of all components in the meters panel. NOLINT
-static constexpr auto kLabelStripId  = "label_strip";   ///< ID (name) of the label-strip (master fader). NOLINT
+static constexpr auto kTickMarkHeight          = 2;        ///< Height of a tick mark (in pixels).
+static constexpr auto kFaderFadeTime_ms        = 2500;     ///< Fader fade out time (in milliseconds).
+static constexpr auto kFaderSensitivity        = 10.0f;    ///< Fader sensitivity value. Must be a positive value > 0.
+static constexpr auto kFaderAlphaMax           = 0.3f;     ///< Maximum transparency (alpha) of the fader overlay.
+static constexpr auto kMinModeHeightThreshold = 150;  ///< Meter minimum mode height threshold in pixels (min. mod is just the meter. not value, ticks or fader).
+static constexpr auto kMinModeWidthThreshold = 15;    ///< Meter minimum mode width threshold in pixels (min. mod is just the meter. not value, ticks or fader).
+static constexpr auto kMetersPanelId         = "meters_panel";  ///< ID (name) of all components in the meters panel.
+static constexpr auto kLabelStripId          = "label_strip";   ///< ID (name) of the label-strip (master fader).
 }  // namespace Constants
 
 /**
@@ -91,10 +91,10 @@ struct Padding
 /** @brief Options defining the meter segments. */
 struct SegmentOptions
 {
-    juce::Range<float> levelRange { Constants::kMinLevel_db, Constants::kMaxLevel_db };  //  The range of the segment in decibels.
-    juce::Range<float> meterRange { 0.0f, 1.0f };  // The range of the segment in the meter (0.0f - 1.0f, with 0.0f being the bottom of the meter).
-    juce::Colour       segmentColour { juce::Colours::yellow };         // The colour of the segment.
-    juce::Colour       nextSegmentColour { segmentColour.brighter() };  // The second colour of the segment (for use in gradients).
+    juce::Range<float> levelRange { Constants::kMinLevel_db, Constants::kMaxLevel_db };  ///<  The range of the segment in decibels.
+    juce::Range<float> meterRange { 0.0f, 1.0f };  ///< The range of the segment in the meter (0.0f - 1.0f, with 0.0f being the bottom of the meter).
+    juce::Colour       segmentColour { juce::Colours::yellow };         ///< The colour of the segment.
+    juce::Colour       nextSegmentColour { segmentColour.brighter() };  ///< The second colour of the segment (for use in gradients).
 };
 
 /**
@@ -108,68 +108,67 @@ struct MeterOptions
     bool  faderEnabled   = true;  ///< Enable the fader (overlay-ed over the meter). Only works if fader have been enabled in the module.
     bool  useMinimalMode = true;  ///< Automatically adapt the meter to use the most of the space available (by hiding header, value, tick-marks, etc...).
     float decayTime_ms   = Constants::kDefaultDecay_ms;  ///< Meter decay in milliseconds.
-    float refreshRate    = 30.0f;                        ///< Meter refresh rate when using internal timing. NOLINT
+    float refreshRate    = 30.0f;                        ///< Meter refresh rate when using internal timing.
     bool  showTickMarks  = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
-    bool  tickMarksOnTop = false;   ///< Show the tick-marks below the level or above the level (level might obscure the tick-marks if loud enough).
-    bool  useGradients   = true;  ///< Use gradients for the meter segments, in stead of solid colours.
+    bool  tickMarksOnTop = false;  ///< Show the tick-marks below the level or above the level (level might obscure the tick-marks if loud enough).
+    bool  useGradients   = true;   ///< Use gradients for the meter segments, in stead of solid colours.
     bool  showPeakHold   = true;   ///< Enable peak hold.
-    std::vector<float> tickMarks = { 0.0f, -3.0f, -6.0f, -9.0f, -12.0f, -18.0f, -30.0f, -40.0f, -50.0f };  ///< Tick-mark position in db. NOLINT
+    std::vector<float> tickMarks = { 0.0f, -3.0f, -6.0f, -9.0f, -12.0f, -18.0f, -30.0f, -40.0f, -50.0f };  ///< Tick-mark position in db.
 };
 
 struct MeterColours
 {
-    juce::Colour backgroundColour    = juce::Colours::black;
-    juce::Colour inactiveColour      = juce::Colours::grey;
-    juce::Colour textValueColour     = juce::Colours::white.darker (0.6f);  // NOLINT
-    juce::Colour muteColour          = juce::Colours::red;
-    juce::Colour muteMouseOverColour = juce::Colours::black;
-    juce::Colour faderColour         = juce::Colours::blue.withAlpha (Constants::kFaderAlphaMax);
-    juce::Colour textColour          = juce::Colours::white.darker (0.6f);                   // NOLINT
-    juce::Colour tickMarkColour      = juce::Colours::white.darker (0.3f).withAlpha (0.5f);  // NOLINT
-    juce::Colour peakHoldColour      = juce::Colours::red;
-    juce::Colour solodColour         = juce::Colours::yellow;
+    juce::Colour backgroundColour    = juce::Colours::black;                                       ///< Background colour of the meter.
+    juce::Colour inactiveColour      = juce::Colours::grey;                                        ///< Colour of the meter when inactive.
+    juce::Colour textValueColour     = juce::Colours::white.darker (0.6f);                         ///< Colour of the peak value text.
+    juce::Colour muteColour          = juce::Colours::red;                                         ///< Colour of the mute button.
+    juce::Colour muteMouseOverColour = juce::Colours::black;                                       ///< Colour of the mute button when the mouse is over it.
+    juce::Colour faderColour         = juce::Colours::blue.withAlpha (Constants::kFaderAlphaMax);  ///< Colour of the fader overlay.
+    juce::Colour textColour          = juce::Colours::white.darker (0.6f);                         ///< Colour of the text (in the header and label strip).
+    juce::Colour tickMarkColour      = juce::Colours::white.darker (0.3f).withAlpha (0.5f);        ///< Colour of the tick-marks.
+    juce::Colour peakHoldColour      = juce::Colours::red;                                         ///< Colour of the peak hold indicator.
+    juce::Colour solodColour         = juce::Colours::yellow;                                      ///< Colour of the solo button.
 };
 
 class MeterScales
 {
 public:
+    /** @brief Default meter scale. 3 segments, from -60db to 0db. */
     [[nodiscard]] static std::vector<SegmentOptions> getDefaultScale()
     {
-        return { { { -60.0f, -18.0f }, { 0.0f, 0.5f }, juce::Colours::green, juce::Colours::green },  // NOLINT
-                 { { -18.0f, -3.0f }, { 0.5f, 0.90f }, juce::Colours::green, juce::Colours::yellow },    // NOLINT
-                 { { -3.0f, 0.0f }, { 0.90f, 1.0f }, juce::Colours::yellow, juce::Colours::red } };    // NOLINT
+        return { { { -60.0f, -18.0f }, { 0.0f, 0.5f }, juce::Colours::green, juce::Colours::green },
+                 { { -18.0f, -3.0f }, { 0.5f, 0.90f }, juce::Colours::green, juce::Colours::yellow },
+                 { { -3.0f, 0.0f }, { 0.90f, 1.0f }, juce::Colours::yellow, juce::Colours::red } };
     }
 
+    /** @brief SMPTE meter scale. 3 segments, from -44db to 0db. */
     [[nodiscard]] static std::vector<SegmentOptions> getSmpteScale()
     {
-        return { { { -44.0f, -12.0f }, { 0.0f, 0.7273f }, juce::Colours::green, juce::Colours::yellow },  // NOLINT
-                 { { -12.0f, -3.0f }, { 0.7273f, 0.9318f }, juce::Colours::yellow, juce::Colours::red },  // NOLINT
-                 { { -3.0f, 0.0f }, { 0.9318f, 1.0f }, juce::Colours::red, juce::Colours::red } };        // NOLINT
+        return { { { -44.0f, -12.0f }, { 0.0f, 0.7273f }, juce::Colours::green, juce::Colours::yellow },
+                 { { -12.0f, -3.0f }, { 0.7273f, 0.9318f }, juce::Colours::yellow, juce::Colours::red },
+                 { { -3.0f, 0.0f }, { 0.9318f, 1.0f }, juce::Colours::red, juce::Colours::red } };
     }
 
+    /** @brief Yamaha mixer meter scale. 3 segments, from -60db to 0db. */
     [[nodiscard]] static std::vector<SegmentOptions> getYamaha60()
     {
-        return { { { -60.0f, -30.0f }, { 0.0f, 0.2751f }, juce::Colours::yellow, juce::Colours::yellow },     // NOLINT
-                 { { -30.0f, -18.0f }, { 0.2751f, 0.4521f }, juce::Colours::yellow, juce::Colours::yellow },  // NOLINT
-                 { { -18.0f, 0.0f }, { 0.4521f, 1.0f }, juce::Colours::red, juce::Colours::red } };           // NOLINT
+        return { { { -60.0f, -30.0f }, { 0.0f, 0.2751f }, juce::Colours::yellow, juce::Colours::yellow },
+                 { { -30.0f, -18.0f }, { 0.2751f, 0.4521f }, juce::Colours::yellow, juce::Colours::yellow },
+                 { { -18.0f, 0.0f }, { 0.4521f, 1.0f }, juce::Colours::red, juce::Colours::red } };
     }
 
 private:
     MeterScales() = default;
 };
 
-/**
- * @brief Type indicating whether to notify the listeners or not.
-*/
+/** @brief Type indicating whether to notify the listeners or not. */
 enum class NotificationOptions
 {
     notify,     ///< Notify any listeners.
     dontNotify  ///< Do not notify any listeners.
 };
 
-/**
- * @brief Position of the label strip.
-*/
+/** @brief Position of the label strip. */
 enum class LabelStripPosition
 {
     left,   ///< Left of the meters.
@@ -177,19 +176,5 @@ enum class LabelStripPosition
     none    ///< No label strip will be shown.
 };
 
-/**
- * @brief Various meter helper functions.
-*/
-namespace Helpers
-{
-/**
- * Apply padding to a rectangle.
- *
- * @param rectToPad Rectangle to apply the padding to.
- * @param paddingToApply The padding to apply (left, right, top, bottom).
- * @return The padded rectangle.
-*/
-[[nodiscard]] juce::Rectangle<int> applyPadding (const juce::Rectangle<int>& rectToPad, Padding paddingToApply) noexcept;
-}  // namespace Helpers
 }  // namespace SoundMeter
 }  // namespace sd

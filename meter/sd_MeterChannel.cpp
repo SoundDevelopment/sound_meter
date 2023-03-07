@@ -100,7 +100,7 @@ bool MeterChannel::autoSetMinimalMode (int proposedWidth, int proposedHeight)
 
     setMinimalMode (minimalMode);
 
-    return minimalMode;
+    return m_minimalMode;
 }
 //==============================================================================
 

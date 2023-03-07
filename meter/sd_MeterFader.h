@@ -73,10 +73,10 @@ public:
     /**
      * @brief Show or hide the fader.
      * 
-     * @param setVisible When set to true, show the fader. Otherwise hide it.
+     * @param visible When set to true, show the fader. Otherwise hide it.
      * @see isVisible, setEnabled, isEnabled
     */
-    void setVisible (bool showFader = true) noexcept;
+    void setVisible (bool visible = true) noexcept;
 
     /**
      * @brief Check if the 'fader' overlay is enabled.
