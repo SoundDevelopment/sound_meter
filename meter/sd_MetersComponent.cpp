@@ -42,10 +42,10 @@ MetersComponent::MetersComponent() : MetersComponent ({}, {}) { }
 MetersComponent::MetersComponent (const juce::AudioChannelSet& channelFormat) : MetersComponent ({}, channelFormat) { }
 //==============================================================================
 
-MetersComponent::MetersComponent (const MeterOptions& meterOptions) : MetersComponent (meterOptions, {}) { }
+MetersComponent::MetersComponent (const Options& meterOptions) : MetersComponent (meterOptions, {}) { }
 //==============================================================================
 
-MetersComponent::MetersComponent (const MeterOptions& meterOptions, const juce::AudioChannelSet& channelFormat)
+MetersComponent::MetersComponent (const Options& meterOptions, const juce::AudioChannelSet& channelFormat)
   : m_meterOptions (meterOptions),
     m_labelStrip (meterOptions, Padding (Constants::kLabelStripLeftPadding, 0, 0, 0), Constants::kLabelStripId, true, juce::AudioChannelSet::ChannelType::unknown),
     m_channelFormat (channelFormat)
@@ -566,6 +566,7 @@ void MetersComponent::createMeters (const juce::AudioChannelSet& channelFormat, 
     }
 
     setChannelNames (channelNames);
+    setMeterSegments (m_segmentsOptions);
 }
 //==============================================================================
 
@@ -622,7 +623,7 @@ void MetersComponent::setFont (const juce::Font& newFont)
 }
 //==============================================================================
 
-void MetersComponent::setOptions (const MeterOptions& meterOptions)
+void MetersComponent::setOptions (const Options& meterOptions)
 {
     m_meterOptions = meterOptions;
     for (auto* meter: m_meterChannels)
@@ -654,7 +655,7 @@ void MetersComponent::enable (bool enabled /*= true*/)
 
 void MetersComponent::showTickMarks (bool showTickMarks)
 {
-    m_meterOptions.showTickMarks = showTickMarks;
+    m_meterOptions.tickMarksEnabled = showTickMarks;
     for (auto* meter: m_meterChannels)
         if (meter)
             meter->showTickMarks (showTickMarks);
@@ -680,10 +681,10 @@ void MetersComponent::setLabelStripPosition (LabelStripPosition labelStripPositi
 
 void MetersComponent::showHeader (bool showHeader)
 {
-    if (m_meterOptions.showHeader == showHeader)
+    if (m_meterOptions.headerEnabled == showHeader)
         return;
 
-    m_meterOptions.showHeader = showHeader;
+    m_meterOptions.headerEnabled = showHeader;
     m_labelStrip.showHeader (showHeader);
 
     for (auto* meter: m_meterChannels)
@@ -696,7 +697,7 @@ void MetersComponent::showHeader (bool showHeader)
 
 void MetersComponent::showValue (bool showValue)
 {
-    if (m_meterOptions.showValue == showValue)
+    if (m_meterOptions.valueEnabled == showValue)
         return;
 
     m_labelStrip.showValue (showValue);
@@ -711,9 +712,10 @@ void MetersComponent::showValue (bool showValue)
 
 void MetersComponent::setMeterSegments (const std::vector<SegmentOptions>& segmentsOptions)
 {
+    m_segmentsOptions = segmentsOptions;
     for (auto* meter: m_meterChannels)
         if (meter)
-            meter->setMeterSegments (segmentsOptions);
+            meter->setMeterSegments (m_segmentsOptions);
 }
 //==============================================================================
 

@@ -114,7 +114,7 @@ public:
      *
      * @param meterOptions Meter options to use.
     */
-    void setMeterOptions (const MeterOptions& meterOptions);
+    void setMeterOptions (const Options& meterOptions);
 
     /**
      * @brief Check if the peak 'value' part is visible.
@@ -292,7 +292,7 @@ public:
     void drawPeakValue (juce::Graphics& g, const MeterColours& meterColours) const;
 
 private:
-    MeterOptions                m_meterOptions;
+    Options                     m_meterOptions;
     std::vector<SegmentOptions> m_segmentOptions = MeterScales::getDefaultScale();
 
     std::vector<Segment> m_segments {};  // List of meter segments.
@@ -316,7 +316,7 @@ private:
 
     [[nodiscard]] float getDecayedLevel (float newLevel_db);
     [[nodiscard]] float getLinearDecayedLevel (float newLevel_db);
-    void                calculateDecayCoeff (const MeterOptions& meterOptions);
+    void                calculateDecayCoeff (const Options& meterOptions);
     void                synchronizeMeterOptions();
 
     // clang-format on

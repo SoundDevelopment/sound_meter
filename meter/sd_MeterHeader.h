@@ -68,7 +68,8 @@ public:
     * @param type Channel type to display in the header.  
     * @param font The font to use in the header.
     */
-    Header (juce::String name, const juce::AudioChannelSet::ChannelType& type, juce::Font& font) noexcept : m_font (font), m_name (std::move (name)), m_type (type)
+    Header (juce::String name, const juce::AudioChannelSet::ChannelType& type, juce::Font& font) noexcept
+      : m_font (font), m_name (std::move (name)), m_type (type)
     {
     }
 

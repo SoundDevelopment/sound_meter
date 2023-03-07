@@ -44,7 +44,7 @@ MeterChannel::MeterChannel() noexcept
 }
 //==============================================================================
 
-MeterChannel::MeterChannel (const MeterOptions& meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip /*= false*/,
+MeterChannel::MeterChannel (const Options& meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip /*= false*/,
                             ChannelType channelType /*= ChannelType::unknown*/)
   : MeterChannel()
 {
@@ -117,17 +117,17 @@ void MeterChannel::setMinimalMode (bool minimalMode)
 
 void MeterChannel::showHeader (bool headerVisible)
 {
-    if (m_meterOptions.showHeader == headerVisible)
+    if (m_meterOptions.headerEnabled == headerVisible)
         return;
 
-    m_meterOptions.showHeader = headerVisible;
+    m_meterOptions.headerEnabled = headerVisible;
 
     resized();
     addDirty (m_header.getBounds());
 }
 //==============================================================================
 
-void MeterChannel::setOptions (const MeterOptions& meterOptions)
+void MeterChannel::setOptions (const Options& meterOptions)
 {
     m_meterOptions = meterOptions;
 
@@ -136,7 +136,7 @@ void MeterChannel::setOptions (const MeterOptions& meterOptions)
 
     m_level.setMeterOptions (meterOptions);
 
-    showHeader (meterOptions.showHeader);
+    showHeader (meterOptions.headerEnabled);
 
 #if SDTK_ENABLE_FADER
     enableFader (meterOptions.faderEnabled);
@@ -186,14 +186,14 @@ void MeterChannel::setColours()
 
 void MeterChannel::useGradients (bool useGradients)
 {
-    m_meterOptions.useGradients = useGradients;
+    m_meterOptions.useGradient = useGradients;
     setOptions (m_meterOptions);
 }
 //==============================================================================
 
 void MeterChannel::showTickMarks (bool showTickMarks)
 {
-    m_meterOptions.showTickMarks = showTickMarks;
+    m_meterOptions.tickMarksEnabled = showTickMarks;
     setOptions (m_meterOptions);
 }
 //==============================================================================
@@ -214,14 +214,14 @@ void MeterChannel::setTickMarks (const std::vector<float>& tickMarks)
 
 void MeterChannel::showValue (bool showValue /*= true*/)
 {
-    m_meterOptions.showValue = showValue;
+    m_meterOptions.valueEnabled = showValue;
     setOptions (m_meterOptions);
 }
 //==============================================================================
 
 void MeterChannel::showPeakHold (bool showPeakHold)
 {
-    m_meterOptions.showPeakHold = showPeakHold;
+    m_meterOptions.showPeakHoldIndicator = showPeakHold;
     setOptions (m_meterOptions);
 }
 //==============================================================================
@@ -232,7 +232,7 @@ void MeterChannel::resized()
 
     // Meter header...
     m_header.setBounds (meterBounds.withHeight (0));
-    if (m_meterOptions.showHeader && !m_minimalMode)
+    if (m_meterOptions.headerEnabled && !m_minimalMode)
         m_header.setBounds (meterBounds.removeFromTop (Constants::kDefaultHeaderHeight));
 
     m_level.setMeterBounds (meterBounds);
@@ -251,7 +251,7 @@ void MeterChannel::paint (juce::Graphics& g)
     g.setFont (m_font);
 
     // Draw the 'HEADER' part of the meter...
-    if (!m_header.getBounds().isEmpty() && m_meterOptions.showHeader)
+    if (!m_header.getBounds().isEmpty() && m_meterOptions.headerEnabled)
     {
 #if SDTK_ENABLE_FADER
         m_header.draw (g, isActive(), m_fader.isEnabled(), m_meterColours);

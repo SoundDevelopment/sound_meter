@@ -54,7 +54,6 @@ namespace SoundMeter
 class Fader final
 {
 public:
-  
     Fader() = default;
 
     /**
@@ -159,17 +158,17 @@ public:
     */
     [[nodiscard]] bool needsRedrawing() noexcept { return (m_drawnFaderValue != m_faderValue.load()) || isFading(); }
 
-    std::function<void ()> onFaderValueChanged { nullptr };
+    std::function<void()> onFaderValueChanged { nullptr };
 
 private:
     std::atomic<float>   m_faderValue { 1.0f };  // Fader value (between 0..1).
     juce::Rectangle<int> m_bounds {};
 
-    float    m_drawnFaderValue = 1.0f;
-    bool     m_visible         = false;
-    bool     m_enabled         = false;
-    bool     m_isFading        = false;
-    int      m_fadeStart       = 0;
+    float m_drawnFaderValue = 1.0f;
+    bool  m_visible         = false;
+    bool  m_enabled         = false;
+    bool  m_isFading        = false;
+    int   m_fadeStart       = 0;
 
     [[nodiscard]] int getTimeSinceStartFade() const noexcept { return static_cast<int> (juce::Time::getMillisecondCounter() - m_fadeStart); }
 

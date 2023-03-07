@@ -41,7 +41,7 @@
 #include <juce_core/juce_core.h>
 #include <juce_gui_basics/juce_gui_basics.h>
 
-namespace sd 
+namespace sd
 {
 namespace SoundMeter
 {
@@ -52,7 +52,7 @@ namespace SoundMeter
  * Use the MetersComponent to create multiple meters matching
  * the specified channel format.
 */
-class MeterChannel final 
+class MeterChannel final
   : public juce::Component
   , private juce::SettableTooltipClient
 {
@@ -74,8 +74,7 @@ public:
      * @param isLabelStrip  When set to true, this meter will function as a label strip (with markers for levels at the tick-marks).
      * @param channelType   The channel type (left, right, center, etc...).
     */
-    MeterChannel (const MeterOptions& meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip = false,
-                  ChannelType channelType = ChannelType::unknown);
+    MeterChannel (const Options& meterOptions, Padding padding, const juce::String& channelName, bool isLabelStrip = false, ChannelType channelType = ChannelType::unknown);
 
 #if SDTK_ENABLE_FADER
     /** @brief Destructor. */
@@ -149,7 +148,7 @@ public:
      *
      * @param meterOptions Meter options to use.
     */
-    void setOptions (const MeterOptions& meterOptions);
+    void setOptions (const Options& meterOptions);
 
     /**
      * @brief Activate or deactivate (mute) the meter.
@@ -491,7 +490,7 @@ private:
     // clang-format off
     Header                      m_header            { m_font };     ///< 'Header' part of the meter with info relating to the meter (name, channel type, info rect, index in a sequence of multiple meters).
     Level                       m_level             {};             ///< 'Meter' part of the meter. Actually displaying the level.
-    MeterOptions                m_meterOptions      {};             ///< 'Meter' options.
+    Options                     m_meterOptions      {};             ///< 'Meter' options.
 
 #if SDTK_ENABLE_FADER
     Fader                       m_fader;
