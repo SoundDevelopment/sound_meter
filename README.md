@@ -48,7 +48,7 @@ m_meters.setOptions (meterOptions);
 ```
 and configure the segments:
 ```
-sd::SoundMeter::SegmentOptions segmentOptions = 
+std::vector<sd::SoundMeter::SegmentOptions> segmentOptions = 
 { { { -60.0f, -18.0f }, { 0.0f, 0.5f }, juce::Colours::green, juce::Colours::green },   // From bottom of the meter (0.0f) to the half. Displaying -60 dB up to -18 dB.
   { { -18.0f, -3.0f }, { 0.5f, 0.90f }, juce::Colours::green, juce::Colours::yellow },  // From half of the meter to almost the top (0.9f). Displaying -18 dB up to -3 dB.
   { { -3.0f, 0.0f }, { 0.90f, 1.0f }, juce::Colours::yellow, juce::Colours::red } };    // From almost the top to the top of the meter (1.0f). Displaying -3 dB up to 0 dB.
