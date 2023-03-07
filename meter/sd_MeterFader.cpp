@@ -48,13 +48,13 @@ void Fader::flash() noexcept
 }
 //==============================================================================
 
-void Fader::setVisible (bool showFader /*= true*/) noexcept
+void Fader::setVisible (bool visible /*= true*/) noexcept
 {
     if (!m_enabled)
         return;
 
     // If fader needs to be HIDDEN...
-    if (!showFader)
+    if (!visible)
     {
         // If it was visible, FADE it out...
         if (m_visible)

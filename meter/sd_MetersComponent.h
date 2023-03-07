@@ -61,7 +61,7 @@ class MetersComponent final
 {
 public:
     /**
-     * @brief Constructor
+     * @brief Default constructor.
     */
     MetersComponent();
 
@@ -87,7 +87,8 @@ public:
      *
      * This constructor will automatically setup the panel with the
      * right amount of meters, named according to the channel format.
-     *
+     *                                                                   
+     * @param meterOptions  The options to use with the meters and the label strip.
      * @param channelFormat The channel format to use to initialise the panel.
     */
     MetersComponent (const MeterOptions& meterOptions, const juce::AudioChannelSet& channelFormat);
@@ -242,7 +243,7 @@ public:
      * Set's the meter's decay rate in milliseconds.
      * The meter's attack is instant.
      *
-     * @param decay The time it takes the meter to decay (in ms).
+     * @param decay_ms The time it takes the meter to decay (in ms).
      *
      * @see setRefreshRate
     */

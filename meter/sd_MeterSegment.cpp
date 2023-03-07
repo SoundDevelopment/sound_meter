@@ -154,9 +154,10 @@ void Segment::setMeterBounds (juce::Rectangle<int> meterBounds)
     if (meterBounds == m_meterBounds)
         return;
 
-    m_meterBounds            = meterBounds;
-    const auto segmentBounds = meterBounds.withY (meterBounds.getY() + meterBounds.proportionOfHeight (1.0f - m_segmentOptions.meterRange.getEnd()))
-                                 .withHeight (meterBounds.proportionOfHeight (m_segmentOptions.meterRange.getLength()));
+    m_meterBounds = meterBounds;
+    const auto segmentBounds =
+      meterBounds.withY (meterBounds.getY() + juce::roundToInt (meterBounds.toFloat().proportionOfHeight (1.0f - m_segmentOptions.meterRange.getEnd())))
+        .withHeight (juce::roundToInt (meterBounds.toFloat().proportionOfHeight (m_segmentOptions.meterRange.getLength())));
     m_segmentBounds = segmentBounds;
     updateLevelBounds();
     updatePeakHoldBounds();

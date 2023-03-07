@@ -56,15 +56,17 @@ class Header final
 {
 public:
     /**
-    * @brief Default constructor
+    * @brief Constructor
+    * @param font The font to use in the header.
     */
     explicit Header (juce::Font& font) noexcept : Header ({}, juce::AudioChannelSet::unknown, font) { }
 
     /**
-    * @brief Parameterized constructor.
+    * @brief Constructor with channel identification.
     * 
     * @param name Channel name to display in the header.
-    * @param type Channel type to display in the header.
+    * @param type Channel type to display in the header.  
+    * @param font The font to use in the header.
     */
     Header (juce::String name, const juce::AudioChannelSet::ChannelType& type, juce::Font& font) noexcept : m_font (font), m_name (std::move (name)), m_type (type)
     {
@@ -218,6 +220,8 @@ public:
      * @brief Draw the 'header' part of the meter.
      * 
      * @param[in,out] g    The juce graphics context to use.
+     * @param meterActive  True, when the meter is active (not muted).
+     * @param faderEnabled True, when the fader overlay is enabled.
      * @param meterColours The colours to draw the header with.        
     */
     void draw (juce::Graphics& g, bool meterActive, bool faderEnabled, const MeterColours& meterColours);

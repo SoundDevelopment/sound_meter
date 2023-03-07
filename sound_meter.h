@@ -42,8 +42,8 @@ BEGIN_JUCE_MODULE_DECLARATION
     ID:                 sound_meter
     vendor:             Sound Development
     name:               Resize-able peak meter module with fader and container panel.
-    version:            0.8.0
-    description:        Resize-able peak meter juce module, with an (optional) fader and accompanying container panel (mixer).
+    version:            0.9.0
+    description:        Resize-able logarithmic peak meter JUCE module, with an (optional) fader and accompanying container panel (mixer).
     website:            https://www.sounddevelopment.nl
     license:            MIT   
     minimumCppStandard: 14

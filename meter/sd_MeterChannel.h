@@ -78,9 +78,7 @@ public:
                   ChannelType channelType = ChannelType::unknown);
 
 #if SDTK_ENABLE_FADER
-    /**
-     * @brief Destructor
-    */
+    /** @brief Destructor. */
     virtual ~MeterChannel() override;
 #endif
 
@@ -116,6 +114,16 @@ public:
      * @see getDecay, setRefreshRate
     */
     void setDecay (float decay_ms) { m_level.setDecay (decay_ms); }
+
+    /**
+     * @brief Set the padding of the meter.
+     *
+     * The padding is the space between the meter and the edges
+     * of the component.
+     *
+     * @param padding Amount of padding to apply.
+    */
+    void setPadding (const Padding& padding) noexcept { m_padding = padding; }
 
     /**
      * @brief Get meter decay.
@@ -203,7 +211,7 @@ public:
      * The peak 'value' part will be shown below the meter (in dB).
      * It's the same level as the peak hold bar.
      *
-     * @param showPeakValue When set true, shows the 'value' level (in dB) part below the meter.
+     * @param showValue When set true, shows the 'value' level (in dB) part below the meter.
      * @see showPeakHold, resetPeakHold, showValue
     */
     void showValue (bool showValue = true);
@@ -243,7 +251,7 @@ public:
      *
      * For instance: left, right, center, etc..
      *
-     * @param type The channel type assigned to the meter.
+     * @param channelType The channel type assigned to the meter.
      *
      * @see getType
     */
@@ -290,7 +298,7 @@ public:
      * When there is not enough room (width) to display the full description or name, display
      * the abbreviated type description.
      *
-     * @param referredWidth The width (in pixels) to use when deciding what to display in the header.
+     * @param referredTypeWidth The width (in pixels) to use when deciding what to display in the header.
     */
     void setReferredTypeWidth (float referredTypeWidth) noexcept { m_header.setReferredWidth (referredTypeWidth); }
 
@@ -327,16 +335,6 @@ public:
      * @see showTickMarks, showTickMarksOnTop, showTickMarks
     */
     void setTickMarks (const std::vector<float>& tickMarks);
-
-    /**
-     * @brief Set the padding of the meter.
-     *
-     * The padding is the space between the meter and the edges
-     * of the component.
-     *
-     * @param padding Amount of padding to apply.
-    */
-    void setPadding (const Padding& padding) noexcept { m_padding = padding; }
 
     /**
      * Get the bounds of the 'meter' and 'header' parts combined.
@@ -458,8 +456,9 @@ public:
     */
     void notifyParent();
 
-    /** You can assign a lambda to this callback object to have it called when the button is clicked. */
+    /** @brief You can assign a lambda to this callback object to have it called fader is moved. */
     std::function<void (MeterChannel::Ptr meter)> onFaderMove { nullptr };
+    /** @brief You can assign a lambda to this callback object to have it called channel is soloed. */
     std::function<void (MeterChannel::Ptr meter)> onChannelSolo { nullptr };
 
 #endif /* SDTK_ENABLE_FADER */
@@ -467,7 +466,7 @@ public:
     /** @internal */
     void paint (juce::Graphics& g) override;
     void resized() override;
-    void lookAndFeelChanged() override;  // On change in lookandfeel or visibility. Cache the colours.
+    void lookAndFeelChanged() override;
     void visibilityChanged() override;
 
     /**
@@ -476,23 +475,23 @@ public:
     */
     enum ColourIds
     {
-        backgroundColourId     = 0x1a03201,  /// Background colour.
-        tickMarkColourId       = 0x1a03202,  /// Tick-mark colour.
-        textColourId           = 0x1a03203,  /// Text colour.
-        faderColourId          = 0x1a03204,  /// Fader colour.
-        textValueColourId      = 0x1a03205,  /// Value text colour.
-        mutedColourId          = 0x1a03206,  /// Muted button colour.
-        solodColourId          = 0x1a03207,  /// Soloed button colour..
-        mutedMouseOverColourId = 0x1a03208,  /// Muted mouse over button colour.
-        inactiveColourId       = 0x1a03209,  /// Inactive (muted) colour.
-        peakHoldColourId       = 0x1a03210   /// Peak hold colour.
+        backgroundColourId     = 0x1a03201,  ///< Background colour.
+        tickMarkColourId       = 0x1a03202,  ///< Tick-mark colour.
+        textColourId           = 0x1a03203,  ///< Text colour.
+        faderColourId          = 0x1a03204,  ///< Fader colour.
+        textValueColourId      = 0x1a03205,  ///< Value text colour.
+        mutedColourId          = 0x1a03206,  ///< Muted button colour.
+        solodColourId          = 0x1a03207,  ///< Soloed button colour..
+        mutedMouseOverColourId = 0x1a03208,  ///< Muted mouse over button colour.
+        inactiveColourId       = 0x1a03209,  ///< Inactive (muted) colour.
+        peakHoldColourId       = 0x1a03210   ///< Peak hold colour.
     };
 
 private:
     // clang-format off
-    Header                      m_header            { m_font };     /// 'Header' part of the meter with info relating to the meter (name, channel type, info rect, index in a sequence of multiple meters).
-    Level                       m_level             {};             /// 'Meter' part of the meter. Actually displaying the level.
-    MeterOptions                m_meterOptions      {};             /// 'Meter' options.
+    Header                      m_header            { m_font };     ///< 'Header' part of the meter with info relating to the meter (name, channel type, info rect, index in a sequence of multiple meters).
+    Level                       m_level             {};             ///< 'Meter' part of the meter. Actually displaying the level.
+    MeterOptions                m_meterOptions      {};             ///< 'Meter' options.
 
 #if SDTK_ENABLE_FADER
     Fader                       m_fader;
@@ -502,8 +501,8 @@ private:
     bool                        m_isLabelStrip      = false;
     bool                        m_minimalMode       = false;
 
-    juce::Rectangle<int>        m_dirtyRect         {};
-    Padding                     m_padding           { 0, 0, 0, 0 }; /// Space between meter and component's edge.
+    juce::Rectangle<int>        m_dirtyRect         {};    
+    Padding                     m_padding           { 0, 0, 0, 0 }; ///< Space between meter and component's edge.
     juce::Font                  m_font;
     MeterColours                m_meterColours      {};
 
