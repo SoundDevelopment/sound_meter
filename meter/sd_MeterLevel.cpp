@@ -278,7 +278,7 @@ juce::Rectangle<int> Level::getDirtyBounds()
     for (const auto& segment: m_segments)
     {
         if (segment.isDirty())
-            dirtyBounds = dirtyBounds.getUnion (segment.getSegmentBounds());
+            dirtyBounds = dirtyBounds.getUnion (segment.getSegmentBounds().toNearestIntEdges());
     }
 
     if (m_peakHoldDirty)

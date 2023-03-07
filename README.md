@@ -1,6 +1,6 @@
 # Sound Meter
 [Juce](https://juce.com/) logarithmic peak meter module with optional fader overlay.<br>
-<img align="right" src="https://www.sounddevelopment.nl/sd/resources/images/sound_meter/sound_meter_demo_23.gif">
+<img align="right" src="https://www.sounddevelopment.nl/sd/resources/images/sound_meter/sound_meter_demo_23.gif"/>
 *by Marcel Huibers | [Sound Development](https://www.sounddevelopment.nl) 2023 | Published under the [MIT License](https://en.wikipedia.org/wiki/MIT_License)*
 
 

@@ -60,7 +60,7 @@ public:
     void setMeterBounds (juce::Rectangle<int> meterBounds);
 
     /** @brief Get the bounding box of this segment.*/
-    [[nodiscard]] juce::Rectangle<int> getSegmentBounds() const noexcept { return m_segmentBounds; }
+    [[nodiscard]] juce::Rectangle<float> getSegmentBounds() const noexcept { return m_segmentBounds; }
 
     /** @brief Reset the peak hold.*/
     void resetPeakHold() noexcept;
@@ -105,15 +105,15 @@ public:
     [[nodiscard]] Options getMeterOptions() const { return m_meterOptions; }
 
 private:
-    SegmentOptions       m_segmentOptions {};
-    Options              m_meterOptions {};
-    std::vector<float>   m_tickMarks {};
-    juce::Rectangle<int> m_meterBounds {};
-    juce::Rectangle<int> m_segmentBounds {};
-    juce::Rectangle<int> m_drawnBounds {};
-    juce::Rectangle<int> m_peakHoldBounds {};
-    juce::Rectangle<int> m_drawnPeakHoldBounds {};
-    juce::ColourGradient m_gradientFill {};
+    SegmentOptions         m_segmentOptions {};
+    Options                m_meterOptions {};
+    std::vector<float>     m_tickMarks {};
+    juce::Rectangle<int>   m_meterBounds {};
+    juce::Rectangle<float> m_segmentBounds {};
+    juce::Rectangle<float> m_drawnBounds {};
+    juce::Rectangle<float> m_peakHoldBounds {};
+    juce::Rectangle<float> m_drawnPeakHoldBounds {};
+    juce::ColourGradient   m_gradientFill {};
 
     float m_currentLevel_db   = Constants::kMinLevel_db;
     float m_peakHoldLevel_db  = Constants::kMinLevel_db;

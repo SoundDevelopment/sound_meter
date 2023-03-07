@@ -627,9 +627,13 @@ void MetersComponent::setOptions (const Options& meterOptions)
 {
     m_meterOptions = meterOptions;
     for (auto* meter: m_meterChannels)
+    {
         if (meter)
             meter->setOptions (meterOptions);
+    }
     m_labelStrip.setOptions (meterOptions);
+
+    setRefreshRate (meterOptions.refreshRate);
 }
 //==============================================================================
 
