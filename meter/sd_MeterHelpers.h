@@ -88,7 +88,9 @@ struct Padding
     int bottom = 0;  ///< Space between meter and bottom border (in pixels).
 };
 
-/** @brief Options defining the meter segments. */
+/**
+ * @brief Options defining the meter segments.
+ */
 struct SegmentOptions
 {
     juce::Range<float> levelRange { Constants::kMinLevel_db, Constants::kMaxLevel_db };  ///<  The range of the segment in decibels.
@@ -116,6 +118,9 @@ struct Options
     std::vector<float> tickMarks = { 0.0f, -3.0f, -6.0f, -9.0f, -12.0f, -18.0f, -30.0f, -40.0f, -50.0f };  ///< Tick-mark position in db.
 };
 
+/**
+ * @brief All meter colours for the appearance of the meters.
+*/
 struct MeterColours
 {
     juce::Colour backgroundColour    = juce::Colours::black;                                       ///< Background colour of the meter.
@@ -130,10 +135,15 @@ struct MeterColours
     juce::Colour solodColour         = juce::Colours::yellow;                                      ///< Colour of the solo button.
 };
 
+/**
+ * @brief A class with static functions to create different types of meter scales.
+*/
 class MeterScales
 {
 public:
-    /** @brief Default meter scale. 3 segments, from -60db to 0db. */
+    /**
+    * @brief Default meter scale. 3 segments, from -60db to 0db. 
+    */
     [[nodiscard]] static std::vector<SegmentOptions> getDefaultScale()
     {
         return { { { -60.0f, -18.0f }, { 0.0f, 0.5f }, juce::Colours::green, juce::Colours::green },
@@ -141,7 +151,9 @@ public:
                  { { -3.0f, 0.0f }, { 0.90f, 1.0f }, juce::Colours::yellow, juce::Colours::red } };
     }
 
-    /** @brief SMPTE meter scale. 3 segments, from -44db to 0db. */
+    /**
+     * @brief SMPTE meter scale. 3 segments, from -44db to 0db.
+     */
     [[nodiscard]] static std::vector<SegmentOptions> getSmpteScale()
     {
         return { { { -44.0f, -12.0f }, { 0.0f, 0.7273f }, juce::Colours::green, juce::Colours::yellow },
@@ -149,7 +161,9 @@ public:
                  { { -3.0f, 0.0f }, { 0.9318f, 1.0f }, juce::Colours::red, juce::Colours::red } };
     }
 
-    /** @brief Yamaha mixer meter scale. 3 segments, from -60db to 0db. */
+    /**
+     * @brief Yamaha mixer meter scale. 3 segments, from -60db to 0db.
+     */
     [[nodiscard]] static std::vector<SegmentOptions> getYamaha60()
     {
         return { { { -60.0f, -30.0f }, { 0.0f, 0.2751f }, juce::Colours::yellow, juce::Colours::yellow },
