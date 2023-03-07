@@ -28,18 +28,18 @@ All classes are in the namespace `sd::SoundMeter` to avoid collisions. You can e
 
 The [MetersComponent](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/classsd_1_1SoundMeter_1_1MetersComponent.html) class creates and controls the meters. 
 This would live in your **editor.h**. 
-```
+```cpp
 private:
    sd::SoundMeter::MetersComponent  m_meters;
 ```
 <br>
 
 In the **constructor** you can specify a channel format with [setChannelFormat](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/classsd_1_1SoundMeter_1_1MetersComponent.html#aea27fda8af5ec463436186e8fb3afd20) or set the nummer of channels with [setNumChannels](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/classsd_1_1SoundMeter_1_1MetersComponent.html#a042d84e77a91f501c57377d461957e41):
-```
+```cpp
 m_meters.setChannelFormat (juce::AudioChannelSet::stereo());
 ```
 and configure it's options: (for all meter options, see [documentation](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/structsd_1_1SoundMeter_1_1Options.html))
-```
+```cpp
 sd::SoundMeter::MeterOptions meterOptions;
 meterOptions.faderEnabled     = true;
 meterOptions.headerEnabled    = true;
@@ -49,19 +49,22 @@ m_meters.setOptions (meterOptions);
 and configure the segments:
 ```cpp
 std::vector<sd::SoundMeter::SegmentOptions> segmentOptions = 
-{ { { -60.0f, -18.0f }, { 0.0f, 0.5f }, juce::Colours::green, juce::Colours::green },   // From bottom of the meter (0.0f) to the half. Displaying -60 dB up to -18 dB.
-  { { -18.0f, -3.0f }, { 0.5f, 0.90f }, juce::Colours::green, juce::Colours::yellow },  // From half of the meter to almost the top (0.9f). Displaying -18 dB up to -3 dB.
-  { { -3.0f, 0.0f }, { 0.90f, 1.0f }, juce::Colours::yellow, juce::Colours::red } };    // From almost the top to the top of the meter (1.0f). Displaying -3 dB up to 0 dB.
+{ // From bottom of the meter (0.0f) to the half. Displaying -60 dB up to -18 dB.
+  { { -60.0f, -18.0f }, { 0.0f, 0.5f }, juce::Colours::green, juce::Colours::green }, 
+  // From half of the meter to almost the top (0.9f). Displaying -18 dB up to -3 dB.
+  { { -18.0f, -3.0f }, { 0.5f, 0.90f }, juce::Colours::green, juce::Colours::yellow },
+  // From almost the top to the top of the meter (1.0f). Displaying -3 dB up to 0 dB.
+  { { -3.0f, 0.0f }, { 0.90f, 1.0f }, juce::Colours::yellow, juce::Colours::red } };    
 m_meters.setMeterSegments (segmentOptions);
 ```
 
 Finally (still in the **constructor**) we add the component and make it visible:
-```
+```cpp
 addAndMakeVisible (m_meters);
 ```
 <br>
-In the `resized()` method, you set the bounds (left, right, width, height) of the meters:
-```
+In the resized() method, you set the bounds (left, right, width, height) of the meters:
+```cpp
 m_meters.setBounds (getLocalBounds());
 ```
 
