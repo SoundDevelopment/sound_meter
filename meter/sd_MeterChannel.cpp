@@ -112,8 +112,8 @@ void MeterChannel::setMinimalMode (bool minimalMode)
         return;
 
     m_minimalMode = minimalMode;
-    showHeader (!m_minimalMode);  // ... show channel ID if it's not too narrow for ID and not in minimum mode.
     m_level.setMinimalMode (m_minimalMode);
+    showHeader (!m_minimalMode);  // ... show channel ID if it's not too narrow for ID and not in minimum mode.
 }
 //==============================================================================
 
@@ -278,11 +278,7 @@ void MeterChannel::drawMeter (juce::Graphics& g)
     g.setColour (m_active ? m_meterColours.backgroundColour : m_meterColours.inactiveColour);
     g.fillRect (m_level.getMeterBounds());
 
-    // Draw meter level segments...
     m_active ? m_level.drawMeter (g, m_meterColours) : m_level.drawInactiveMeter (g, m_meterColours);
-
-    // Draw peak hold level VALUE...
-    m_level.drawPeakValue (g, m_meterColours);
 }
 //==============================================================================
 

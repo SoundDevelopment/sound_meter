@@ -105,7 +105,7 @@ void MetersComponent::clearMeters()
 
 void MetersComponent::refresh (const bool forceRefresh /*= false*/)
 {
-    if (!isShowing())
+    if (!isShowing() || m_meterChannels.isEmpty())
         return;
 
     m_labelStrip.refresh (forceRefresh);
@@ -153,26 +153,26 @@ void MetersComponent::paint (juce::Graphics& g)
 
 void MetersComponent::resized()
 {
-    const int numOfMeters = static_cast<int> (m_meterChannels.size());
-    if (numOfMeters == 0)
+    const auto numOfMeters = static_cast<float> (m_meterChannels.size());
+    if (numOfMeters <= 0.0f)
         return;
 
-    auto       panelBounds     = getLocalBounds();
+    auto       panelBounds     = getLocalBounds().toFloat();
     const auto panelHeight     = panelBounds.getHeight();
     const auto panelWidth      = panelBounds.getWidth();
-    auto       labelStripWidth = (m_labelStripPosition != LabelStripPosition::none ? Constants::kDefaultHeaderLabelWidth : 0);
+    auto       labelStripWidth = static_cast<float> (m_labelStripPosition != LabelStripPosition::none ? Constants::kDefaultHeaderLabelWidth : 0);
 
     // Calculate meter width from available width taking into account the extra width needed when showing the master strip...
-    auto       meterWidth     = juce::jlimit (Constants::kMinWidth, Constants::kMaxWidth, (panelWidth - labelStripWidth) / numOfMeters);
-    const bool minModeEnabled = m_meterChannels[0]->autoSetMinimalMode (meterWidth, panelHeight);
+    auto       meterWidth     = juce::jlimit (1.0f, Constants::kMaxWidth, (panelWidth - labelStripWidth) / numOfMeters);
+    const bool minModeEnabled = m_meterChannels[0]->autoSetMinimalMode (static_cast<int> (meterWidth), static_cast<int> (panelHeight));
 
     // Don't show the label strip in minimum mode...
     if (minModeEnabled)
-        labelStripWidth = 0;
+        labelStripWidth = 0.0f;
 
     // Re-calculate actual width (taking into account the min. mode)...
     if (m_labelStripPosition != LabelStripPosition::none)
-        meterWidth = juce::jlimit (Constants::kMinWidth, Constants::kMaxWidth, (panelWidth - labelStripWidth) / numOfMeters);
+        meterWidth = juce::jlimit (1.0f, Constants::kMaxWidth, (panelWidth - labelStripWidth) / numOfMeters);
 
     // Position all meters and adapt them to the current size...
     for (auto* meter: m_meterChannels)
@@ -181,9 +181,9 @@ void MetersComponent::resized()
         {
             meter->setMinimalMode (minModeEnabled);
             if (m_labelStripPosition == LabelStripPosition::right)
-                meter->setBounds (panelBounds.removeFromLeft (meterWidth));
+                meter->setBounds (panelBounds.removeFromLeft (meterWidth).toNearestIntEdges());
             else
-                meter->setBounds (panelBounds.removeFromRight (meterWidth));
+                meter->setBounds (panelBounds.removeFromRight (meterWidth).toNearestIntEdges());
 
 #if SDTK_ENABLE_FADER
             if (minModeEnabled)
@@ -193,18 +193,19 @@ void MetersComponent::resized()
     }
 
     // Position MASTER strip...
-    if (labelStripWidth == 0)
+    if (labelStripWidth == 0.0f)
     {
         m_labelStrip.setBounds ({});
     }
     else
     {
         // Use the dimensions of the 'meter' part combined with the 'value' part...
-        const auto labelStripBounds = m_meterChannels[0]->getLabelStripBounds();
+        const auto labelStripBounds = m_meterChannels[0]->getLabelStripBounds().toFloat();
         if (m_labelStripPosition == LabelStripPosition::right)
-            m_labelStrip.setBounds (panelBounds.removeFromRight (labelStripWidth).withY (labelStripBounds.getY()).withHeight (labelStripBounds.getHeight()));
+            m_labelStrip.setBounds (
+              panelBounds.removeFromRight (labelStripWidth).withY (labelStripBounds.getY()).withHeight (labelStripBounds.getHeight()).toNearestIntEdges());
         else if (m_labelStripPosition == LabelStripPosition::left)
-            m_labelStrip.setBounds (panelBounds.removeFromLeft (labelStripWidth).withY (labelStripBounds.getY()).withHeight (labelStripBounds.getHeight()));
+            m_labelStrip.setBounds (panelBounds.removeFromLeft (labelStripWidth).withY (labelStripBounds.getY()).withHeight (labelStripBounds.getHeight()).toNearestIntEdges());
         m_labelStrip.showTickMarks (true);
     }
 }

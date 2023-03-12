@@ -44,8 +44,7 @@ namespace SoundMeter
 */
 namespace Constants
 {
-static constexpr auto kMinWidth                = 1;        ///< Minimum meter width (in pixels).
-static constexpr auto kMaxWidth                = 500;      ///< Maximum meter width (in pixels).
+static constexpr auto kMaxWidth                = 500.0f;   ///< Maximum meter width (in pixels).
 static constexpr auto kPeakHoldHeight          = 2;        ///< Height of the peak hold strip (in pixels).
 static constexpr auto kDefaultHeaderHeight     = 25;       ///< Default height of the 'header' part (in pixels).
 static constexpr auto kDefaultHeaderLabelWidth = 30;       ///< Default 'header' label width (in pixels).
@@ -62,10 +61,10 @@ static constexpr auto kTickMarkHeight          = 2;        ///< Height of a tick
 static constexpr auto kFaderFadeTime_ms        = 2500;     ///< Fader fade out time (in milliseconds).
 static constexpr auto kFaderSensitivity        = 10.0f;    ///< Fader sensitivity value. Must be a positive value > 0.
 static constexpr auto kFaderAlphaMax           = 0.3f;     ///< Maximum transparency (alpha) of the fader overlay.
-static constexpr auto kMinModeHeightThreshold = 150;  ///< Meter minimum mode height threshold in pixels (min. mod is just the meter. not value, ticks or fader).
-static constexpr auto kMinModeWidthThreshold = 30;    ///< Meter minimum mode width threshold in pixels (min. mod is just the meter. not value, ticks or fader).
-static constexpr auto kMetersPanelId         = "meters_panel";  ///< ID (name) of all components in the meters panel.
-static constexpr auto kLabelStripId          = "label_strip";   ///< ID (name) of the label-strip (master fader).
+static constexpr auto kMinModeHeightThreshold = 150.0f;  ///< Meter minimum mode height threshold in pixels (min. mod is just the meter. not value, ticks or fader).
+static constexpr auto kMinModeWidthThreshold = 30.0f;  ///< Meter minimum mode width threshold in pixels (min. mod is just the meter. not value, ticks or fader).
+static constexpr auto kMetersPanelId = "meters_panel";  ///< ID (name) of all components in the meters panel.
+static constexpr auto kLabelStripId  = "label_strip";   ///< ID (name) of the label-strip (master fader).
 }  // namespace Constants
 
 /**

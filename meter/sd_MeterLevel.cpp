@@ -46,6 +46,9 @@ void Level::drawMeter (juce::Graphics& g, const MeterColours& meterColours)
 {
     for (auto& segment: m_segments)
         segment.draw (g, meterColours);
+
+    if (!m_valueBounds.isEmpty())
+        drawPeakValue (g, meterColours);
 }
 //==============================================================================
 
@@ -173,6 +176,8 @@ void Level::synchronizeMeterOptions()
         segment.setIsLabelStrip (m_isLabelStrip);
         segment.setMinimalMode (m_minimalModeActive);
     }
+
+    m_peakHoldDirty = true;
 }
 //==============================================================================
 
