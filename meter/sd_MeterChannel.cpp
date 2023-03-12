@@ -69,7 +69,9 @@ void MeterChannel::reset()
 
 MeterChannel::~MeterChannel()
 {
-    onFaderMove = nullptr;
+    onFaderMove  = nullptr;
+    onMixerReset = nullptr;
+    onFaderMove  = nullptr;
 }
 //==============================================================================
 
@@ -529,13 +531,19 @@ void MeterChannel::mouseExit (const juce::MouseEvent& /*event*/)
 
 void MeterChannel::mouseDoubleClick (const juce::MouseEvent& event)
 {
-    if (event.mods == juce::ModifierKeys::leftButtonModifier)
+    if (event.mods.isLeftButtonDown())
     {
+
         if (!m_header.isMouseOver (event.y))
         {
             if (m_level.isMouseOverValue (event.y))  // Double clicking on VALUE resets peak hold...
                 resetPeakHold();
 #if SDTK_ENABLE_FADER
+            else if (event.mods.isShiftDown())  // Shift double click resets the full mixer...
+            {
+                if (onMixerReset)
+                    onMixerReset();
+            }
             else if (isActive())  // Double clicking on the FADER resets it to 0...
                 setFaderValue (1.0f, NotificationOptions::notify);
 #endif /* SDTK_ENABLE_FADER */
