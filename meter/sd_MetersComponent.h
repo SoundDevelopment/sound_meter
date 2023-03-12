@@ -332,12 +332,22 @@ public:
     void setFadersEnabled (bool faderEnabled);
 
     /**
-     * @brief Get values from all faders.
+     * @brief Assemble all the gain values from the faders.
      *
      * @param notificationOption Set whether to notify the listeners of the gathered fader values.
      * @see notifyListeners()
     */
-    void getFaderValues (NotificationOptions notificationOption = NotificationOptions::notify);
+    void assembleFaderGains (NotificationOptions notificationOption = NotificationOptions::notify);
+
+    /**
+     * @brief Get a string representing the fader gains.
+    */
+    [[nodiscard]] juce::String serializeFaderGains();
+
+    /**
+     * @brief Parse the fader gains from the supplied string.
+    */
+    void deSerializeFaderGains (const juce::String& faderGains);
 
     /**
      * @brief Set the values of all channel faders.
@@ -457,7 +467,7 @@ private:
    void                             mouseEnter              (const juce::MouseEvent& event) override;
    void                             mouseExit               (const juce::MouseEvent& event) override;
    void                             faderChanged            (MeterChannel::Ptr sourceChannel);
-    void                            channelSolo             (MeterChannel::Ptr sourceChannel);
+   void                             channelSolo             (MeterChannel::Ptr sourceChannel);
 
 #endif
 

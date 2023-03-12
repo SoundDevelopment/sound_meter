@@ -459,7 +459,8 @@ public:
     std::function<void (MeterChannel::Ptr meter)> onFaderMove { nullptr };
     /** @brief You can assign a lambda to this callback object to have it called channel is soloed. */
     std::function<void (MeterChannel::Ptr meter)> onChannelSolo { nullptr };
-
+    /** @brief You can assign a lambda to this callback object to have it called when the total mixer needs to be reset. */
+    std::function<void()> onMixerReset { nullptr };
 #endif /* SDTK_ENABLE_FADER */
 
     /** @internal */

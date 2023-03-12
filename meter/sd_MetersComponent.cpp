@@ -53,7 +53,8 @@ MetersComponent::MetersComponent (const Options& meterOptions, const juce::Audio
 #if SDTK_ENABLE_FADER
     m_labelStrip.enableFader (m_meterOptions.faderEnabled);
     m_labelStrip.addMouseListener (this, true);
-    m_labelStrip.onFaderMove = [this] (MeterChannel::Ptr meterChannel) { faderChanged (meterChannel); };
+    m_labelStrip.onFaderMove  = [this] (MeterChannel::Ptr meterChannel) { faderChanged (meterChannel); };
+    m_labelStrip.onMixerReset = [this]() { resetFaders(); };
 #endif
 
     setName (Constants::kMetersPanelId);
@@ -277,7 +278,7 @@ void MetersComponent::mouseEnter (const juce::MouseEvent& /*event*/)
 
 void MetersComponent::faderChanged (MeterChannel::Ptr sourceChannel)
 {
-    jassert (m_faderGains.size() == m_faderGainsBuffer.size());  // NOLINT
+    jassert (m_faderGains.size() == m_faderGainsBuffer.size());
     if (m_faderGains.size() != m_faderGainsBuffer.size())
         return;
 
@@ -316,7 +317,7 @@ void MetersComponent::faderChanged (MeterChannel::Ptr sourceChannel)
     else
     {
         m_labelStrip.setFaderValue (1.0f, NotificationOptions::dontNotify, false);  // ... reset the master fader.
-        getFaderValues (NotificationOptions::dontNotify);
+        assembleFaderGains (NotificationOptions::dontNotify);
     }
 
     notifyListeners();
@@ -344,7 +345,7 @@ void MetersComponent::channelSolo (MeterChannel::Ptr sourceChannel)
                 meter->setActive (true, NotificationOptions::dontNotify);
     }
 
-    getFaderValues (NotificationOptions::notify);
+    assembleFaderGains (NotificationOptions::notify);
 }
 //==============================================================================
 
@@ -358,7 +359,7 @@ void MetersComponent::setFaderValues (const std::vector<float>& faderValues, Not
 }
 //==============================================================================
 
-void MetersComponent::getFaderValues (NotificationOptions notificationOption /*= NotificationOptions::notify*/)
+void MetersComponent::assembleFaderGains (NotificationOptions notificationOption /*= NotificationOptions::notify*/)
 {
     if (m_meterChannels.isEmpty())
         return;
@@ -379,6 +380,46 @@ void MetersComponent::getFaderValues (NotificationOptions notificationOption /*=
 
     if (notificationOption == NotificationOptions::notify)
         notifyListeners();
+}
+//==============================================================================
+
+juce::String MetersComponent::serializeFaderGains()
+{
+    assembleFaderGains (NotificationOptions::dontNotify);
+
+    juce::StringArray faderGains {};
+    for (const auto& gain: m_faderGains)
+        faderGains.add (juce::String (gain));
+
+    return faderGains.joinIntoString ("|");
+}
+//==============================================================================
+
+void MetersComponent::deSerializeFaderGains (const juce::String& faderGains)
+{
+    juce::StringArray deSerialisedFaderGains {};
+    deSerialisedFaderGains.addTokens (faderGains, "|", juce::String());
+    deSerialisedFaderGains.trim();
+    deSerialisedFaderGains.removeEmptyStrings();
+
+    bool allChannelsMuted = true;
+    for (size_t channelIdx = 0; channelIdx < m_meterChannels.size(); ++channelIdx)
+    {
+        if (channelIdx < deSerialisedFaderGains.size())
+        {
+            const auto gain = deSerialisedFaderGains[static_cast<int> (channelIdx)].getFloatValue();
+            if (gain > 0.0f)
+                allChannelsMuted = false;
+            m_meterChannels[static_cast<int> (channelIdx)]->setFaderValue (gain, NotificationOptions::dontNotify);
+        }
+    }
+
+    // If all channels are muted, reset the mixer...
+    if (allChannelsMuted)
+        for (auto& channel: m_meterChannels)
+            channel->setFaderValue (1.0f, NotificationOptions::dontNotify);
+
+    assembleFaderGains (NotificationOptions::notify);
 }
 //==============================================================================
 
@@ -431,7 +472,7 @@ void MetersComponent::muteAll (bool mute /*= true */)
         meter->setActive (!mute);
         meter->flashFader();
     }
-    getFaderValues();
+    assembleFaderGains();
 }
 //==============================================================================
 
@@ -477,6 +518,7 @@ void MetersComponent::flashFaders()
 #endif /* SDTK_ENABLE_FADER */
 
 //==============================================================================
+
 void MetersComponent::setNumChannels (int numChannels, const std::vector<juce::String>& channelNames /*= {}*/)
 {
     if (numChannels <= 0)
@@ -484,11 +526,11 @@ void MetersComponent::setNumChannels (int numChannels, const std::vector<juce::S
 
     setChannelFormat (juce::AudioChannelSet::canonicalChannelSet (numChannels), channelNames);
 }
-
 //==============================================================================
+
 void MetersComponent::setChannelFormat (const juce::AudioChannelSet& channels, const std::vector<juce::String>& channelNames)
 {
-    if (channels.size() == 0)
+    if (channels.size() <= 0)
         return;
 
     m_channelFormat = channels;
@@ -510,7 +552,7 @@ void MetersComponent::setChannelFormat (const juce::AudioChannelSet& channels, c
 
     // Make sure the number of mixer gains matches the number of channels ...
     const auto numFaderGains = static_cast<int> (m_faderGains.size());
-    jassert (channels.size() > 0);  // NOLINT
+
     if (channels.size() != numFaderGains)
     {
         if (numFaderGains > channels.size() || m_faderGains.empty())
@@ -554,6 +596,7 @@ void MetersComponent::createMeters (const juce::AudioChannelSet& channelFormat, 
 #if SDTK_ENABLE_FADER
         meterChannel->onFaderMove   = [this] (MeterChannel* channel) { faderChanged (channel); };
         meterChannel->onChannelSolo = [this] (MeterChannel* channel) { channelSolo (channel); };
+        meterChannel->onMixerReset  = [this]() { resetFaders(); };
 #endif
 
         meterChannel->setFont (m_font);
