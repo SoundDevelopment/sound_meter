@@ -230,7 +230,9 @@ void MeterChannel::showPeakHold (bool showPeakHold)
 
 void MeterChannel::resized()
 {
-    auto meterBounds = SoundMeter::Helpers::applyPadding (getLocalBounds(), m_padding);
+    auto meterBounds = getLocalBounds();
+    if( !m_minimalMode)
+        meterBounds = SoundMeter::Helpers::applyPadding (getLocalBounds(), m_padding);
 
     // Meter header...
     m_header.setBounds (meterBounds.withHeight (0));

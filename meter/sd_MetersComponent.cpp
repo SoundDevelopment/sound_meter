@@ -212,9 +212,12 @@ void MetersComponent::resized()
 
 void MetersComponent::setChannelNames (const std::vector<juce::String>& channelNames)
 {
+    if (m_meterChannels.isEmpty())
+        return;
+
     const auto numChannelNames   = static_cast<int> (channelNames.size());
     const auto numMeters         = static_cast<int> (m_meterChannels.size());
-    auto       defaultMeterWidth = static_cast<float> (Constants::kMinWidth);
+    auto       defaultMeterWidth = static_cast<float> (Constants::kMinModeWidthThreshold);
 
     // Loop through all meters...
     for (int meterIdx = 0; meterIdx < numMeters; ++meterIdx)
