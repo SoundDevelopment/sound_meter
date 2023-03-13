@@ -345,11 +345,6 @@ public:
     [[nodiscard]] juce::String serializeFaderGains();
 
     /**
-     * @brief Parse the fader gains from the supplied string.
-    */
-    void deSerializeFaderGains (const juce::String& faderGains);
-
-    /**
      * @brief Set the values of all channel faders.
      *
      * @param faderValues A list of all values.
@@ -477,7 +472,6 @@ private:
    void                             createMeters            (const juce::AudioChannelSet& channelFormat, const std::vector<juce::String>& channelNames);
    void                             deleteMeters            ();
    [[nodiscard]] MeterChannel*      getMeterChannel         (int meterIndex) noexcept;     
-   void                             avoidMutedMixer         ();
 
 
     // clang-format on

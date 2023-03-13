@@ -231,7 +231,7 @@ void MeterChannel::showPeakHold (bool showPeakHold)
 void MeterChannel::resized()
 {
     auto meterBounds = getLocalBounds();
-    if( !m_minimalMode)
+    if (!m_minimalMode)
         meterBounds = SoundMeter::Helpers::applyPadding (getLocalBounds(), m_padding);
 
     // Meter header...
@@ -398,6 +398,7 @@ void MeterChannel::setIsLabelStrip (bool isLabelStrip) noexcept
 
 void MeterChannel::setMeterSegments (const std::vector<SegmentOptions>& segmentsOptions)
 {
+    m_fader.setMeterSegments (segmentsOptions);
     m_level.setMeterSegments (segmentsOptions);
     setDirty();
 }

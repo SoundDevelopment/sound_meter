@@ -121,14 +121,10 @@ private:
     bool  m_minimalModeActive = false;
     bool  m_isLabelStrip      = false;
 
-
     void updateLevelBounds();
     void updatePeakHoldBounds();
     void drawTickMarks (juce::Graphics& g, const MeterColours& meterColours);
     void drawLabels (juce::Graphics& g, const MeterColours& meterColours) const;
-
-    [[nodiscard]] static constexpr bool containsUpTo (juce::Range<float> levelRange, float levelDb) noexcept;
-
 
     JUCE_LEAK_DETECTOR (Segment)
 };
