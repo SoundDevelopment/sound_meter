@@ -360,14 +360,8 @@ void MetersComponent::setFaderValues (const std::vector<float>& faderValues, Not
         if (meterIdx < static_cast<int> (faderValues.size()))
             m_meterChannels[meterIdx]->setFaderValue (faderValues[meterIdx], notificationOption);
     }
-}
-//==============================================================================
 
-void MetersComponent::avoidMutedMixer()
-{
-    // Check if all faders are muted (or very quiet) and then reset the mixer...
-    if (std::all_of (m_faderGains.begin(), m_faderGains.end(), [] (auto gain) { return juce::Decibels::gainToDecibels (gain) < -50.0f; }))
-        std::fill (m_faderGains.begin(), m_faderGains.end(), 1.0f);  // Set all fader gains to unity.
+    m_faderGains = faderValues;
 }
 //==============================================================================
 
@@ -404,28 +398,6 @@ juce::String MetersComponent::serializeFaderGains()
         faderGains.add (juce::String (gain));
 
     return faderGains.joinIntoString ("|");
-}
-//==============================================================================
-
-void MetersComponent::deSerializeFaderGains (const juce::String& faderGains)
-{
-    juce::StringArray deSerialisedFaderGains {};
-    deSerialisedFaderGains.addTokens (faderGains, "|", juce::String());
-    deSerialisedFaderGains.trim();
-    deSerialisedFaderGains.removeEmptyStrings();
-
-    for (size_t channelIdx = 0; channelIdx < m_meterChannels.size(); ++channelIdx)
-    {
-        if (channelIdx < deSerialisedFaderGains.size())
-        {
-            const auto gain = deSerialisedFaderGains[static_cast<int> (channelIdx)].getFloatValue();
-            m_meterChannels[static_cast<int> (channelIdx)]->setFaderValue (gain, NotificationOptions::dontNotify);
-        }
-    }
-
-    avoidMutedMixer();
-
-    assembleFaderGains (NotificationOptions::notify);
 }
 //==============================================================================
 
@@ -576,10 +548,6 @@ void MetersComponent::setChannelFormat (const juce::AudioChannelSet& channels, c
             m_faderGainsBuffer.insert (m_faderGainsBuffer.end(), numChannelsToAdd, lastBufferedGain);
         }
     }
-
-    // Check if all faders are muted (or very quiet) and then reset the mixer...
-    if (std::all_of (m_faderGains.begin(), m_faderGains.end(), [] (auto gain) { return juce::Decibels::gainToDecibels (gain) < -50.0f; }))
-        std::fill (m_faderGains.begin(), m_faderGains.end(), 1.0f);  // Set all fader gains to unity.
 
     setFaderValues (m_faderGains);
 

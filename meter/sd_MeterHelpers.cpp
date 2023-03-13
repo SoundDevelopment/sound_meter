@@ -52,6 +52,12 @@ namespace Helpers
 
     return result;
 }
+//==============================================================================
+
+[[nodiscard]] static constexpr bool containsUpTo (juce::Range<float> levelRange, float levelDb) noexcept
+{
+    return levelDb > levelRange.getStart() && levelDb <= levelRange.getEnd();
+}
 
 }  // namespace Helpers
 }  // namespace SoundMeter

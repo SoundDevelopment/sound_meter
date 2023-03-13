@@ -143,12 +143,6 @@ void Segment::drawLabels (juce::Graphics& g, const MeterColours& meterColours) c
 }
 //==============================================================================
 
-constexpr bool Segment::containsUpTo (juce::Range<float> levelRange, float levelDb) noexcept
-{
-    return levelDb > levelRange.getStart() && levelDb <= levelRange.getEnd();
-}
-//==============================================================================
-
 void Segment::setMeterBounds (juce::Rectangle<int> meterBounds)
 {
     m_meterBounds            = meterBounds;
@@ -203,7 +197,7 @@ void Segment::updatePeakHoldBounds()
 {
     auto peakHoldBounds = juce::Rectangle<float>();
 
-    if (Segment::containsUpTo (m_segmentOptions.levelRange, m_peakHoldLevel_db))
+    if (Helpers::containsUpTo (m_segmentOptions.levelRange, m_peakHoldLevel_db))
     {
         const auto peakHoldRatio = std::clamp ((m_peakHoldLevel_db - m_segmentOptions.levelRange.getStart()) / m_segmentOptions.levelRange.getLength(), 0.0f, 1.0f);
         if (peakHoldRatio == 0.0f)
@@ -238,7 +232,7 @@ void Segment::setMeterOptions (const Options& meterOptions)
     m_tickMarks.clear();
     for (const auto& tickMark: meterOptions.tickMarks)
     {
-        if (Segment::containsUpTo (m_segmentOptions.levelRange, tickMark))
+        if (Helpers::containsUpTo (m_segmentOptions.levelRange, tickMark))
             m_tickMarks.emplace_back (tickMark);
     }
 

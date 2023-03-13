@@ -102,8 +102,24 @@ void Fader::draw (juce::Graphics& g, const MeterColours& meterColours)
         g.setColour (meterColours.faderColour.withAlpha (alpha));
         auto faderRect    = m_bounds;
         m_drawnFaderValue = getValue();
-        g.fillRect (faderRect.removeFromBottom (m_bounds.proportionOfHeight (m_drawnFaderValue)));
+        auto value_db     = juce::Decibels::gainToDecibels (m_drawnFaderValue);
+        for (const auto& segment: m_segments)
+        {
+            if (Helpers::containsUpTo (segment.levelRange, value_db))
+            {
+                const auto valueInSegment = std::clamp ((value_db - segment.levelRange.getStart()) / segment.levelRange.getLength(), 0.0f, 1.0f);
+                const auto convertedValue = juce::jmap (valueInSegment, segment.meterRange.getStart(), segment.meterRange.getEnd());
+                g.fillRect (faderRect.removeFromBottom (m_bounds.proportionOfHeight (convertedValue)));
+                break;
+            }
+        }
     }
+}
+//==============================================================================
+
+void Fader::setMeterSegments (const std::vector<SegmentOptions>& segmentsOptions)
+{
+    m_segments = segmentsOptions;
 }
 //==============================================================================
 
@@ -132,7 +148,19 @@ void Fader::setValueFromPos (const int position, NotificationOptions notificatio
     if (height <= 0.0f)
         return;
 
-    setValue (1.0f - juce::jlimit (0.0f, 1.0f, static_cast<float> (position - m_bounds.getY()) / height), notificationOption);
+    auto value = 1.0f - std::clamp ((static_cast<float> (position) - m_bounds.getY()) / height, 0.0f, 1.0f);
+    for (const auto& segment: m_segments)
+    {
+        if (Helpers::containsUpTo (segment.meterRange, value))
+        {
+            const auto valueInSegment = std::clamp ((value - segment.meterRange.getStart()) / segment.meterRange.getLength(), 0.0f, 1.0f);
+            const auto value_db       = juce::jmap (valueInSegment, segment.levelRange.getStart(), segment.levelRange.getEnd());
+            value                     = juce::Decibels::decibelsToGain (value_db);
+            break;
+        }
+    }
+
+    setValue (value, notificationOption);
 }
 //==============================================================================
 }  // namespace SoundMeter

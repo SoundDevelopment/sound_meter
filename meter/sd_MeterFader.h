@@ -37,6 +37,7 @@
 #include <juce_core/juce_core.h>
 #include <juce_graphics/juce_graphics.h>
 #include <juce_gui_basics/juce_gui_basics.h>
+#include <juce_audio_basics/juce_audio_basics.h>
 
 namespace sd  // NOLINT
 {
@@ -99,7 +100,7 @@ public:
      * @param bounds The bounds to use for the fader.
      * @see getBounds
     */
-    void setBounds (const juce::Rectangle<int>& bounds) noexcept { m_bounds = bounds; }
+    void setBounds (const juce::Rectangle<int>& bounds) noexcept { m_bounds = bounds.toFloat(); }
 
     /**
      * @brief Get the fader bounds.
@@ -107,7 +108,7 @@ public:
      * @return Bounds used by the fader.
      * @see setBounds
     */
-    [[nodiscard]] juce::Rectangle<int> getBounds() const noexcept { return m_bounds; }
+    [[nodiscard]] juce::Rectangle<int> getBounds() const noexcept { return m_bounds.toNearestIntEdges(); }
 
     /**
      * @brief Get the value of the meter fader.
@@ -154,6 +155,15 @@ public:
     void draw (juce::Graphics& g, const MeterColours& meterColours);
 
     /**
+     * @brief Set the segments the meter is made out of.
+     *
+     * All segments have a level range, a range within the meter and a colour (or gradient).
+     *
+     * @param segmentsOptions The segments options to create the segments with.
+    */
+    void setMeterSegments (const std::vector<SegmentOptions>& segmentsOptions);
+
+    /**
      * @brief Check if the fader needs redrawing.
     */
     [[nodiscard]] bool needsRedrawing() noexcept { return (m_drawnFaderValue != m_faderValue.load()) || isFading(); }
@@ -161,14 +171,15 @@ public:
     std::function<void()> onFaderValueChanged { nullptr };
 
 private:
-    std::atomic<float>   m_faderValue { 1.0f };  // Fader value (between 0..1).
-    juce::Rectangle<int> m_bounds {};
+    std::atomic<float>     m_faderValue { 1.0f };  // Fader value (between 0..1).
+    juce::Rectangle<float> m_bounds {};
 
-    float m_drawnFaderValue = 1.0f;
-    bool  m_visible         = false;
-    bool  m_enabled         = false;
-    bool  m_isFading        = false;
-    int   m_fadeStart       = 0;
+    float                       m_drawnFaderValue = 1.0f;
+    bool                        m_visible         = false;
+    bool                        m_enabled         = false;
+    bool                        m_isFading        = false;
+    int                         m_fadeStart       = 0;
+    std::vector<SegmentOptions> m_segments        = MeterScales::getDefaultScale();
 
     [[nodiscard]] int getTimeSinceStartFade() const noexcept { return static_cast<int> (juce::Time::getMillisecondCounter() - m_fadeStart); }
 
