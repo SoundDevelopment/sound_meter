@@ -476,7 +476,9 @@ private:
    void                             setColours              ();
    void                             createMeters            (const juce::AudioChannelSet& channelFormat, const std::vector<juce::String>& channelNames);
    void                             deleteMeters            ();
-   [[nodiscard]] MeterChannel*      getMeterChannel         (int meterIndex) noexcept;
+   [[nodiscard]] MeterChannel*      getMeterChannel         (int meterIndex) noexcept;     
+   void                             avoidMutedMixer         ();
+
 
     // clang-format on
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MetersComponent)

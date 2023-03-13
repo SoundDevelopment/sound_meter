@@ -363,6 +363,14 @@ void MetersComponent::setFaderValues (const std::vector<float>& faderValues, Not
 }
 //==============================================================================
 
+void MetersComponent::avoidMutedMixer()
+{
+    // Check if all faders are muted (or very quiet) and then reset the mixer...
+    if (std::all_of (m_faderGains.begin(), m_faderGains.end(), [] (auto gain) { return juce::Decibels::gainToDecibels (gain) < -50.0f; }))
+        std::fill (m_faderGains.begin(), m_faderGains.end(), 1.0f);  // Set all fader gains to unity.
+}
+//==============================================================================
+
 void MetersComponent::assembleFaderGains (NotificationOptions notificationOption /*= NotificationOptions::notify*/)
 {
     if (m_meterChannels.isEmpty())
@@ -406,22 +414,16 @@ void MetersComponent::deSerializeFaderGains (const juce::String& faderGains)
     deSerialisedFaderGains.trim();
     deSerialisedFaderGains.removeEmptyStrings();
 
-    bool allChannelsMuted = true;
     for (size_t channelIdx = 0; channelIdx < m_meterChannels.size(); ++channelIdx)
     {
         if (channelIdx < deSerialisedFaderGains.size())
         {
             const auto gain = deSerialisedFaderGains[static_cast<int> (channelIdx)].getFloatValue();
-            if (gain > 0.0f)
-                allChannelsMuted = false;
             m_meterChannels[static_cast<int> (channelIdx)]->setFaderValue (gain, NotificationOptions::dontNotify);
         }
     }
 
-    // If all channels are muted, reset the mixer...
-    if (allChannelsMuted)
-        for (auto& channel: m_meterChannels)
-            channel->setFaderValue (1.0f, NotificationOptions::dontNotify);
+    avoidMutedMixer();
 
     assembleFaderGains (NotificationOptions::notify);
 }
@@ -574,6 +576,11 @@ void MetersComponent::setChannelFormat (const juce::AudioChannelSet& channels, c
             m_faderGainsBuffer.insert (m_faderGainsBuffer.end(), numChannelsToAdd, lastBufferedGain);
         }
     }
+
+    // Check if all faders are muted (or very quiet) and then reset the mixer...
+    if (std::all_of (m_faderGains.begin(), m_faderGains.end(), [] (auto gain) { return juce::Decibels::gainToDecibels (gain) < -50.0f; }))
+        std::fill (m_faderGains.begin(), m_faderGains.end(), 1.0f);  // Set all fader gains to unity.
+
     setFaderValues (m_faderGains);
 
 #endif /* SDTK_ENABLE_FADER */
