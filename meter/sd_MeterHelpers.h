@@ -189,5 +189,10 @@ enum class LabelStripPosition
     none    ///< No label strip will be shown.
 };
 
+namespace Helpers
+{
+[[nodiscard]] juce::Rectangle<int> applyPadding (const juce::Rectangle<int>& rectToPad, Padding paddingToApply) noexcept;
+}
+
 }  // namespace SoundMeter
 }  // namespace sd
