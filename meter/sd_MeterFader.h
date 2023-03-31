@@ -181,7 +181,7 @@ private:
     int                         m_fadeStart       = 0;
     std::vector<SegmentOptions> m_segments        = MeterScales::getDefaultScale();
 
-    [[nodiscard]] int getTimeSinceStartFade() const noexcept { return static_cast<int> (juce::Time::getMillisecondCounter() - m_fadeStart); }
+    [[nodiscard]] int getTimeSinceStartFade() const noexcept { return static_cast<int> (juce::Time::getMillisecondCounter()) - m_fadeStart; }
 
     JUCE_LEAK_DETECTOR (Fader)
 };
