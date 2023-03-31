@@ -40,7 +40,7 @@ namespace Helpers
 {
 
 //==============================================================================
-[[nodiscard]] juce::Rectangle<int> applyPadding (const juce::Rectangle<int>& rectToPad, Padding paddingToApply) noexcept
+juce::Rectangle<int> applyPadding (const juce::Rectangle<int>& rectToPad, Padding paddingToApply) noexcept
 {
     juce::Rectangle<int> result { rectToPad };
     if (juce::isPositiveAndBelow (paddingToApply.left, result.getWidth()))

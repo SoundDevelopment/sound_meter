@@ -355,10 +355,10 @@ void MetersComponent::channelSolo (MeterChannel::Ptr sourceChannel)
 
 void MetersComponent::setFaderValues (const std::vector<float>& faderValues, NotificationOptions notificationOption /*= NotificationOptions::dontNotify*/)
 {
-    for (int meterIdx = 0; meterIdx < m_meterChannels.size(); ++meterIdx)
+    for (size_t meterIdx = 0; meterIdx < static_cast<size_t> (m_meterChannels.size()); ++meterIdx)
     {
-        if (meterIdx < static_cast<int> (faderValues.size()))
-            m_meterChannels[meterIdx]->setFaderValue (faderValues[meterIdx], notificationOption);
+        if (meterIdx < faderValues.size())
+            m_meterChannels[static_cast<int> (meterIdx)]->setFaderValue (faderValues[meterIdx], notificationOption);
     }
 
     m_faderGains = faderValues;
@@ -540,9 +540,9 @@ void MetersComponent::setChannelFormat (const juce::AudioChannelSet& channels, c
         }
         else
         {
-            const size_t numChannelsToAdd = channels.size() - static_cast<size_t> (numFaderGains);
-            const float  lastGain         = m_faderGains.back();
-            const float  lastBufferedGain = m_faderGainsBuffer.back();
+            const auto numChannelsToAdd = static_cast<size_t> (channels.size() - numFaderGains);
+            const auto lastGain         = m_faderGains.back();
+            const auto lastBufferedGain = m_faderGainsBuffer.back();
 
             m_faderGains.insert (m_faderGains.end(), numChannelsToAdd, lastGain);
             m_faderGainsBuffer.insert (m_faderGainsBuffer.end(), numChannelsToAdd, lastBufferedGain);
