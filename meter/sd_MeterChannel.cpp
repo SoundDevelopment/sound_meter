@@ -144,7 +144,7 @@ void MeterChannel::setOptions (const Options& meterOptions)
     enableFader (meterOptions.faderEnabled);
 #endif
 
-    setDirty();
+    refresh (true);  // TODO: - [mh] Change this to refresh(true)?
 }
 //==============================================================================
 
@@ -371,14 +371,14 @@ void MeterChannel::setFont (const juce::Font& font)
 {
     m_font = font;
     m_header.setFont (m_font);
-    setDirty();
+    setDirty();  // TODO: - [mh] Change this to refresh(true)?
 }
 //==============================================================================
 
 void MeterChannel::resetPeakHold()
 {
     m_level.resetPeakHold();
-    // setDirty();
+    // setDirty(); // TODO: - [mh] Change this to refresh(true)?
 }
 //==============================================================================
 
@@ -400,7 +400,7 @@ void MeterChannel::setMeterSegments (const std::vector<SegmentOptions>& segments
 {
     m_fader.setMeterSegments (segmentsOptions);
     m_level.setMeterSegments (segmentsOptions);
-    setDirty();
+    setDirty();  // TODO: - [mh] Change this to refresh(true)?
 }
 //==============================================================================
 
