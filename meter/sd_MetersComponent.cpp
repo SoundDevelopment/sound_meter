@@ -57,7 +57,7 @@ MetersComponent::MetersComponent (const Options& meterOptions, const juce::Audio
     m_labelStrip.onMixerReset = [this]() { resetFaders(); };
 #endif
 
-    setName (Constants::kMetersPanelId);
+    setName (Constants::kMetersId);
 
     addAndMakeVisible (m_labelStrip);
 
@@ -569,7 +569,7 @@ void MetersComponent::createMeters (const juce::AudioChannelSet& channelFormat, 
     // Create enough meters to match the channel format...
     for (int channelIdx = 0; channelIdx < channelFormat.size(); ++channelIdx)
     {
-        auto meterChannel = std::make_unique<MeterChannel> (m_meterOptions, Padding (0, Constants::kFaderRightPadding, 0, 0), Constants::kMetersPanelId, false,
+        auto meterChannel = std::make_unique<MeterChannel> (m_meterOptions, Padding (0, Constants::kFaderRightPadding, 0, 0), Constants::kMetersId, false,
                                                             channelFormat.getTypeOfChannel (channelIdx));
 
 #if SDTK_ENABLE_FADER

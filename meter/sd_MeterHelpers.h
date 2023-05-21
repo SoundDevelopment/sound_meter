@@ -63,7 +63,7 @@ static constexpr auto kFaderSensitivity        = 10.0f;    ///< Fader sensitivit
 static constexpr auto kFaderAlphaMax           = 0.3f;     ///< Maximum transparency (alpha) of the fader overlay.
 static constexpr auto kMinModeHeightThreshold = 150.0f;  ///< Meter minimum mode height threshold in pixels (min. mod is just the meter. not value, ticks or fader).
 static constexpr auto kMinModeWidthThreshold = 30.0f;  ///< Meter minimum mode width threshold in pixels (min. mod is just the meter. not value, ticks or fader).
-static constexpr auto kMetersPanelId = "meters_panel";  ///< ID (name) of all components in the meters panel.
+static constexpr auto kMetersId = "meters_panel";  ///< ID (name) of all components in the meters panel.
 static constexpr auto kLabelStripId  = "label_strip";   ///< ID (name) of the label-strip (master fader).
 }  // namespace Constants
 
