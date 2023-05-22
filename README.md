@@ -40,7 +40,7 @@ m_meters.setChannelFormat (juce::AudioChannelSet::stereo());
 ```
 and configure it's options: (for all meter options, see [documentation](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/structsd_1_1SoundMeter_1_1Options.html))
 ```cpp
-sd::SoundMeter::MeterOptions meterOptions;
+sd::SoundMeter::Options meterOptions;
 meterOptions.faderEnabled     = true;
 meterOptions.headerEnabled    = true;
 meterOptions.showTickMarks    = true;
