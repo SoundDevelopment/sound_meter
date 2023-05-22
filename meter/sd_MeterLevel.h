@@ -43,7 +43,7 @@ namespace sd  // NOLINT
 {
 namespace SoundMeter
 {
-struct MeterOptions;
+struct Options;
 
 /**
  * @brief Class responsible for anything relating to the 'meter' and peak 'value' parts.
