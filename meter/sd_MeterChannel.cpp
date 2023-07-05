@@ -555,8 +555,7 @@ void MeterChannel::mouseDoubleClick (const juce::MouseEvent& event)
 void MeterChannel::mouseDrag (const juce::MouseEvent& event)
 {
     // When left button down, the meter is active, the fader is active and the mouse is not over the 'info' area...
-    if (event.mods == juce::ModifierKeys::leftButtonModifier && isActive() && m_fader.isVisible() && !m_header.isMouseOver (event.y)
-        && !m_level.isMouseOverValue (event.y))
+    if (event.mods == juce::ModifierKeys::leftButtonModifier && isActive() && m_fader.isVisible() && !m_level.isMouseOverValue (event.y))
     {
         m_fader.setValueFromPos (event.y);
         addDirty (m_level.getMeterBounds());
