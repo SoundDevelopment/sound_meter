@@ -398,7 +398,9 @@ void MeterChannel::setIsLabelStrip (bool isLabelStrip) noexcept
 
 void MeterChannel::setMeterSegments (const std::vector<SegmentOptions>& segmentsOptions)
 {
+#if SDTK_ENABLE_FADER
     m_fader.setMeterSegments (segmentsOptions);
+#endif
     m_level.setMeterSegments (segmentsOptions);
     setDirty();  // TODO: - [mh] Change this to refresh(true)?
 }
