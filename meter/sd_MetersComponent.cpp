@@ -255,6 +255,15 @@ void MetersComponent::setChannelNames (const std::vector<juce::String>& channelN
 }
 //==============================================================================
 
+void MetersComponent::mouseDoubleClick (const juce::MouseEvent& event) 
+{
+    if (m_meterOptions.faderEnabled)
+        return;
+
+    resetPeakHold();
+}
+//==============================================================================
+
 #if SDTK_ENABLE_FADER
 
 //==============================================================================
