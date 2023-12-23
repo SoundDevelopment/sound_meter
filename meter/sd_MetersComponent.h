@@ -448,6 +448,8 @@ private:
    int                              m_autoSizedPanelWidth   = 0;
 
    juce::Colour                     m_backgroundColour      = juce::Colours::black;
+     
+   void                             mouseDoubleClick        (const juce::MouseEvent& event) override;
 
 #if SDTK_ENABLE_FADER
 
