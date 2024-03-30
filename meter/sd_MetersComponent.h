@@ -310,6 +310,8 @@ public:
     */
     void showTickMarks (bool showTickMarks);
 
+    [[nodiscard]] bool isMinimalModeActive() const noexcept;
+
 #if SDTK_ENABLE_FADER
 
     /**
