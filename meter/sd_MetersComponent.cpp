@@ -699,6 +699,15 @@ void MetersComponent::showTickMarks (bool showTickMarks)
 }
 //==============================================================================
 
+bool MetersComponent::isMinimalModeActive() const noexcept
+{
+    if (m_meterChannels.isEmpty())
+        return true;
+
+    return m_meterChannels[0]->isMinimalModeActive();
+}
+//==============================================================================
+
 void MetersComponent::useGradients (bool useGradients)
 {
     for (auto* meter: m_meterChannels)
