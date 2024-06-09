@@ -305,6 +305,7 @@ private:
     std::atomic<float> m_inputLevel { 0.0f };  // Audio peak level.
     std::atomic<bool>  m_inputLevelRead { false };
     float              m_meterLevel_db       = Constants::kMinLevel_db;  // Current meter level.
+    float              m_nominalLevel_db     = 0.0f;                     // The level (in dB) where the nominal level should be. e.g. -20.0 for K20.
     bool               m_peakHoldDirty       = false;
     bool               m_mouseOverValue      = false;
     bool               m_minimalModeActive   = false;
