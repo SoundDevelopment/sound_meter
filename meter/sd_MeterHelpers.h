@@ -55,16 +55,16 @@ static constexpr auto kFaderRightPadding       = 1;        ///< Padding (in pixe
 static constexpr auto kMaxLevel_db             = 0.0f;     ///< Maximum meter level (in db).
 static constexpr auto kMinLevel_db             = -96.0f;   ///< Minimum meter level (in db).
 static constexpr auto kMinDecay_ms             = 100.0f;   ///< Minimum meter decay speed (in milliseconds).
-static constexpr auto kMaxDecay_ms             = 4000.0f;  ///< Maximum meter decay speed (in milliseconds).
-static constexpr auto kDefaultDecay_ms         = 1000.0f;  ///< Default meter decay speed (in milliseconds).
-static constexpr auto kTickMarkHeight          = 2;        ///< Height of a tick mark (in pixels).
+static constexpr auto kMaxDecay_ms             = 8000.0f;  ///< Maximum meter decay speed (in milliseconds).
+static constexpr auto kDefaultDecay_ms         = 3000.0f;  ///< Default meter decay speed (in milliseconds).
+static constexpr auto kTickMarkThickness       = 1.0f;     ///< Height of a tick mark (in pixels).
 static constexpr auto kFaderFadeTime_ms        = 2500;     ///< Fader fade out time (in milliseconds).
 static constexpr auto kFaderSensitivity        = 10.0f;    ///< Fader sensitivity value. Must be a positive value > 0.
 static constexpr auto kFaderAlphaMax           = 0.3f;     ///< Maximum transparency (alpha) of the fader overlay.
 static constexpr auto kMinModeHeightThreshold = 150.0f;  ///< Meter minimum mode height threshold in pixels (min. mod is just the meter. not value, ticks or fader).
 static constexpr auto kMinModeWidthThreshold = 30.0f;  ///< Meter minimum mode width threshold in pixels (min. mod is just the meter. not value, ticks or fader).
-static constexpr auto kMetersId = "meters_panel";  ///< ID (name) of all components in the meters panel.
-static constexpr auto kLabelStripId  = "label_strip";   ///< ID (name) of the label-strip (master fader).
+static constexpr auto kMetersId     = "meters_panel";  ///< ID (name) of all components in the meters panel.
+static constexpr auto kLabelStripId = "label_strip";   ///< ID (name) of the label-strip (master fader).
 }  // namespace Constants
 
 /**
@@ -103,18 +103,21 @@ struct SegmentOptions
 */
 struct Options
 {
-    bool  enabled          = true;  ///< Enable the meter.
-    bool  headerEnabled    = true;  ///< Enable the 'header' part of the meter.
-    bool  valueEnabled     = true;  ///< Enable the 'value' part of the meter.
-    bool  faderEnabled     = true;  ///< Enable the fader (overlay-ed over the meter). Only works if fader have been enabled in the module.
-    bool  useMinimalMode   = true;  ///< Automatically adapt the meter to use the most of the space available (by hiding header, value, tick-marks, etc...).
-    float decayTime_ms     = Constants::kDefaultDecay_ms;  ///< Meter decay in milliseconds.
-    float refreshRate      = 30.0f;                        ///< Meter refresh rate when using internal timing.
-    bool  tickMarksEnabled = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
-    bool  tickMarksOnTop   = false;       ///< Show the tick-marks below the level or above the level (level might obscure the tick-marks if loud enough).
-    bool  useGradient      = true;        ///< Use gradients for the meter segments, in stead of solid colours.
-    bool  showPeakHoldIndicator  = true;  ///< Enable peak hold indicator.
-    std::vector<float> tickMarks = { 0.0f, -3.0f, -6.0f, -9.0f, -12.0f, -18.0f, -30.0f, -40.0f, -50.0f };  ///< Tick-mark position in db.
+    bool  enabled             = true;  ///< Enable the meter.
+    bool  headerEnabled       = true;  ///< Enable the 'header' part of the meter.
+    bool  valueEnabled        = true;  ///< Enable the 'value' part of the meter.
+    bool  faderEnabled        = true;  ///< Enable the fader (overlay-ed over the meter). Only works if fader have been enabled in the module.
+    bool  useMinimalMode      = true;  ///< Automatically adapt the meter to use the most of the space available (by hiding header, value, tick-marks, etc...).
+    float decayTime_ms        = Constants::kDefaultDecay_ms;  ///< Actual meter decay in milliseconds.
+    float defaultDecayTime_ms = Constants::kDefaultDecay_ms;  ///< Default meter decay in milliseconds.
+    float refreshRate         = 30.0f;                        ///< Meter refresh rate when using internal timing.
+    bool  tickMarksEnabled    = true;                         ///< Show tick-marks. Divider lines on the meter at certain db levels.
+    bool  tickMarksOnTop      = false;  ///< Show the tick-marks below the level or above the level (level might obscure the tick-marks if loud enough).
+    bool  useGradient         = true;   ///< Use gradients for the meter segments, in stead of solid colours.
+    bool  showPeakHoldIndicator          = true;                                                                   ///< Enable peak hold indicator.
+    std::vector<float> tickMarks         = { 0.0f, -3.0f, -6.0f, -9.0f, -12.0f, -18.0f, -30.0f, -40.0f, -50.0f };  ///< Tick-mark position in db.
+    float              tickMarkThickness = Constants::kTickMarkThickness;                                          ///< Thickness of the tick-marks in pixels.
+    float              nominalLevel_db   = 0.0f;  // The level (in dB) where the nominal level should be. e.g. -20.0 for K20.
 };
 
 /**
@@ -137,37 +140,85 @@ struct MeterColours
 /**
  * @brief A class with static functions to create different types of meter scales.
 */
-class MeterScales
+class MeterScales final
 {
 public:
     /**
     * @brief Default meter scale. 3 segments, from -60db to 0db. 
     */
-    [[nodiscard]] static std::vector<SegmentOptions> getDefaultScale()
+    [[nodiscard]] static std::vector<SegmentOptions> getDefaultScale();
+    [[nodiscard]] static std::vector<SegmentOptions> getDefaultScale (const juce::Colour& low, const juce::Colour& mid, const juce::Colour& high)
     {
-        return { { { -60.0f, -18.0f }, { 0.0f, 0.5f }, juce::Colours::green, juce::Colours::green },
-                 { { -18.0f, -3.0f }, { 0.5f, 0.90f }, juce::Colours::green, juce::Colours::yellow },
-                 { { -3.0f, 0.0f }, { 0.90f, 1.0f }, juce::Colours::yellow, juce::Colours::red } };
+        return { { { -60.0f, -18.0f }, { 0.0f, 0.5f }, low, low }, { { -18.0f, -3.0f }, { 0.5f, 0.90f }, low, mid }, { { -3.0f, 0.0f }, { 0.90f, 1.0f }, mid, high } };
     }
 
     /**
      * @brief SMPTE meter scale. 3 segments, from -44db to 0db.
      */
-    [[nodiscard]] static std::vector<SegmentOptions> getSmpteScale()
+    [[nodiscard]] static Options                     getSmpteOptions (Options options);
+    [[nodiscard]] static std::vector<SegmentOptions> getSmpteScale();
+    [[nodiscard]] static std::vector<SegmentOptions> getSmpteScale (const juce::Colour& low, const juce::Colour& mid, const juce::Colour& high)
     {
-        return { { { -44.0f, -12.0f }, { 0.0f, 0.7273f }, juce::Colours::green, juce::Colours::yellow },
-                 { { -12.0f, -3.0f }, { 0.7273f, 0.9318f }, juce::Colours::yellow, juce::Colours::red },
-                 { { -3.0f, 0.0f }, { 0.9318f, 1.0f }, juce::Colours::red, juce::Colours::red } };
+        return { { { -44.0f, -12.0f }, { 0.0f, 0.7273f }, low, low }, { { -12.0f, -3.0f }, { 0.7273f, 0.9318f }, mid, mid }, { { -3.0f, 0.0f }, { 0.9318f, 1.0f }, high, high } };
+    }
+
+    /**
+     * @brief Full range peak meter. 3 segments, from -96db to 0db.
+     */
+    [[nodiscard]] static Options                     getFullRangeOptions (Options options);
+    [[nodiscard]] static std::vector<SegmentOptions> getFullRangeScale();
+    [[nodiscard]] static std::vector<SegmentOptions> getFullRangeScale (const juce::Colour& low, const juce::Colour& mid, const juce::Colour& high)
+    {
+        return { { { -96.0f, -18.0f }, { 0.0f, 0.8125f }, low, mid }, { { -18.0f, -6.0f }, { 0.8125f, 0.9375f }, mid, high }, { { -6.0f, 0.0f }, { 0.9375f, 1.0f }, high, high } };
+    }
+
+    /**
+     * @brief EBU PPM meter scale. 2 segments, from -14db to +14db.
+     */
+    [[nodiscard]] static Options                     getEbuPpmOptions (Options options);
+    [[nodiscard]] static std::vector<SegmentOptions> getEbuPpmScale();
+    [[nodiscard]] static std::vector<SegmentOptions> getEbuPpmScale (const juce::Colour& low, const juce::Colour& high)
+    {
+        return { { { -38.0f, -16.0f }, { 0.0f, 0.785714f }, low, low }, { { -16.0f, -10.0f }, { 0.785714f, 1.0f }, high, high } };
     }
 
     /**
      * @brief Yamaha mixer meter scale. 3 segments, from -60db to 0db.
      */
+    [[depracated]]
     [[nodiscard]] static std::vector<SegmentOptions> getYamaha60()
     {
         return { { { -60.0f, -30.0f }, { 0.0f, 0.2751f }, juce::Colours::yellow, juce::Colours::yellow },
                  { { -30.0f, -18.0f }, { 0.2751f, 0.4521f }, juce::Colours::yellow, juce::Colours::yellow },
                  { { -18.0f, 0.0f }, { 0.4521f, 1.0f }, juce::Colours::red, juce::Colours::red } };
+    }
+
+    /**
+     * @brief K-system metering.
+     */
+    [[nodiscard]] static Options                     getK20Options (Options options);
+    [[nodiscard]] static std::vector<SegmentOptions> getK20Scale();
+    [[nodiscard]] static std::vector<SegmentOptions> getK20Scale (const juce::Colour& low, const juce::Colour& mid, const juce::Colour& high)
+    {
+        return { { { -44.0f, -20.0f }, { 0.0f, 0.55365f }, low, low },
+                 { { -20.0f, -16.0f }, { 0.55365f, 0.64378f }, mid, mid },
+                 { { -16.0f, 0.0f }, { 0.64378f, 1.0f }, high, high } };
+    }
+
+    [[nodiscard]] static Options                     getK14Options (Options options);
+    [[nodiscard]] static std::vector<SegmentOptions> getK14Scale();
+    [[nodiscard]] static std::vector<SegmentOptions> getK14Scale (const juce::Colour& low, const juce::Colour& mid, const juce::Colour& high)
+    {
+        return { { { -38.0f, -14.0f }, { 0.0f, 0.65f }, low, low }, { { -14.0f, -10.0f }, { 0.65f, 0.75f }, mid, mid }, { { -10.0f, 0.0f }, { 0.75f, 1.0f }, high, high } };
+    }
+
+    [[nodiscard]] static Options                     getK12Options (Options options);
+    [[nodiscard]] static std::vector<SegmentOptions> getK12Scale();
+    [[nodiscard]] static std::vector<SegmentOptions> getK12Scale (const juce::Colour& low, const juce::Colour& mid, const juce::Colour& high)
+    {
+        return { { { -36.0f, -12.0f }, { 0.0f, 0.666667f }, low, low },
+                 { { -12.0f, -8.0f }, { 0.666667f, 0.791667f }, mid, mid },
+                 { { -8.0f, 0.0f }, { 0.791667f, 1.0f }, high, high } };
     }
 
 private:

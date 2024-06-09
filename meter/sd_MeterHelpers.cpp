@@ -54,11 +54,116 @@ juce::Rectangle<int> applyPadding (const juce::Rectangle<int>& rectToPad, Paddin
 }
 //==============================================================================
 
-[[nodiscard]] static constexpr bool containsUpTo (juce::Range<float> levelRange, float levelDb) noexcept
+static constexpr bool containsUpTo (juce::Range<float> levelRange, float levelDb) noexcept
 {
     return levelDb > levelRange.getStart() && levelDb <= levelRange.getEnd();
 }
 
 }  // namespace Helpers
+//==============================================================================
+
+std::vector<SegmentOptions> MeterScales::getDefaultScale()
+{
+    return getDefaultScale (juce::Colours::green, juce::Colours::yellow, juce::Colours::red);
+}
+//==============================================================================
+
+std::vector<SegmentOptions> MeterScales::getSmpteScale()
+{
+    return std::vector<SegmentOptions>();
+    return getSmpteScale (juce::Colours::green, juce::Colours::yellow, juce::Colours::red);
+}
+//==============================================================================
+
+Options MeterScales::getSmpteOptions (Options options)
+{
+    options.tickMarks           = { 0.0f, -3.0f, -6.0f, -9.0f, -12.0f, -15.0f, -60.0f, -18.0f, -20.0f, -25.0f, -30.0f, -35.0f, -4.0f, -45.0f };
+    options.decayTime_ms        = 2250.0f;
+    options.defaultDecayTime_ms = 2250.0f;  // 20 dB/s.
+    return options;
+}
+//==============================================================================
+
+std::vector<SegmentOptions> MeterScales::getEbuPpmScale()
+{
+    return getEbuPpmScale (juce::Colours::green, juce::Colours::red);
+}
+//==============================================================================
+
+Options MeterScales::getEbuPpmOptions (Options options)
+{
+    options.tickMarks           = { -12.0f, -16.0f, -20.0f, -24.0f, -28.0f, -32.0f, -36.0f };
+    options.nominalLevel_db     = -24.0f;
+    options.decayTime_ms        = 2100.0f;
+    options.defaultDecayTime_ms = 2100.0f;  // 13.333 dB/s.
+    return options;
+}
+//==============================================================================
+
+std::vector<SegmentOptions> MeterScales::getFullRangeScale()
+{
+    return getFullRangeScale (juce::Colours::navy, juce::Colours::white, juce::Colours::red);
+}
+//==============================================================================
+
+Options MeterScales::getFullRangeOptions (Options options)
+{
+    options.tickMarks           = { 0.0f, -10.0f, -20.0f, -30.0f, -40.0f, -50.0f, -60.0f, -70.0f, -80.0f, -90.0f };
+    options.decayTime_ms        = 4800.0f;
+    options.defaultDecayTime_ms = 4800.0f;  // 20 dB/s.
+    return options;
+}
+//==============================================================================
+
+Options MeterScales::getK20Options (Options options)
+{
+    options.tickMarks           = { 0.0f, -4.0f, -8.0f, -12.0f, -16.0f, -20.0f, -24.0f, -28.0f, -32.0f, -36.0f, -40.0f, -44.0f };
+    options.nominalLevel_db     = -20.0f;
+    options.decayTime_ms        = 3666.7f;  // 12 dB/s.
+    options.defaultDecayTime_ms = 3666.7f;
+    return options;
+}
+//==============================================================================
+
+std::vector<SegmentOptions> MeterScales::getK20Scale()
+{
+    return getK20Scale (juce::Colours::green, juce::Colours::yellow, juce::Colours::red);
+}
+//==============================================================================
+
+Options MeterScales::getK14Options (Options options)
+{
+    options.tickMarks           = { 0.0f, -6.0f, -10.0f, -14.0f, -18.0f, -22.0f, -26.0f, -30.0f, -34.0f, -38.0f };
+    options.nominalLevel_db     = -14.0f;
+    options.decayTime_ms        = 3166.7f;  // 12 dB/s.
+    options.defaultDecayTime_ms = 3166.7f;
+    return options;
+}
+//==============================================================================
+
+std::vector<SegmentOptions> MeterScales::getK14Scale()
+{
+    return getK14Scale (juce::Colours::green, juce::Colours::yellow, juce::Colours::red);
+}
+//==============================================================================
+
+Options MeterScales::getK12Options (Options options)
+{
+    options.tickMarks           = { 0.0f, -4.0f, -8.0f, -12.0f, -16.0f, -20.0f, -24.0f, -28.0f, -32.0f, -36.0f };
+    options.nominalLevel_db     = -12.0f;
+    options.decayTime_ms        = 3000.0f;  // 12 dB/s.
+    options.defaultDecayTime_ms = 3000.0f;
+    return options;
+}
+//==============================================================================
+
+std::vector<SegmentOptions> MeterScales::getK12Scale()
+{
+    return getK12Scale (juce::Colours::green, juce::Colours::yellow, juce::Colours::red);
+}
+//==============================================================================
+
+// namespace Helpers
+
 }  // namespace SoundMeter
 }  // namespace sd
