@@ -757,6 +757,9 @@ void MetersComponent::showValue (bool showValue)
 void MetersComponent::setMeterSegments (const std::vector<SegmentOptions>& segmentsOptions)
 {
     m_segmentsOptions = segmentsOptions;
+
+    m_labelStrip.setMeterSegments (segmentsOptions);
+
     for (auto* meter: m_meterChannels)
         if (meter)
             meter->setMeterSegments (m_segmentsOptions);

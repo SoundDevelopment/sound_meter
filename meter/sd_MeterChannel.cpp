@@ -403,6 +403,7 @@ void MeterChannel::setMeterSegments (const std::vector<SegmentOptions>& segments
 #endif
     m_level.setMeterSegments (segmentsOptions);
     setDirty();  // TODO: - [mh] Change this to refresh(true)?
+    resized();
 }
 //==============================================================================
 
