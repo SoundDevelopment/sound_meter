@@ -183,7 +183,12 @@ void Level::synchronizeMeterOptions()
 
 void Level::setMeterSegments (const std::vector<SegmentOptions>& segmentsOptions)
 {
+    if (segmentsOptions.empty())
+        return;
+
     m_segments.clear();
+    m_meterRange = segmentsOptions[0].levelRange;
+
     for (const auto& segmentOptions: segmentsOptions)
     {
         m_segments.emplace_back (m_meterOptions, segmentOptions);
@@ -258,9 +263,6 @@ float Level::getPeakHoldLevel() const noexcept
 
 void Level::setMeterBounds (const juce::Rectangle<int>& bounds)
 {
-    if (bounds == m_meterBounds)
-        return;
-
     m_meterBounds = bounds;
     m_levelBounds = m_meterBounds;
 
