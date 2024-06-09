@@ -202,6 +202,13 @@ public:
     void setOptions (const Options& meterOptions);
 
     /**
+     * @brief Get the meter options defining appearance and functionality.
+     *
+     * @return The options to apply to the meters and label strip.
+    */
+    const Options& getOptions() const noexcept { return m_meterOptions; }
+
+    /**
      * @brief Set the refresh (redraw) rate of the meters.
      *
      * Also used for meter ballistics.

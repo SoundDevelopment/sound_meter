@@ -119,8 +119,8 @@ void Segment::drawTickMarks (juce::Graphics& g, const MeterColours& meterColours
 
         const auto tickMarkLevelRatio = std::clamp ((tickMark - m_segmentOptions.levelRange.getStart()) / m_segmentOptions.levelRange.getLength(), 0.0f, 1.0f);
         const auto tickMarkY          = m_segmentBounds.getY() + m_segmentBounds.proportionOfHeight (1.0f - tickMarkLevelRatio);
-        const auto tickMarkBounds =
-          juce::Rectangle<float> (m_segmentBounds.getX(), tickMarkY, m_segmentBounds.getWidth(), static_cast<float> (Constants::kTickMarkHeight));
+        const auto tickMarkBounds = juce::Rectangle<float> (m_segmentBounds.getX(), std::max (m_segmentBounds.getY(), tickMarkY - m_meterOptions.tickMarkThickness * 0.5f),
+                                                            m_segmentBounds.getWidth(), m_meterOptions.tickMarkThickness);
         g.fillRect (tickMarkBounds);
     }
 }
@@ -138,7 +138,8 @@ void Segment::drawLabels (juce::Graphics& g, const MeterColours& meterColours) c
         const auto tickMarkY          = m_segmentBounds.getY() + m_segmentBounds.proportionOfHeight (1.0f - tickMarkLevelRatio);
         const auto labelBounds        = juce::Rectangle<float> (m_segmentBounds.getX(), tickMarkY - (fontsize / 2.0f), m_segmentBounds.getWidth(), fontsize);
 
-        g.drawFittedText (juce::String (std::abs (tickMark)), labelBounds.reduced (Constants::kLabelStripTextPadding, 0).toNearestInt(), juce::Justification::topLeft, 1);
+        g.drawFittedText (juce::String (tickMark - m_meterOptions.nominalLevel_db), labelBounds.reduced (Constants::kLabelStripTextPadding, 0).toNearestInt(),
+                          juce::Justification::topLeft, 1);
     }
 }
 //==============================================================================

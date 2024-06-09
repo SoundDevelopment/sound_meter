@@ -70,7 +70,7 @@ void Level::drawInactiveMeter (juce::Graphics& g, const MeterColours& meterColou
 
 void Level::drawPeakValue (juce::Graphics& g, const MeterColours& meterColours) const
 {
-    if (m_valueBounds.isEmpty())
+    if (m_valueBounds.isEmpty() || m_isLabelStrip)
         return;
 
     // Draw PEAK value...
