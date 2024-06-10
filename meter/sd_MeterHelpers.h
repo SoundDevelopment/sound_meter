@@ -170,7 +170,9 @@ public:
     [[nodiscard]] static std::vector<SegmentOptions> getFullRangeScale();
     [[nodiscard]] static std::vector<SegmentOptions> getFullRangeScale (const juce::Colour& low, const juce::Colour& mid, const juce::Colour& high)
     {
-        return { { { -96.0f, -18.0f }, { 0.0f, 0.8125f }, low, mid }, { { -18.0f, -6.0f }, { 0.8125f, 0.9375f }, mid, high }, { { -6.0f, 0.0f }, { 0.9375f, 1.0f }, high, high } };
+        return { { { -96.0f, -18.0f }, { 0.0f, 0.8125f }, low, mid },
+                 { { -18.0f, -6.0f }, { 0.8125f, 0.9375f }, mid, high },
+                 { { -6.0f, 0.0f }, { 0.9375f, 1.0f }, high, high } };
     }
 
     /**
