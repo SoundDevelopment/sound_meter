@@ -32,6 +32,8 @@
 
 #include "sd_MeterSegment.h"
 
+#include "sd_MeterHelpers.h"
+
 namespace sd  // NOLINT
 {
 namespace SoundMeter
@@ -91,7 +93,7 @@ void Segment::draw (juce::Graphics& g, const MeterColours& meterColours)
         else
             g.setColour (m_segmentOptions.segmentColour);
 
-        g.fillRect (m_drawnBounds);
+        g.fillRect (m_drawnBounds.toNearestIntEdges());
     }
 
     if (m_meterOptions.tickMarksOnTop)
@@ -108,7 +110,7 @@ void Segment::draw (juce::Graphics& g, const MeterColours& meterColours)
 
 void Segment::drawTickMarks (juce::Graphics& g, const MeterColours& meterColours)
 {
-    if (m_minimalModeActive)
+    if (m_minimalModeActive || !m_meterOptions.tickMarksEnabled)
         return;
 
     g.setColour (meterColours.tickMarkColour);
@@ -205,7 +207,7 @@ void Segment::updatePeakHoldBounds()
             return;
 
         const auto peakHoldY = m_segmentBounds.getY() + m_segmentBounds.proportionOfHeight (1.0f - peakHoldRatio);
-        peakHoldBounds       = m_segmentBounds.withTop (peakHoldY).withHeight (Constants::kPeakHoldHeight);
+        peakHoldBounds       = m_segmentBounds.withTop (peakHoldY).withHeight (m_meterOptions.peakHoldThickness);
     }
 
     if (peakHoldBounds == m_drawnPeakHoldBounds)

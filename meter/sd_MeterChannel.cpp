@@ -145,6 +145,7 @@ void MeterChannel::setOptions (const Options& meterOptions)
 #endif
 
     refresh (true);  // TODO: - [mh] Change this to refresh(true)?
+    resized();
 }
 //==============================================================================
 
