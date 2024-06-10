@@ -62,7 +62,7 @@ static constexpr auto kFaderFadeTime_ms        = 2500;     ///< Fader fade out t
 static constexpr auto kFaderSensitivity        = 10.0f;    ///< Fader sensitivity value. Must be a positive value > 0.
 static constexpr auto kFaderAlphaMax           = 0.3f;     ///< Maximum transparency (alpha) of the fader overlay.
 static constexpr auto kMinModeHeightThreshold = 150.0f;  ///< Meter minimum mode height threshold in pixels (min. mod is just the meter. not value, ticks or fader).
-static constexpr auto kMinModeWidthThreshold = 30.0f;  ///< Meter minimum mode width threshold in pixels (min. mod is just the meter. not value, ticks or fader).
+static constexpr auto kMinModeWidthThreshold = 20.0f;  ///< Meter minimum mode width threshold in pixels (min. mod is just the meter. not value, ticks or fader).
 static constexpr auto kMetersId     = "meters_panel";  ///< ID (name) of all components in the meters panel.
 static constexpr auto kLabelStripId = "label_strip";   ///< ID (name) of the label-strip (master fader).
 }  // namespace Constants
@@ -170,9 +170,7 @@ public:
     [[nodiscard]] static std::vector<SegmentOptions> getFullRangeScale();
     [[nodiscard]] static std::vector<SegmentOptions> getFullRangeScale (const juce::Colour& low, const juce::Colour& mid, const juce::Colour& high)
     {
-        return { { { -96.0f, -18.0f }, { 0.0f, 0.8125f }, low, mid },
-                 { { -18.0f, -6.0f }, { 0.8125f, 0.9375f }, mid, high },
-                 { { -6.0f, 0.0f }, { 0.9375f, 1.0f }, high, high } };
+        return { { { -96.0f, -18.0f }, { 0.0f, 0.8125f }, low, mid }, { { -18.0f, -6.0f }, { 0.8125f, 0.9375f }, mid, high }, { { -6.0f, 0.0f }, { 0.9375f, 1.0f }, high, high } };
     }
 
     /**
