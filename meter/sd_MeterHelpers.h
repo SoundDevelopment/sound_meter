@@ -57,7 +57,7 @@ static constexpr auto kMinLevel_db             = -96.0f;   ///< Minimum meter le
 static constexpr auto kMinDecay_ms             = 100.0f;   ///< Minimum meter decay speed (in milliseconds).
 static constexpr auto kMaxDecay_ms             = 8000.0f;  ///< Maximum meter decay speed (in milliseconds).
 static constexpr auto kDefaultDecay_ms         = 3000.0f;  ///< Default meter decay speed (in milliseconds).
-static constexpr auto kTickMarkThickness       = 1.0f;     ///< Height of a tick mark (in pixels).
+static constexpr auto kTickMarkThickness       = 2;        ///< Height of a tick mark (in pixels).
 static constexpr auto kFaderFadeTime_ms        = 2500;     ///< Fader fade out time (in milliseconds).
 static constexpr auto kFaderSensitivity        = 10.0f;    ///< Fader sensitivity value. Must be a positive value > 0.
 static constexpr auto kFaderAlphaMax           = 0.3f;     ///< Maximum transparency (alpha) of the fader overlay.
@@ -116,7 +116,8 @@ struct Options
     bool  useGradient         = true;   ///< Use gradients for the meter segments, in stead of solid colours.
     bool  showPeakHoldIndicator          = true;                                                                   ///< Enable peak hold indicator.
     std::vector<float> tickMarks         = { 0.0f, -3.0f, -6.0f, -9.0f, -12.0f, -18.0f, -30.0f, -40.0f, -50.0f };  ///< Tick-mark position in db.
-    float              tickMarkThickness = Constants::kTickMarkThickness;                                          ///< Thickness of the tick-marks in pixels.
+    float              tickMarkThickness = static_cast<float> (Constants::kTickMarkThickness);                     ///< Thickness of the tick-marks in pixels.
+    float              peakHoldThickness = static_cast<float> (Constants::kPeakHoldHeight);  ///< Thickness of the peak hold bar in pixels.
     float              nominalLevel_db   = 0.0f;  // The level (in dB) where the nominal level should be. e.g. -20.0 for K20.
 };
 
@@ -185,8 +186,7 @@ public:
     /**
      * @brief Yamaha mixer meter scale. 3 segments, from -60db to 0db.
      */
-    [[depracated]]
-    [[nodiscard]] static std::vector<SegmentOptions> getYamaha60()
+    [[depracated]] [[nodiscard]] static std::vector<SegmentOptions> getYamaha60()
     {
         return { { { -60.0f, -30.0f }, { 0.0f, 0.2751f }, juce::Colours::yellow, juce::Colours::yellow },
                  { { -30.0f, -18.0f }, { 0.2751f, 0.4521f }, juce::Colours::yellow, juce::Colours::yellow },

@@ -70,16 +70,16 @@ std::vector<SegmentOptions> MeterScales::getDefaultScale()
 
 std::vector<SegmentOptions> MeterScales::getSmpteScale()
 {
-    return std::vector<SegmentOptions>();
     return getSmpteScale (juce::Colours::green, juce::Colours::yellow, juce::Colours::red);
 }
 //==============================================================================
 
 Options MeterScales::getSmpteOptions (Options options)
 {
-    options.tickMarks           = { 0.0f, -3.0f, -6.0f, -9.0f, -12.0f, -15.0f, -60.0f, -18.0f, -20.0f, -25.0f, -30.0f, -35.0f, -4.0f, -45.0f };
+    options.tickMarks           = { 0.0f, -3.0f, -6.0f, -9.0f, -12.0f, -15.0f, -20.0f, -25.0f, -30.0f, -35.0f, -40.0f};
     options.decayTime_ms        = 2250.0f;
     options.defaultDecayTime_ms = 2250.0f;  // 20 dB/s.
+    options.useGradient = false;
     return options;
 }
 //==============================================================================
@@ -95,7 +95,8 @@ Options MeterScales::getEbuPpmOptions (Options options)
     options.tickMarks           = { -12.0f, -16.0f, -20.0f, -24.0f, -28.0f, -32.0f, -36.0f };
     options.nominalLevel_db     = -24.0f;
     options.decayTime_ms        = 2100.0f;
-    options.defaultDecayTime_ms = 2100.0f;  // 13.333 dB/s.
+    options.defaultDecayTime_ms = 2100.0f;  // 13.333 dB/s.     
+    options.useGradient         = false;
     return options;
 }
 //==============================================================================
@@ -121,6 +122,7 @@ Options MeterScales::getK20Options (Options options)
     options.nominalLevel_db     = -20.0f;
     options.decayTime_ms        = 3666.7f;  // 12 dB/s.
     options.defaultDecayTime_ms = 3666.7f;
+    options.useGradient         = false;
     return options;
 }
 //==============================================================================
@@ -137,6 +139,7 @@ Options MeterScales::getK14Options (Options options)
     options.nominalLevel_db     = -14.0f;
     options.decayTime_ms        = 3166.7f;  // 12 dB/s.
     options.defaultDecayTime_ms = 3166.7f;
+    options.useGradient         = false;
     return options;
 }
 //==============================================================================
@@ -153,6 +156,7 @@ Options MeterScales::getK12Options (Options options)
     options.nominalLevel_db     = -12.0f;
     options.decayTime_ms        = 3000.0f;  // 12 dB/s.
     options.defaultDecayTime_ms = 3000.0f;
+    options.useGradient         = false;
     return options;
 }
 //==============================================================================
