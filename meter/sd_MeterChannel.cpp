@@ -94,7 +94,7 @@ void MeterChannel::notifyParent()
 
 bool MeterChannel::autoSetMinimalMode (int proposedWidth, int proposedHeight)
 {
-    bool minimalMode = !nameFits ("-99.99", proposedWidth);
+    bool minimalMode = !nameFits ("-9.99", proposedWidth);
     if (proposedWidth < Constants::kMinModeWidthThreshold)
         minimalMode = true;
     if (proposedHeight < Constants::kMinModeHeightThreshold)
