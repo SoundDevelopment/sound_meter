@@ -186,7 +186,7 @@ public:
     /**
      * @brief Yamaha mixer meter scale. 3 segments, from -60db to 0db.
      */
-    [[depracated]] [[nodiscard]] static std::vector<SegmentOptions> getYamaha60()
+    [[nodiscard]] static std::vector<SegmentOptions> getYamaha60()
     {
         return { { { -60.0f, -30.0f }, { 0.0f, 0.2751f }, juce::Colours::yellow, juce::Colours::yellow },
                  { { -30.0f, -18.0f }, { 0.2751f, 0.4521f }, juce::Colours::yellow, juce::Colours::yellow },
