@@ -102,8 +102,8 @@ void Header::setName (const juce::String& name)
 
 void Header::calculateInfoWidth()
 {
-    m_nameWidth = m_font.getStringWidthFloat (m_name);
-    m_typeWidth = m_font.getStringWidthFloat (m_typeDescription);
+    m_nameWidth = juce::GlyphArrangement::getStringWidth (m_font, m_name);
+    m_typeWidth = juce::GlyphArrangement::getStringWidth (m_font, m_typeDescription);
 }
 //==============================================================================
 
@@ -132,7 +132,7 @@ void Header::setFont (const juce::Font& font)
 
 bool Header::textFits (const juce::String& text, const int widthAvailable) const
 {
-    return m_font.getStringWidthFloat (text) <= static_cast<float> (widthAvailable);
+    return juce::GlyphArrangement::getStringWidth (m_font, text) <= static_cast<float> (widthAvailable);
 }
 //==============================================================================
 

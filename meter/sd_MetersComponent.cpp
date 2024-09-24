@@ -48,7 +48,8 @@ MetersComponent::MetersComponent (const Options& meterOptions) : MetersComponent
 MetersComponent::MetersComponent (const Options& meterOptions, const juce::AudioChannelSet& channelFormat)
   : m_meterOptions (meterOptions),
     m_labelStrip (meterOptions, Padding (Constants::kLabelStripLeftPadding, 0, 0, 0), Constants::kLabelStripId, true, juce::AudioChannelSet::ChannelType::unknown),
-    m_channelFormat (channelFormat)
+    m_channelFormat (channelFormat),
+    m_font (juce::FontOptions())
 {
 #if SDTK_ENABLE_FADER
     m_labelStrip.enableFader (m_meterOptions.faderEnabled);
