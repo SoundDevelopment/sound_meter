@@ -503,7 +503,7 @@ private:
 
     juce::Rectangle<int>        m_dirtyRect         {};    
     Padding                     m_padding           { 0, 0, 0, 0 }; ///< Space between meter and component's edge.
-    juce::Font                  m_font;
+    juce::Font                  m_font              { juce::FontOptions{} };
     MeterColours                m_meterColours      {};
 
     void                        setDirty            (bool isDirty = true) noexcept;
