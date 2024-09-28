@@ -49,7 +49,10 @@ MeterChannel::MeterChannel (const Options& meterOptions, Padding padding, const 
   : MeterChannel()
 {
     setName (channelName);
-    setBufferedToImage (true);
+
+#if JUCE_VERSION < 0x080000
+    setBufferedToImage (true);  // Less rendering. But rendering takes slightly longer.
+#endif
 
     setChannelType (channelType);
     setOptions (meterOptions);
