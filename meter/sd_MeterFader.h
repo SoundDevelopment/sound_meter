@@ -166,7 +166,7 @@ public:
     /**
      * @brief Check if the fader needs redrawing.
     */
-    [[nodiscard]] bool needsRedrawing() noexcept { return (m_drawnFaderValue != m_faderValue.load()) || isFading(); }
+    [[nodiscard]] bool needsRedrawing() noexcept { return !juce::approximatelyEqual (m_drawnFaderValue, m_faderValue.load()) || isFading(); }
 
     std::function<void()> onFaderValueChanged { nullptr };
 

@@ -166,7 +166,7 @@ void Segment::setMeterBounds (juce::Rectangle<int> meterBounds)
 
 void Segment::setLevel (float level_db)
 {
-    if (level_db != m_currentLevel_db)
+    if (!juce::approximatelyEqual (level_db, m_currentLevel_db))
     {
         m_currentLevel_db = level_db;
         updateLevelBounds();

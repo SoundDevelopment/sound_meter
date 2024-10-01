@@ -418,7 +418,7 @@ void MetersComponent::notifyListeners()
     if (checker.shouldBailOut())
         return;
 
-    m_fadersListeners.callChecked (checker, [=] (FadersChangeListener& l) { l.fadersChanged (m_faderGains); });
+    m_fadersListeners.callChecked (checker, [&] (FadersChangeListener& l) { l.fadersChanged (m_faderGains); });
 
     if (checker.shouldBailOut())
         return;

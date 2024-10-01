@@ -127,7 +127,7 @@ bool Fader::setValue (const float value, NotificationOptions notificationOption 
 {
     if (!m_enabled)
         return false;
-    if (m_faderValue.load() == value)
+    if (juce::approximatelyEqual (m_faderValue.load(), value))
         return false;
     m_faderValue.store (value);
 
