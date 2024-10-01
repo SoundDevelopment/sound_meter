@@ -130,7 +130,7 @@ float Level::getDecayedLevel (const float newLevel_db)
     if (timePassed > m_meterOptions.decayTime_ms)
         return newLevel_db;
 
-    if (m_meterLevel_db == newLevel_db)
+    if (juce::approximatelyEqual (m_meterLevel_db, newLevel_db))
         return newLevel_db;
 
     // Convert that to refreshed frames...
