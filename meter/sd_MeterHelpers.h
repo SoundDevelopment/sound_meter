@@ -52,7 +52,7 @@ static constexpr auto kDefaultHeaderFontHeight = 14.0f;    ///< Default height o
 static constexpr auto kLabelStripTextPadding   = 2;        ///< Padding around the text in a label strip (in pixels).
 static constexpr auto kLabelStripLeftPadding   = 5;        ///< Padding (in pixels) on the left side of the label strip (which can double as a master fader).
 static constexpr auto kFaderRightPadding       = 1;        ///< Padding (in pixels) on the right side of the channel faders.
-static constexpr auto kMaxLevel_db             = 0.0f;     ///< Maximum meter level (in db).
+static constexpr auto kMaxLevel_db             = 100.0f;     ///< Maximum meter level (in db).
 static constexpr auto kMinLevel_db             = -96.0f;   ///< Minimum meter level (in db).
 static constexpr auto kMinDecay_ms             = 100.0f;   ///< Minimum meter decay speed (in milliseconds).
 static constexpr auto kMaxDecay_ms             = 8000.0f;  ///< Maximum meter decay speed (in milliseconds).
@@ -118,7 +118,9 @@ struct Options
     std::vector<float> tickMarks         = { 0.0f, -3.0f, -6.0f, -9.0f, -12.0f, -18.0f, -30.0f, -40.0f, -50.0f };  ///< Tick-mark position in db.
     float              tickMarkThickness = static_cast<float> (Constants::kTickMarkThickness);                     ///< Thickness of the tick-marks in pixels.
     float              peakHoldThickness = static_cast<float> (Constants::kPeakHoldHeight);  ///< Thickness of the peak hold bar in pixels.
-    float              nominalLevel_db   = 0.0f;  // The level (in dB) where the nominal level should be. e.g. -20.0 for K20.
+    float              nominalLevel_db   = 0.0f;    ///< The level (in dB) where the nominal level should be. e.g. -20.0 for K20.
+    float              minLevel_db       = -40.0f;  ///< The minimum level (in dB) that the meter will display.
+    float              maxLevel_db       = 0.0f;    ///< The maximum level (in dB) that the meter will display.
 };
 
 /**
@@ -164,13 +166,33 @@ public:
     }
 
     /**
-     * @brief Full range peak meter. 3 segments, from -96db to 0db.
+     * @brief Extended bottom range meter. 3 segments, from -96db to 0db.
+     */
+    [[nodiscard]] static Options                     getExtendedBottomOptions (Options options);
+    [[nodiscard]] static std::vector<SegmentOptions> getExtendedBottomScale();
+    [[nodiscard]] static std::vector<SegmentOptions> getExtendedBottomScale (const juce::Colour& low, const juce::Colour& mid, const juce::Colour& high)
+    {
+        return { { { -96.0f, -18.0f }, { 0.0f, 0.8125f }, low, mid }, { { -18.0f, -6.0f }, { 0.8125f, 0.9375f }, mid, high }, { { -6.0f, 0.0f }, { 0.9375f, 1.0f }, high, high } };
+    }
+
+    /**
+     * @brief Extended top range meter. 3 segments, from -50db to 20db.
+     */
+    [[nodiscard]] static Options                     getExtendedTopOptions (Options options);
+    [[nodiscard]] static std::vector<SegmentOptions> getExtendedTopScale();
+    [[nodiscard]] static std::vector<SegmentOptions> getExtendedTopScale (const juce::Colour& low, const juce::Colour& mid, const juce::Colour& high)
+    {
+        return { { { -50.0f, -10.0f }, { 0.0f, 0.5714f }, low, mid }, { { -10.0f, 0.0f }, { 0.5714f, 0.7143f }, mid, high }, { { 0.0f, 20.0f }, { 0.7143f, 1.0f }, high, high } };
+    }
+
+    /**
+     * @brief Maximum meter scale. 3 segments, from -96db to +100db.
      */
     [[nodiscard]] static Options                     getFullRangeOptions (Options options);
     [[nodiscard]] static std::vector<SegmentOptions> getFullRangeScale();
     [[nodiscard]] static std::vector<SegmentOptions> getFullRangeScale (const juce::Colour& low, const juce::Colour& mid, const juce::Colour& high)
     {
-        return { { { -96.0f, -18.0f }, { 0.0f, 0.8125f }, low, mid }, { { -18.0f, -6.0f }, { 0.8125f, 0.9375f }, mid, high }, { { -6.0f, 0.0f }, { 0.9375f, 1.0f }, high, high } };
+        return { { { -96.0f, -20.0f }, { 0.0f, 0.3878f }, low, mid }, { { 0.0f, 50.0f }, { 0.3878f, 0.6429f }, mid, high }, { { 50.0f, 100.0f }, { 0.6429f, 1.0f }, high, high } };
     }
 
     /**

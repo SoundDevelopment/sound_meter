@@ -76,10 +76,10 @@ std::vector<SegmentOptions> MeterScales::getSmpteScale()
 
 Options MeterScales::getSmpteOptions (Options options)
 {
-    options.tickMarks           = { 0.0f, -3.0f, -6.0f, -9.0f, -12.0f, -15.0f, -20.0f, -25.0f, -30.0f, -35.0f, -40.0f};
+    options.tickMarks           = { 0.0f, -3.0f, -6.0f, -9.0f, -12.0f, -15.0f, -20.0f, -25.0f, -30.0f, -35.0f, -40.0f };
     options.decayTime_ms        = 2250.0f;
     options.defaultDecayTime_ms = 2250.0f;  // 20 dB/s.
-    options.useGradient = false;
+    options.useGradient         = false;
     return options;
 }
 //==============================================================================
@@ -95,8 +95,38 @@ Options MeterScales::getEbuPpmOptions (Options options)
     options.tickMarks           = { -12.0f, -16.0f, -20.0f, -24.0f, -28.0f, -32.0f, -36.0f };
     options.nominalLevel_db     = -24.0f;
     options.decayTime_ms        = 2100.0f;
-    options.defaultDecayTime_ms = 2100.0f;  // 13.333 dB/s.     
+    options.defaultDecayTime_ms = 2100.0f;  // 13.333 dB/s.
     options.useGradient         = false;
+    return options;
+}
+//==============================================================================
+
+std::vector<SegmentOptions> MeterScales::getExtendedBottomScale()
+{
+    return getExtendedBottomScale (juce::Colours::navy, juce::Colours::white, juce::Colours::red);
+}
+//==============================================================================
+
+Options MeterScales::getExtendedBottomOptions (Options options)
+{
+    options.tickMarks           = { 0.0f, -10.0f, -20.0f, -30.0f, -40.0f, -50.0f, -60.0f, -70.0f, -80.0f, -90.0f };
+    options.decayTime_ms        = 4800.0f;
+    options.defaultDecayTime_ms = 4800.0f;  // 20 dB/s.
+    return options;
+}
+//==============================================================================
+
+std::vector<SegmentOptions> MeterScales::getExtendedTopScale()
+{
+    return getExtendedBottomScale (juce::Colours::navy, juce::Colours::white, juce::Colours::red);
+}
+//==============================================================================
+
+Options MeterScales::getExtendedTopOptions (Options options)
+{
+    options.tickMarks           = { 20.0f, 15.0f, 10.0f, 5.0f, 0.0f, -5.0f, -10.0f, -20.0f, -30.0f, -40.0f };
+    options.decayTime_ms        = 4800.0f;
+    options.defaultDecayTime_ms = 4800.0f;  // 20 dB/s.
     return options;
 }
 //==============================================================================
@@ -109,7 +139,7 @@ std::vector<SegmentOptions> MeterScales::getFullRangeScale()
 
 Options MeterScales::getFullRangeOptions (Options options)
 {
-    options.tickMarks           = { 0.0f, -10.0f, -20.0f, -30.0f, -40.0f, -50.0f, -60.0f, -70.0f, -80.0f, -90.0f };
+    options.tickMarks           = { 100.0f, 80.0f, 60.0f, 40.0f, 20.0f, 0.0f, -20.0f, -40.0f, -60.0f, -80.0f };
     options.decayTime_ms        = 4800.0f;
     options.defaultDecayTime_ms = 4800.0f;  // 20 dB/s.
     return options;

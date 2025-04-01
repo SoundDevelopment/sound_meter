@@ -140,7 +140,7 @@ float Level::getDecayedLevel (const float newLevel_db)
     for (int frame = 0; frame < numberOfFramePassed; ++frame)
         level_db = newLevel_db + (m_decayCoeff * (level_db - newLevel_db));
 
-    if (std::abs (level_db - newLevel_db) < Constants::kMinLevel_db)
+    if (std::abs (level_db - newLevel_db) < m_meterOptions.minLevel_db)
         level_db = newLevel_db;
 
     return level_db;
