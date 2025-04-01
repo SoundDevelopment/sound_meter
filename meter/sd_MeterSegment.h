@@ -107,13 +107,13 @@ public:
 private:
     SegmentOptions         m_segmentOptions {};
     Options                m_meterOptions {};
-    std::vector<float>     m_tickMarks {};
-    juce::Rectangle<int>   m_meterBounds {};
-    juce::Rectangle<float> m_segmentBounds {};
-    juce::Rectangle<float> m_drawnBounds {};
-    juce::Rectangle<float> m_peakHoldBounds {};
-    juce::Rectangle<float> m_drawnPeakHoldBounds {};
-    juce::ColourGradient   m_gradientFill {};
+    std::vector<float>     m_tickMarks;
+    juce::Rectangle<int>   m_meterBounds;
+    juce::Rectangle<float> m_segmentBounds;
+    juce::Rectangle<float> m_drawnBounds;
+    juce::Rectangle<float> m_peakHoldBounds;
+    juce::Rectangle<float> m_drawnPeakHoldBounds;
+    juce::ColourGradient   m_gradientFill;
 
     float m_currentLevel_db   = Constants::kMinLevel_db;
     float m_peakHoldLevel_db  = Constants::kMinLevel_db;
