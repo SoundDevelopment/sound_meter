@@ -120,7 +120,6 @@ struct Options
     float              peakHoldThickness = static_cast<float> (Constants::kPeakHoldHeight);  ///< Thickness of the peak hold bar in pixels.
     float              nominalLevel_db   = 0.0f;    ///< The level (in dB) where the nominal level should be. e.g. -20.0 for K20.
     float              minLevel_db       = -40.0f;  ///< The minimum level (in dB) that the meter will display.
-    float              maxLevel_db       = 0.0f;    ///< The maximum level (in dB) that the meter will display.
 };
 
 /**

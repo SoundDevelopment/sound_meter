@@ -87,7 +87,7 @@ void Level::drawPeakValue (juce::Graphics& g, const MeterColours& meterColours) 
 float Level::getInputLevel()
 {
     m_inputLevelRead.store (true);
-    return m_meterRange.clipValue (juce::Decibels::gainToDecibels (m_inputLevel.load()));
+    return juce::Decibels::gainToDecibels (m_inputLevel.load());
 }
 //==============================================================================
 
@@ -101,7 +101,7 @@ void Level::setInputLevel (float newLevel)
 float Level::getLinearDecayedLevel (float newLevel_db)
 {
     const auto currentTime = static_cast<int> (juce::Time::getMillisecondCounter());
-    const auto timePassed  = static_cast<float> (currentTime - static_cast<int> (m_previousRefreshTime));
+    const auto timePassed  = static_cast<float> (currentTime - m_previousRefreshTime);
 
     m_previousRefreshTime = currentTime;
 
@@ -115,7 +115,7 @@ float Level::getLinearDecayedLevel (float newLevel_db)
 float Level::getDecayedLevel (const float newLevel_db)
 {
     const auto currentTime = static_cast<int> (juce::Time::getMillisecondCounter());
-    const auto timePassed  = static_cast<float> (currentTime - static_cast<int> (m_previousRefreshTime));
+    const auto timePassed  = static_cast<float> (currentTime - m_previousRefreshTime);
 
     // A new frame is not needed yet, return the current value...
     if (timePassed < m_refreshPeriod_ms)
@@ -155,7 +155,7 @@ void Level::refreshMeterLevel()
         m_peakHoldDirty = true;
 
     for (auto& segment: m_segments)
-        segment.setLevel (m_meterLevel_db);
+        segment.setLevel (/*m_meterRange.clipValue(*/m_meterLevel_db/*)*/);
 }
 //==============================================================================
 
