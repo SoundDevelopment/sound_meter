@@ -295,11 +295,11 @@ private:
     Options                     m_meterOptions;
     std::vector<SegmentOptions> m_segmentOptions = MeterScales::getDefaultScale();
 
-    std::vector<Segment> m_segments {};  // List of meter segments.
+    std::vector<Segment> m_segments;  // List of meter segments.
     juce::Range<float>   m_meterRange { Constants::kMaxLevel_db, Constants::kMinLevel_db };
-    juce::Rectangle<int> m_valueBounds {};  // Bounds of the value area.
-    juce::Rectangle<int> m_meterBounds {};  // Bounds of the meter area.
-    juce::Rectangle<int> m_levelBounds {};  // Bounds of the level area.
+    juce::Rectangle<int> m_valueBounds;  // Bounds of the value area.
+    juce::Rectangle<int> m_meterBounds;  // Bounds of the meter area.
+    juce::Rectangle<int> m_levelBounds;  // Bounds of the level area.
 
     // Meter levels...
     std::atomic<float> m_inputLevel { 0.0f };  // Audio peak level.
