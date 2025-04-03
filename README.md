@@ -3,7 +3,7 @@
 <img align="right" src="https://www.sounddevelopment.nl/sd/resources/images/sound_meter/sound_meter_demo.gif">
 <br><br>**Peak meter JUCE module with optional fader overlay.<br><br>**
 Used in the Lobith Audio's waveform audio player [PlayerSpecz](https://www.lobith-audio.com/playerspecz/).<br>
-Compatible with JUCE 8. For older JUCE version go check out the [JUCE7 branch]().
+Compatible with JUCE 8. For older JUCE version go check out the [JUCE7 branch](https://github.com/SoundDevelopment/sound_meter/tree/juce7).
 
 ### Features:
 - Fully **resize-able**.
