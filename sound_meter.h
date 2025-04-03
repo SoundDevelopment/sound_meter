@@ -67,7 +67,7 @@ END_JUCE_MODULE_DECLARATION
     Enable a fader, to be overlayed on top of the meter.
 */
 #ifndef SDTK_ENABLE_FADER
-   #define SDTK_ENABLE_FADER 1
+   #define SDTK_ENABLE_FADER 0
 #endif
 
 #include <juce_audio_basics/juce_audio_basics.h>

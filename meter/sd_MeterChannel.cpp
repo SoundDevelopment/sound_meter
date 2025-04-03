@@ -116,7 +116,6 @@ void MeterChannel::setMinimalMode (bool minimalMode)
 
     m_minimalMode = minimalMode;
     m_level.setMinimalMode (m_minimalMode);
-    showHeader (!m_minimalMode);  // ... show channel ID if it's not too narrow for ID and not in minimum mode.
 }
 //==============================================================================
 
@@ -259,7 +258,7 @@ void MeterChannel::paint (juce::Graphics& g)
     g.setFont (m_font);
 
     // Draw the 'HEADER' part of the meter...
-    if (!m_header.getBounds().isEmpty() && m_meterOptions.headerEnabled)
+    if (!m_header.getBounds().isEmpty() && m_meterOptions.headerEnabled && !m_minimalMode)
     {
 #if SDTK_ENABLE_FADER
         m_header.draw (g, isActive(), m_fader.isEnabled(), m_meterColours);
