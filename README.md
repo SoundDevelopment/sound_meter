@@ -1,8 +1,9 @@
 # Sound Meter
 [Juce](https://juce.com/) peak meter module with optional fader overlay.<br>
-<img align="right" src="https://www.sounddevelopment.nl/sd/resources/images/sound_meter/sound_meter_demo_23.gif">
-*by Marcel Huibers | [Sound Development](https://www.sounddevelopment.nl) 2023 | Published under the [MIT License](https://en.wikipedia.org/wiki/MIT_License)*
+<img align="right" src="https://www.sounddevelopment.nl/sd/resources/images/sound_meter/sound_meter_demo.gif">
+*by Marcel Huibers | [Sound Development](https://www.sounddevelopment.nl) 2025 | Published under the [MIT License](https://en.wikipedia.org/wiki/MIT_License)*
 
+Compatible with JUCE 8. For older JUCE version go check out the [JUCE7 branch]().
 
 Features:
 - Fully **resize-able**.
@@ -15,6 +16,17 @@ Features:
 - Optional **label strip** next to the meters (which can double as master fader).
 - Optional **header** identifying the meter's name (set by user) or channel type.
 - Optional **fader** and mute button (in the header).
+
+**New!!**
+- Meter presets:
+  - Default (-60 dB - 0 dB)
+  - SMPTE PPM  (-44 dB - 0 dB)
+  - EBU PPM (-30 dB - -10 dB)
+  - Yamaha 60 Mizer (-60 dB - 0 dB)
+  - Bob Katz K metering (K20, K14, K12)
+  - Extended Bottom (-96 dB - 0 dB)
+  - Extended Top (-50 dB - +20 dB)
+  - Full Range (-96 dB - +100 dB)
 
 You can find the API documentation [here](https://www.sounddevelopment.nl/sd/resources/documentation/sound_meter/)...
 <br>
