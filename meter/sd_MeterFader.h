@@ -2,7 +2,7 @@
     ==============================================================================
     
     This file is part of the sound_meter JUCE module
-    Copyright (c) 2019 - 2021 Sound Development - Marcel Huibers
+    Copyright (c) 2019 - 2025 Sound Development - Marcel Huibers
     All rights reserved.
 
     ------------------------------------------------------------------------------
@@ -168,6 +168,11 @@ public:
     */
     [[nodiscard]] bool needsRedrawing() noexcept { return !juce::approximatelyEqual (m_drawnFaderValue, m_faderValue.load()) || isFading(); }
 
+    /**
+     * @brief Set the fader value changed callback.
+     * 
+     * @param callback The callback to call when the fader value changes.
+    */
     std::function<void()> onFaderValueChanged { nullptr };
 
 private:

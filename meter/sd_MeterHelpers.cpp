@@ -2,7 +2,7 @@
     ==============================================================================
     
     This file is part of the sound_meter JUCE module
-    Copyright (c) 2019 - 2021 Sound Development - Marcel Huibers
+    Copyright (c) 2019 - 2025 Sound Development - Marcel Huibers
     All rights reserved.
 
     ------------------------------------------------------------------------------

@@ -2,7 +2,7 @@
     ==============================================================================
 
     This file is part of the sound_meter JUCE module
-    Copyright (c) 2019 - 2021 Sound Development - Marcel Huibers
+    Copyright (c) 2019 - 2025 Sound Development - Marcel Huibers
     All rights reserved.
 
     ------------------------------------------------------------------------------
@@ -317,6 +317,10 @@ public:
     */
     void showTickMarks (bool showTickMarks);
 
+    /**
+     * @brief Check if the minimal mode is active.
+     * @return True, if the minimal mode is active.
+    */
     [[nodiscard]] bool isMinimalModeActive() const noexcept;
 
 #if SDTK_ENABLE_FADER
