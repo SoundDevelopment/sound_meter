@@ -17,8 +17,6 @@ Compatible with JUCE 8. For older JUCE version go check out the [JUCE7 branch](h
 - Optional **header** identifying the meter's name (set by user) or channel type.
 - Optional **fader** and mute button (in the header).
 
-<br>
-
 ### **New: Meter Presets!**
 - Default (-60 dB - 0 dB)
 - SMPTE PPM  (-44 dB - 0 dB)
