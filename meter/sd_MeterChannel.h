@@ -40,7 +40,9 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_core/juce_core.h>
 #include <juce_gui_basics/juce_gui_basics.h>
-
+#if SDTK_ENABLE_FADER
+#include "sd_MeterFader.h"
+#endif
 namespace sd
 {
 namespace SoundMeter
@@ -494,6 +496,7 @@ private:
     Options                     m_meterOptions      {};             ///< 'Meter' options.
 
 #if SDTK_ENABLE_FADER
+
     Fader                       m_fader;
 #endif /* SDTK_ENABLE_FADER */
 

@@ -264,6 +264,7 @@ enum class LabelStripPosition
 namespace Helpers
 {
 [[nodiscard]] juce::Rectangle<int> applyPadding (const juce::Rectangle<int>& rectToPad, Padding paddingToApply) noexcept;
+static constexpr bool containsUpTo (juce::Range<float> levelRange, float levelDb) noexcept;
 }
 
 }  // namespace SoundMeter
