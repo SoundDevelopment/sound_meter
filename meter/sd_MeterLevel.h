@@ -2,7 +2,7 @@
     ==============================================================================
 
     This file is part of the sound_meter JUCE module
-    Copyright (c) 2019 - 2025 Sound Development - Marcel Huibers
+    Copyright (c) 2019 - 2026 Sound Development - Marcel Huibers
     All rights reserved.
 
     ------------------------------------------------------------------------------
@@ -35,6 +35,7 @@
 #include "sd_MeterHelpers.h"
 #include "sd_MeterSegment.h"
 
+#include <atomic>
 #include <juce_audio_basics/juce_audio_basics.h>
 #include <juce_core/juce_core.h>
 #include <juce_graphics/juce_graphics.h>
@@ -62,7 +63,7 @@ public:
      *
      * @see resetPeakHold
     */
-    void reset();
+    void reset() noexcept;
 
     /**
      * @brief Set the level of the meter.
@@ -74,7 +75,7 @@ public:
      *
      * @see getInputLevel
     */
-    void setInputLevel (float newLevel);
+    void setInputLevel (float newLevel) noexcept;
 
     /**
      * @brief Get's the meter's input level.
@@ -132,7 +133,7 @@ public:
      * @brief Reset the peak hold level.
      * @see getPeakHoldLevel, isPeakValueVisible, setPeakValueVisible, showPeakHold, showValue, isPeakHoldEnabled
     */
-    void resetPeakHold();
+    void resetPeakHold() noexcept;
 
     /**
      * @brief Get the current peak hold level.
@@ -205,7 +206,7 @@ public:
      *
      * @param isLabelStrip when set, this meter behave like a label strip.
     */
-    void setIsLabelStrip (bool isLabelStrip = false) noexcept;
+    void setIsLabelStrip (bool isLabelStrip = false);
 
     /**
      * @brief Set the bounds of the 'meter' part of the meter.
@@ -240,7 +241,7 @@ public:
     [[nodiscard]] juce::Rectangle<int> getLevelBounds() const noexcept { return m_levelBounds; }
 
     /** @brief Get the dirty part of the meter.*/
-    [[nodiscard]] juce::Rectangle<int> getDirtyBounds();
+    [[nodiscard]] juce::Rectangle<int> getDirtyBounds() noexcept;
 
     /**
      * @brief Check if the mouse cursor is over the 'value' part of the meter.
@@ -248,7 +249,7 @@ public:
      * @param y The y coordinate (relative to the meter bounds) to use to determine if the mouse if over the 'value' part of the meter.
      * @return True, if the mouse cursor is over the 'value' part of the meter.
     */
-    bool isMouseOverValue (int y);
+    bool isMouseOverValue (int y) noexcept;
 
     /**
      * @brief Check if the mouse cursor is over the 'value' part of the meter.
@@ -312,12 +313,12 @@ private:
     bool               m_isLabelStrip        = false;
     float              m_decayCoeff          = 0.0f;
     float              m_refreshPeriod_ms    = (1.0f / m_meterOptions.refreshRate) * 1000.0f;  // NOLINT
-    int                m_previousRefreshTime = 0;
+    juce::uint32       m_previousRefreshTime = juce::Time::getMillisecondCounter();
     float              m_decayRate           = 0.0f;  // Decay rate in dB/ms.
 
     [[nodiscard]] float getDecayedLevel (float newLevel_db);
-    [[nodiscard]] float getLinearDecayedLevel (float newLevel_db);
-    void                calculateDecayCoeff (const Options& meterOptions);
+    [[nodiscard]] float getLinearDecayedLevel (float newLevel_db) noexcept;
+    void                calculateDecayCoeff (const Options& meterOptions) noexcept;
     void                synchronizeMeterOptions();
 
     // clang-format on

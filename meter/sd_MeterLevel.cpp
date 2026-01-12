@@ -2,7 +2,7 @@
     ==============================================================================
 
     This file is part of the sound_meter JUCE module
-    Copyright (c) 2019 - 2025 Sound Development - Marcel Huibers
+    Copyright (c) 2019 - 2026 Sound Development - Marcel Huibers
     All rights reserved.
 
     ------------------------------------------------------------------------------
@@ -91,16 +91,16 @@ float Level::getInputLevel()
 }
 //==============================================================================
 
-void Level::setInputLevel (float newLevel)
+void Level::setInputLevel (float newLevel) noexcept
 {
     m_inputLevel.store (m_inputLevelRead.load() ? newLevel : std::max (m_inputLevel.load(), newLevel));
     m_inputLevelRead.store (false);
 }
 //==============================================================================
 
-float Level::getLinearDecayedLevel (float newLevel_db)
+float Level::getLinearDecayedLevel (float newLevel_db) noexcept
 {
-    const auto currentTime = static_cast<int> (juce::Time::getMillisecondCounter());
+    const auto currentTime = juce::Time::getMillisecondCounter();
     const auto timePassed  = static_cast<float> (currentTime - m_previousRefreshTime);
 
     m_previousRefreshTime = currentTime;
@@ -108,13 +108,13 @@ float Level::getLinearDecayedLevel (float newLevel_db)
     if (newLevel_db >= m_meterLevel_db)
         return newLevel_db;
 
-    return std::max (newLevel_db, m_meterLevel_db - (timePassed * m_decayRate));
+    return std::max (Constants::kMinLevel_db, m_meterLevel_db - (timePassed * m_decayRate));
 }
 //==============================================================================
 
 float Level::getDecayedLevel (const float newLevel_db)
 {
-    const auto currentTime = static_cast<int> (juce::Time::getMillisecondCounter());
+    const auto currentTime = juce::Time::getMillisecondCounter();
     const auto timePassed  = static_cast<float> (currentTime - m_previousRefreshTime);
 
     // A new frame is not needed yet, return the current value...
@@ -134,7 +134,7 @@ float Level::getDecayedLevel (const float newLevel_db)
         return newLevel_db;
 
     // Convert that to refreshed frames...
-    auto numberOfFramePassed = static_cast<int> (std::round ((timePassed * m_meterOptions.refreshRate) / 1000.0f));  // NOLINT
+    const auto numberOfFramePassed = static_cast<int> (std::round ((timePassed * m_meterOptions.refreshRate) / 1000.0f));  // NOLINT
 
     auto level_db = m_meterLevel_db;
     for (int frame = 0; frame < numberOfFramePassed; ++frame)
@@ -155,7 +155,7 @@ void Level::refreshMeterLevel()
         m_peakHoldDirty = true;
 
     for (auto& segment: m_segments)
-        segment.setLevel (/*m_meterRange.clipValue(*/m_meterLevel_db/*)*/);
+        segment.setLevel (m_meterLevel_db);
 }
 //==============================================================================
 
@@ -201,7 +201,7 @@ void Level::setMeterSegments (const std::vector<SegmentOptions>& segmentsOptions
 }
 //==============================================================================
 
-void Level::reset()
+void Level::reset() noexcept
 {
     m_inputLevel.store (0.0f);
     m_meterLevel_db       = Constants::kMinLevel_db;
@@ -209,7 +209,7 @@ void Level::reset()
 }
 //==============================================================================
 
-void Level::setIsLabelStrip (bool isLabelStrip) noexcept
+void Level::setIsLabelStrip (bool isLabelStrip)
 {
     m_isLabelStrip = isLabelStrip;
     synchronizeMeterOptions();
@@ -244,7 +244,7 @@ void Level::setDecay (float decay_ms)
 }
 //==============================================================================
 
-void Level::resetPeakHold()
+void Level::resetPeakHold() noexcept
 {
     for (auto& segment: m_segments)
         segment.resetPeakHold();
@@ -279,7 +279,7 @@ void Level::setMeterBounds (const juce::Rectangle<int>& bounds)
 }
 //==============================================================================
 
-juce::Rectangle<int> Level::getDirtyBounds()
+juce::Rectangle<int> Level::getDirtyBounds() noexcept
 {
     juce::Rectangle<int> dirtyBounds {};
     for (const auto& segment: m_segments)
@@ -298,7 +298,7 @@ juce::Rectangle<int> Level::getDirtyBounds()
 }
 //==============================================================================
 
-void Level::calculateDecayCoeff (const Options& meterOptions)
+void Level::calculateDecayCoeff (const Options& meterOptions) noexcept
 {
     m_meterOptions.decayTime_ms = juce::jlimit (Constants::kMinDecay_ms, Constants::kMaxDecay_ms, meterOptions.decayTime_ms);
     m_meterOptions.refreshRate  = std::max (1.0f, meterOptions.refreshRate);
@@ -311,7 +311,7 @@ void Level::calculateDecayCoeff (const Options& meterOptions)
 }
 //==============================================================================
 
-bool Level::isMouseOverValue (const int y)
+bool Level::isMouseOverValue (const int y) noexcept
 {
     m_mouseOverValue = (y >= m_valueBounds.getY() && !m_valueBounds.isEmpty());
     return m_mouseOverValue;
