@@ -32,6 +32,8 @@
 
 #include "sd_MetersComponent.h"
 
+#include <ranges>
+
 namespace sd  // NOLINT
 {
 namespace SoundMeter
@@ -176,22 +178,28 @@ void MetersComponent::resized()
         meterWidth = juce::jlimit (1.0f, Constants::kMaxWidth, (panelWidth - labelStripWidth) / numOfMeters);
 
     // Position all meters and adapt them to the current size...
-    for (auto* meter: m_meterChannels)
+    if (m_labelStripPosition != LabelStripPosition::left)
     {
-        if (meter)
+        for (auto* meter: m_meterChannels)
         {
             meter->setMinimalMode (minModeEnabled);
-            if (m_labelStripPosition == LabelStripPosition::right)
-                meter->setBounds (panelBounds.removeFromLeft (meterWidth).toNearestIntEdges());
-            else
-                meter->setBounds (panelBounds.removeFromRight (meterWidth).toNearestIntEdges());
-
-#if SDTK_ENABLE_FADER
-            if (minModeEnabled)
-                meter->showFader (false);  // ... do not show the gain fader if it's too narrow.
-#endif
+            meter->setBounds (panelBounds.removeFromLeft (meterWidth).toNearestIntEdges());
         }
     }
+    else
+    {
+        for (auto* meter: std::ranges::reverse_view (m_meterChannels))
+        {
+            meter->setMinimalMode (minModeEnabled);
+            meter->setBounds (panelBounds.removeFromRight (meterWidth).toNearestIntEdges());
+        }
+    }
+
+#if SDTK_ENABLE_FADER
+    if (minModeEnabled)
+        for (auto* meter: m_meterChannels)
+            meter->showFader (false);  // ... do not show the gain fader if it's too narrow.
+#endif
 
     // Position MASTER strip...
     if (labelStripWidth == 0.0f)
@@ -256,7 +264,7 @@ void MetersComponent::setChannelNames (const std::vector<juce::String>& channelN
 }
 //==============================================================================
 
-void MetersComponent::mouseDoubleClick (const juce::MouseEvent& /*event*/) 
+void MetersComponent::mouseDoubleClick (const juce::MouseEvent& /*event*/)
 {
     if (m_meterOptions.faderEnabled)
         return;
