@@ -32,8 +32,6 @@
 
 #include "sd_MetersComponent.h"
 
-#include <ranges>
-
 namespace sd  // NOLINT
 {
 namespace SoundMeter
@@ -188,10 +186,10 @@ void MetersComponent::resized()
     }
     else
     {
-        for (auto* meter: std::ranges::reverse_view (m_meterChannels))
+        for (int i = m_meterChannels.size() - 1; i >= 0; --i)
         {
-            meter->setMinimalMode (minModeEnabled);
-            meter->setBounds (panelBounds.removeFromRight (meterWidth).toNearestIntEdges());
+            m_meterChannels[i]->setMinimalMode (minModeEnabled);
+            m_meterChannels[i]->setBounds (panelBounds.removeFromRight (meterWidth).toNearestIntEdges());
         }
     }
 
